@@ -3774,7 +3774,7 @@ local v496 = v466:MakeTab({"Misc", "settings"})
 v484:AddDiscordInvite({
     Name = "RedzHub | Community",
     Description = "Join server to receive Update",
-    Logo = "rbxassetid://71107770464806",
+    Logo = "rbxthumb://type=Asset&id=71107770464806&w=420&h=420",
     Invite = "https://discord.gg/redzhub"
 })
 _G.SelectWeapon = "Melee"
@@ -10831,7 +10831,7 @@ icon.Size = UDim2.new(1, -8, 1, -8)
 icon.Position = UDim2.new(0.5, 0, 0.5, 0)
 icon.AnchorPoint = Vector2.new(0.5, 0.5)
 icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://71107770464806"
+icon.Image = "rbxassetid://93070017822513"
 icon.Parent = iconBg
 
 local title = Instance.new("TextLabel")
