@@ -4,6 +4,18 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
+task.spawn(function()
+    pcall(function()
+        local remotes = ReplicatedStorage:WaitForChild("Remotes", 10)
+        if remotes then
+            local dmgDebug = remotes:WaitForChild("DMGDEBUG", 10)
+            if dmgDebug and dmgDebug:IsA("RemoteEvent") then
+                dmgDebug.OnClientEvent:Connect(function() end)
+            end
+        end
+    end)
+end)
+
 local Plr = Players.LocalPlayer
 
 if Settings.Translator == true then
