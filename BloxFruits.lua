@@ -3794,7 +3794,7 @@ local v496 = v466:MakeTab({"Misc", "settings"})
 v484:AddDiscordInvite({
     Name = "RedzHub | Community",
     Description = "Join server to receive Update",
-    Logo = "rbxassetid://71107770464806",
+    Logo = "rbxassetid://93070017822513",
     Invite = "https://discord.gg/redzhub"
 })
 _G.SelectWeapon = "Melee"
@@ -6931,80 +6931,12 @@ else
     writefile(BOAT_SPEED_FILE, "300")
 end
 
-local hasFastBoats = false
-pcall(function()
-    hasFastBoats = game:GetService("MarketplaceService"):UserOwnsGamePassAsync(game.Players.LocalPlayer.UserId, 6525589)
-end)
-
-local boatOptions = {"Dinghy", "Sloop", "Brigade", "Grand Brigade"}
-local defaultBoat = "Grand Brigade"
-
-if hasFastBoats then
-    table.insert(boatOptions, "Miracle")
-    table.insert(boatOptions, "Sentinel")
-    defaultBoat = "Miracle"
-end
-
-local function GetRealBoatName(selectedName)
-    local name = selectedName or _G.SelectBoatName or "Grand Brigade"
-    if name == "Brigade" then
-        local prefix = (game.Players.LocalPlayer.Team and game.Players.LocalPlayer.Team.Name == "Marines") and "Marine" or "Pirate"
-        return prefix .. "Brigade"
-    elseif name == "Grand Brigade" or name == "GrandBrigade" then
-        local prefix = (game.Players.LocalPlayer.Team and game.Players.LocalPlayer.Team.Name == "Marines") and "Marine" or "Pirate"
-        return prefix .. "GrandBrigade"
-    end
-    return name
-end
-
-local function SanitizeBoatName(name)
-    if name == "PirateBrigade" or name == "MarineBrigade" then
-        return "Brigade"
-    elseif name == "PirateGrandBrigade" or name == "MarineGrandBrigade" or name == "GrandBrigade" then
-        return "Grand Brigade"
-    end
-    return name
-end
-
 local BOAT_NAME_FILE = "boat_name_save.txt"
 if isfile(BOAT_NAME_FILE) then
-    local savedBoat = SanitizeBoatName(readfile(BOAT_NAME_FILE))
-    if table.find(boatOptions, savedBoat) then
-        _G.SelectBoatName = savedBoat
-    else
-        _G.SelectBoatName = defaultBoat
-        writefile(BOAT_NAME_FILE, defaultBoat)
-    end
+    _G.SelectBoatName = readfile(BOAT_NAME_FILE) or "PirateBrigade"
 else
-    _G.SelectBoatName = defaultBoat
-    writefile(BOAT_NAME_FILE, defaultBoat)
-end
-
-local function GetBoatSeat()
-    local boatsFolder = game:GetService("Workspace"):FindFirstChild("Boats")
-    if boatsFolder then
-        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-        if myPos then
-            local closestSeat = nil
-            local shortestDist = math.huge
-            for _, boat in pairs(boatsFolder:GetChildren()) do
-                local seat = boat:FindFirstChild("VehicleSeat")
-                if seat then
-                    local dist = (seat.Position - myPos).Magnitude
-                    if dist < shortestDist then
-                        shortestDist = dist
-                        closestSeat = seat
-                    end
-                end
-            end
-            if closestSeat then return closestSeat end
-        end
-        for _, boat in pairs(boatsFolder:GetChildren()) do
-            local seat = boat:FindFirstChild("VehicleSeat")
-            if seat then return seat end
-        end
-    end
-    return nil
+    _G.SelectBoatName = "PirateBrigade"
+    writefile(BOAT_NAME_FILE, "PirateBrigade")
 end
 
 local _ = v489:AddSection({"Sea Events"})
@@ -7030,7 +6962,7 @@ v489:AddSlider({
 v489:AddDropdown({
     Name = "Select Boat Type",
     Description = "Choose boat type to buy",
-    Options = boatOptions,
+    Options = {"Dinghy", "Sloop", "PirateBrigade"},
     Default = _G.SelectBoatName,
     Callback = function(Value)
         _G.SelectBoatName = Value
@@ -7192,7 +7124,7 @@ spawn(function()
                                         topos(primaryPart.CFrame * CFrame.new(0, 0, 5))
                                     end
                                 else
-                                    local buyArgs = {[1] = "BuyBoat", [2] = GetRealBoatName(_G.SelectBoatName)}
+                                    local buyArgs = {[1] = "BuyBoat", [2] = _G.SelectBoatName or "PirateBrigade"}
                                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(buyArgs))
                                     task.wait(1.5)
                                 end
@@ -7210,7 +7142,7 @@ spawn(function()
                                     topos(primaryPart.CFrame * CFrame.new(0, 0, 5))
                                 end
                             else
-                                local buyArgs = {[1] = "BuyBoat", [2] = GetRealBoatName(_G.SelectBoatName)}
+                                local buyArgs = {[1] = "BuyBoat", [2] = _G.SelectBoatName or "PirateBrigade"}
                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(buyArgs))
                                 task.wait(1.5)
                             end
@@ -7244,15 +7176,12 @@ spawn(function()
         if _G.Autoterrorshark and World3 then
             pcall(function()
                 if not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    local seat = GetBoatSeat()
-                    if seat then
-                        topos(seat.CFrame * CFrame.new(0, -1, 0))
-                        for _, v954 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                            if v954.Name ~= "Terrorshark" then
-                                seat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                            else
-                                topos(v954.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                            end
+                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
+                    for _, v954 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+                        if v954.Name ~= "Terrorshark" then
+                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                        else
+                            topos(v954.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
                         end
                     end
                 else
@@ -7362,15 +7291,12 @@ spawn(function()
         if _G.KillShark and World3 and _G.SailBoat then
             pcall(function()
                 if not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    local seat = GetBoatSeat()
-                    if seat then
-                        topos(seat.CFrame * CFrame.new(0, -1, 0))
-                        for _, v970 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                            if not v970.Name == "Shark" then
-                                seat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                            elseif v970.Name == "Shark" then
-                                topos(v970.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                            end
+                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
+                    for _, v970 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+                        if not v970.Name == "Shark" then
+                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                        elseif v970.Name == "Shark" then
+                            topos(v970.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
                         end
                     end
                 else
@@ -7426,15 +7352,12 @@ spawn(function()
                         end
                     end
                 else
-                    local seat = GetBoatSeat()
-                    if seat then
-                        topos(seat.CFrame * CFrame.new(0, -1, 0))
-                        for _, v977 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                            if not v977.Name == "Piranha" then
-                                seat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                            elseif v977.Name == "Piranha" then
-                                topos(v977.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                            end
+                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
+                    for _, v977 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+                        if not v977.Name == "Piranha" then
+                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                        elseif v977.Name == "Piranha" then
+                            topos(v977.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
                         end
                     end
                 end
@@ -7456,13 +7379,10 @@ spawn(function()
         if _G.KillFishCrew and World3 then
             pcall(function()
                 if not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    local seat = GetBoatSeat()
-                    if seat then
-                        topos(seat.CFrame * CFrame.new(0, -1, 0))
-                        for _, v980 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                            if not v980.Name == "Fish Crew Member" then
-                                seat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                            end
+                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
+                    for _, v980 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+                        if not v980.Name == "Fish Crew Member" then
+                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
                         end
                     end
                 else
