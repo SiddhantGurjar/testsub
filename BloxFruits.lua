@@ -3578,10 +3578,18 @@ function TelePPlayer(v431)
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v431
 end
 local boatTween = nil
-function TPB(v432)
+function TPB(seat, targetCFrame)
+    local target = targetCFrame
+    local actualSeat = seat
+    if typeof(seat) == "CFrame" then
+        target = seat
+        actualSeat = game:GetService("Workspace").Boats.PirateBrigade:FindFirstChild("VehicleSeat")
+    end
+    if not actualSeat then return end
+    
     local v433 = game:service("TweenService")
-    local v434 = TweenInfo.new((game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame.Position - v432.Position).Magnitude / 300, Enum.EasingStyle.Linear)
-    boatTween = v433:Create(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat, v434, {CFrame = v432})
+    local v434 = TweenInfo.new((actualSeat.Position - target.Position).Magnitude / 300, Enum.EasingStyle.Linear)
+    boatTween = v433:Create(actualSeat, v434, {CFrame = target})
     boatTween:Play()
     return {Stop = function(_)
         if boatTween then
@@ -6908,15 +6916,64 @@ v489:AddToggle({
     end
 })
 spawn(function()
+    local function GetNearestBoatDealer()
+        local nearestDealer = nil
+        local shortestDistance = math.huge
+        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        if myPos then
+            for _, descendant in pairs(game.Workspace:GetDescendants()) do
+                if descendant:IsA("Model") and (descendant.Name:find("Boat Dealer") or descendant.Name:find("Luxury Boat Dealer")) then
+                    local primaryPart = descendant.PrimaryPart or descendant:FindFirstChild("HumanoidRootPart") or descendant:FindFirstChildOfClass("BasePart")
+                    if primaryPart then
+                        local distance = (primaryPart.Position - myPos).Magnitude
+                        if distance < shortestDistance then
+                            shortestDistance = distance
+                            nearestDealer = descendant
+                        end
+                    end
+                end
+            end
+        end
+        return nearestDealer
+    end
+
+    local function GetMyBoat()
+        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        if not myPos then return nil end
+        
+        local hum = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+        if hum and hum.Sit and hum.SeatPart and hum.SeatPart:IsA("VehicleSeat") then
+            return hum.SeatPart.Parent
+        end
+        
+        local closestBoat = nil
+        local shortestDist = math.huge
+        local boatsFolder = game.Workspace:FindFirstChild("Boats")
+        if boatsFolder then
+            for _, boat in pairs(boatsFolder:GetChildren()) do
+                local seat = boat:FindFirstChild("VehicleSeat")
+                if seat then
+                    local dist = (seat.Position - myPos).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        closestBoat = boat
+                    end
+                end
+            end
+        end
+        return closestBoat
+    end
+
     while wait() do
         pcall(function()
             if _G.SailBoat and (not game:GetService("Workspace").Enemies:FindFirstChild("Shark") or not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member")) then
-                local boats = game:GetService("Workspace"):FindFirstChild("Boats")
-                local brigade = boats and boats:FindFirstChild("PirateBrigade")
-                if brigade then
-                    local seat = brigade:FindFirstChild("VehicleSeat")
+                local myBoat = GetMyBoat()
+                local myBoatDist = myBoat and myBoat:FindFirstChild("VehicleSeat") and (myBoat.VehicleSeat.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude or math.huge
+                
+                if myBoat and myBoatDist <= 500 then
+                    local seat = myBoat:FindFirstChild("VehicleSeat")
                     if seat then
-                        if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == false then
+                        if game.Players.LocalPlayer.Character.Humanoid.Sit == false then
                             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 1, 0)
                             task.wait(0.5)
                         else
@@ -6944,7 +7001,7 @@ spawn(function()
                                         if currentBoatTween then
                                             currentBoatTween:Stop()
                                         end
-                                        currentBoatTween = TPB(currentTarget)
+                                        currentBoatTween = TPB(seat, currentTarget)
                                     end
                                 elseif not currentTarget then
                                     if distToSea2 < distToSea1 then
@@ -6952,26 +7009,29 @@ spawn(function()
                                     else
                                         currentTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
                                     end
-                                    currentBoatTween = TPB(currentTarget)
+                                    currentBoatTween = TPB(seat, currentTarget)
                                 end
-                            until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false or not brigade.Parent or game.Players.LocalPlayer.Character.Humanoid.Sit == false
+                            until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false or not myBoat.Parent or game.Players.LocalPlayer.Character.Humanoid.Sit == false
                             if currentBoatTween then
                                 currentBoatTween:Stop()
                             end
                         end
-                    end
-                else
-                    local dockCFrame = CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781)
-                    local myHRP = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if myHRP then
-                        if (dockCFrame.Position - myHRP.Position).Magnitude > 10 then
-                            if not v391 then
-                                topos(dockCFrame)
+                    else
+                        local dealer = GetNearestBoatDealer()
+                        if dealer then
+                            local primaryPart = dealer.PrimaryPart or dealer:FindFirstChild("HumanoidRootPart") or dealer:FindFirstChildOfClass("BasePart")
+                            if primaryPart then
+                                local distance = (primaryPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                                if distance > 15 then
+                                    if not v391 then
+                                        topos(primaryPart.CFrame * CFrame.new(0, 0, 5))
+                                    end
+                                else
+                                    local buyArgs = {[1] = "BuyBoat", [2] = "PirateBrigade"}
+                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(buyArgs))
+                                    task.wait(1.5)
+                                end
                             end
-                        else
-                            local v951 = {[1] = "BuyBoat", [2] = "PirateBrigade"}
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v951))
-                            task.wait(1)
                         end
                     end
                 end
