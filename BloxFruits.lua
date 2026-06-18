@@ -3773,7 +3773,7 @@ local v495 = v466:MakeTab({"Shop", "shoppingCart"})
 local v496 = v466:MakeTab({"Misc", "settings"})
 v484:AddDiscordInvite({
     Name = "RedzHub | Community",
-    Description = "Join server to receive Update",
+    Description = "Join The Server To Recieve Updates!",
     Logo = "rbxthumb://type=Asset&id=71107770464806&w=420&h=420",
     Invite = "https://discord.gg/redzhub"
 })
@@ -10831,7 +10831,7 @@ icon.Size = UDim2.new(1, -8, 1, -8)
 icon.Position = UDim2.new(0.5, 0, 0.5, 0)
 icon.AnchorPoint = Vector2.new(0.5, 0.5)
 icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://93070017822513"
+icon.Image = "rbxthumb://type=Asset&id=93070017822513&w=150&h=150"
 icon.Parent = iconBg
 
 local title = Instance.new("TextLabel")
