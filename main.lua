@@ -10,11 +10,7 @@ local BloxFruitsIDs = {
 }
 
 if BloxFruitsIDs[PlaceId] then
-    if readfile and isfile and isfile("testing/BloxFruits.lua") then
-        loadstring(readfile("testing/BloxFruits.lua"))()
-    else
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/SiddhantGurjar/testsub/main/BloxFruits.lua"))()
-    end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/SiddhantGurjar/testsub/main/BloxFruits.lua"))()
 else
     warn("Unsupported Game PlaceId: " .. tostring(PlaceId))
 end

@@ -3426,6 +3426,7 @@ function topos(v405)
                         if not v391 then
                             return 
                         else
+                            task.wait()
                             if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
                                 WaitHRP(l_LocalPlayer_1).CFrame = l_v409_0.CFrame
                             end
@@ -3577,59 +3578,26 @@ end
 function TelePPlayer(v431)
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v431
 end
-local boatTween = nil
-function TPB(seat, targetCFrame)
-    local target = targetCFrame
-    local actualSeat = seat
-    if typeof(seat) == "CFrame" then
-        target = seat
-        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-        local closestBoat = nil
-        local shortestDist = math.huge
-        local boatsFolder = game.Workspace:FindFirstChild("Boats")
-        if boatsFolder and myPos then
-            for _, boat in pairs(boatsFolder:GetChildren()) do
-                local s = boat:FindFirstChild("VehicleSeat")
-                if s then
-                    local dist = (s.Position - myPos).Magnitude
-                    if dist < shortestDist then
-                        shortestDist = dist
-                        closestBoat = boat
-                    end
-                end
-            end
-        end
-        actualSeat = closestBoat and closestBoat:FindFirstChild("VehicleSeat")
-    end
-    if not actualSeat then return end
-    
+function TPB(v432)
     local v433 = game:service("TweenService")
-    local speed = _G.BoatTweenSpeed or 300
-    local v434 = TweenInfo.new((actualSeat.Position - target.Position).Magnitude / speed, Enum.EasingStyle.Linear)
-    boatTween = v433:Create(actualSeat, v434, {CFrame = target})
-    boatTween:Play()
+    local v434 = TweenInfo.new((game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame.Position - v432.Position).Magnitude / 300, Enum.EasingStyle.Linear)
+    tween = v433:Create(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat, v434, {CFrame = v432})
+    tween:Play()
     return {Stop = function(_)
-        if boatTween then
-            boatTween:Cancel()
-        end
+        tween:Cancel()
     end}
 end
-local playerTween = nil
 function TPP(v436)
     if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health > 0 and game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") then
         local v437 = game:service("TweenService")
         local v438 = TweenInfo.new((game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - v436.Position).Magnitude / 325, Enum.EasingStyle.Linear)
-        playerTween = v437:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v438, {CFrame = v436})
-        playerTween:Play()
+        tween = v437:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v438, {CFrame = v436})
+        tween:Play()
         return {Stop = function(_)
-            if playerTween then
-                playerTween:Cancel()
-            end
+            tween:Cancel()
         end}
     else
-        if playerTween then
-            playerTween:Cancel()
-        end
+        tween:Cancel()
         repeat
             wait()
         until game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") and game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid").Health > 0
@@ -4242,27 +4210,23 @@ spawn(function()
     while wait() do
         if _G.AutoNear then
             pcall(function()
-                local char = game.Players.LocalPlayer.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
-                        if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (char.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
-                            repeat
-                                wait(_G.Fast_Delay)
-                                StartBring = true
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                PosMon = v522.HumanoidRootPart.CFrame
-                                FarmPos = v522.HumanoidRootPart.CFrame
-                                MonFarm = v522.Name
-                                topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
-                                v522.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                v522.HumanoidRootPart.Transparency = 1
-                                v522.Humanoid.JumpPower = 0
-                                v522.Humanoid.WalkSpeed = 0
-                                v522.HumanoidRootPart.CanCollide = false
-                            until not _G.AutoNear or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
-                            StartBring = false
-                        end
+                for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
+                    if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
+                        repeat
+                            wait(_G.Fast_Delay)
+                            StartBring = true
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                            v522.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            v522.HumanoidRootPart.Transparency = 1
+                            v522.Humanoid.JumpPower = 0
+                            v522.Humanoid.WalkSpeed = 0
+                            v522.HumanoidRootPart.CanCollide = false
+                            FarmPos = v522.HumanoidRootPart.CFrame
+                            MonFarm = v522.Name
+                        until not _G.AutoNear or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
+                        StartBring = false
                     end
                 end
             end)
@@ -5429,32 +5393,27 @@ task.spawn(function()
         if _G.AutoFarmMaterial and _G.SelectMaterial then
             pcall(function()
                 getConfigMaterial(_G.SelectMaterial)
-                local foundEnemy = nil
-                for _, enemyName in pairs(MaterialMon) do
-                    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                        if enemy.Name == enemyName and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") and enemy.Humanoid.Health > 0 then
-                            foundEnemy = enemy
-                            break
+                for _, v669 in pairs(MaterialMon) do
+                    if workspace.Enemies:FindFirstChild(v669) then
+                        for _, v671 in pairs(workspace.Enemies:GetChildren()) do
+                            if v671.Name == v669 and v671:FindFirstChild("Humanoid") and v671:FindFirstChild("HumanoidRootPart") and v671.Humanoid.Health > 0 then
+                                repeat
+                                    task.wait()
+                                    AutoHaki()
+                                    EquipWeapon(_G.SelectWeapon)
+                                    PosMon = v671.HumanoidRootPart.CFrame
+                                    MonFarm = v671.Name
+                                    topos(v671.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                until not _G.AutoFarmMaterial or not v671.Parent or v671.Humanoid.Health <= 0
+                            end
                         end
+                    else
+                        UnEquipWeapon(_G.SelectWeapon)
+                        if _G.SelectMaterial == "Ectoplasm" and (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 18000 then
+                            game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.21, 126.97, 32852.83))
+                        end
+                        topos(MaterialPos)
                     end
-                    if foundEnemy then break end
-                end
-
-                if foundEnemy then
-                    repeat
-                        task.wait()
-                        AutoHaki()
-                        EquipWeapon(_G.SelectWeapon)
-                        PosMon = foundEnemy.HumanoidRootPart.CFrame
-                        MonFarm = foundEnemy.Name
-                        topos(foundEnemy.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
-                    until not _G.AutoFarmMaterial or not foundEnemy.Parent or foundEnemy.Humanoid.Health <= 0
-                else
-                    UnEquipWeapon(_G.SelectWeapon)
-                    if _G.SelectMaterial == "Ectoplasm" and (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 18000 then
-                        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.21, 126.97, 32852.83))
-                    end
-                    topos(MaterialPos)
                 end
             end)
         end
@@ -6467,7 +6426,6 @@ if World3 then
                 end
             end)
         end)
-    end
         v487:AddToggle({
             Name = "Auto Haki Colors",
             Description = "",
@@ -6918,27 +6876,11 @@ if World3 then
                             end
                         end
                     end)
+                end
             end
-        end
-    end)
+        end)
+    end
 end
-
-local BOAT_SPEED_FILE = "boat_speed_save.txt"
-if isfile(BOAT_SPEED_FILE) then
-    _G.BoatTweenSpeed = tonumber(readfile(BOAT_SPEED_FILE)) or 300
-else
-    _G.BoatTweenSpeed = 300
-    writefile(BOAT_SPEED_FILE, "300")
-end
-
-local BOAT_NAME_FILE = "boat_name_save.txt"
-if isfile(BOAT_NAME_FILE) then
-    _G.SelectBoatName = readfile(BOAT_NAME_FILE) or "PirateBrigade"
-else
-    _G.SelectBoatName = "PirateBrigade"
-    writefile(BOAT_NAME_FILE, "PirateBrigade")
-end
-
 local _ = v489:AddSection({"Sea Events"})
 v489:AddToggle({
     Name = "Auto Drive Boats",
@@ -6949,204 +6891,41 @@ v489:AddToggle({
         StopTween(_G.SailBoat)
     end
 })
-v489:AddSlider({
-    Name = "Boat Tween Speed",
-    Min = 100,
-    Max = 300,
-    Default = _G.BoatTweenSpeed,
-    Callback = function(Value)
-        _G.BoatTweenSpeed = Value
-        writefile(BOAT_SPEED_FILE, tostring(Value))
-    end
-})
-v489:AddDropdown({
-    Name = "Select Boat Type",
-    Description = "Choose boat type to buy",
-    Options = {"Dinghy", "Sloop", "PirateBrigade"},
-    Default = _G.SelectBoatName,
-    Callback = function(Value)
-        _G.SelectBoatName = Value
-        writefile(BOAT_NAME_FILE, Value)
-    end
-})
 spawn(function()
-    local cachedDealer = nil
-    local lastDealerSearch = 0
-    local function GetNearestBoatDealer()
-        local now = os.time()
-        if cachedDealer and (now - lastDealerSearch) < 5 then
-            return cachedDealer
-        end
-        lastDealerSearch = now
-        
-        local nearestDealer = nil
-        local shortestDistance = math.huge
-        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-        if myPos then
-            local npcsFolder = game.Workspace:FindFirstChild("NPCs")
-            if npcsFolder then
-                for _, npc in pairs(npcsFolder:GetChildren()) do
-                    if npc:IsA("Model") and (npc.Name:find("Boat Dealer") or npc.Name:find("Luxury Boat Dealer")) then
-                        local primaryPart = npc.PrimaryPart or npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("BasePart")
-                        if primaryPart then
-                            local distance = (primaryPart.Position - myPos).Magnitude
-                            if distance < shortestDistance then
-                                shortestDistance = distance
-                                nearestDealer = npc
-                            end
-                        end
-                    end
-                end
-            end
-            
-            if not nearestDealer then
-                for _, child in pairs(game.Workspace:GetChildren()) do
-                    if child:IsA("Model") and (child.Name:find("Boat Dealer") or child.Name:find("Luxury Boat Dealer")) then
-                        local primaryPart = child.PrimaryPart or child:FindFirstChild("HumanoidRootPart") or child:FindFirstChildOfClass("BasePart")
-                        if primaryPart then
-                            local distance = (primaryPart.Position - myPos).Magnitude
-                            if distance < shortestDistance then
-                                shortestDistance = distance
-                                nearestDealer = child
-                            end
-                        end
-                    end
-                end
-            end
-            
-            if not nearestDealer then
-                for _, descendant in pairs(game.Workspace:GetDescendants()) do
-                    if descendant:IsA("Model") and (descendant.Name:find("Boat Dealer") or descendant.Name:find("Luxury Boat Dealer")) then
-                        local primaryPart = descendant.PrimaryPart or descendant:FindFirstChild("HumanoidRootPart") or descendant:FindFirstChildOfClass("BasePart")
-                        if primaryPart then
-                            local distance = (primaryPart.Position - myPos).Magnitude
-                            if distance < shortestDistance then
-                                shortestDistance = distance
-                                nearestDealer = descendant
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        cachedDealer = nearestDealer
-        return nearestDealer
-    end
-
-    local function GetMyBoat()
-        local myPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-        if not myPos then return nil end
-        
-        local hum = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-        if hum and hum.Sit and hum.SeatPart and hum.SeatPart:IsA("VehicleSeat") then
-            return hum.SeatPart.Parent
-        end
-        
-        local closestBoat = nil
-        local shortestDist = math.huge
-        local boatsFolder = game.Workspace:FindFirstChild("Boats")
-        if boatsFolder then
-            for _, boat in pairs(boatsFolder:GetChildren()) do
-                local seat = boat:FindFirstChild("VehicleSeat")
-                if seat then
-                    local dist = (seat.Position - myPos).Magnitude
-                    if dist < shortestDist then
-                        shortestDist = dist
-                        closestBoat = boat
-                    end
-                end
-            end
-        end
-        return closestBoat
-    end
-
     while wait() do
         pcall(function()
-            if _G.SailBoat and not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") then
-                local myBoat = GetMyBoat()
-                local myBoatDist = myBoat and myBoat:FindFirstChild("VehicleSeat") and (myBoat.VehicleSeat.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude or math.huge
-                
-                if myBoat and myBoatDist <= 500 then
-                    local seat = myBoat:FindFirstChild("VehicleSeat")
-                    if seat then
-                        if game.Players.LocalPlayer.Character.Humanoid.Sit == false then
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 1, 0)
-                            task.wait(0.5)
+            if _G.SailBoat and (not game:GetService("Workspace").Enemies:FindFirstChild("Shark") or not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member")) then
+                if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
+                    if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
+                        if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == false then
+                            TPP(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, 1, 0))
                         else
-                            local currentTarget = nil
-                            local currentBoatTween = nil
-                            repeat
-                                wait(1)
-                                local myPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-                                local distToDock = (Vector3.new(-17013.8, 10.96, 438.0) - myPos).Magnitude
-                                
-                                local distToSea1 = (Vector3.new(-37813.7, -0.32, 6105.2) - myPos).Magnitude
-                                local distToSea2 = (Vector3.new(-42250.2, -0.32, 9247.1) - myPos).Magnitude
-                                
-                                local newTarget = nil
-                                if distToDock <= 50 then
-                                    newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                elseif distToSea1 <= 50 then
-                                    newTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
-                                elseif distToSea2 <= 50 then
-                                    newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                end
-                                
-                                if newTarget then
-                                    if currentTarget ~= newTarget then
-                                        currentTarget = newTarget
-                                        if currentBoatTween then
-                                            currentBoatTween:Stop()
+                            for _, v950 in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                                if v950.Name == "PirateBrigade" then
+                                    repeat
+                                        wait()
+                                        if (CFrame.new(-17013.80078125, 10.962434768676758, 438.0169982910156).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
+                                            TPB(CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996))
+                                        elseif (CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > 10 then
+                                            if (CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
+                                                TPB(CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996))
+                                            end
+                                        else
+                                            TPB(CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447))
                                         end
-                                        currentBoatTween = TPB(seat, currentTarget)
-                                    end
-                                elseif not currentTarget then
-                                    if distToSea2 < distToSea1 then
-                                        currentTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                    else
-                                        currentTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
-                                    end
-                                    currentBoatTween = TPB(seat, currentTarget)
-                                end
-                            until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false or not myBoat.Parent or game.Players.LocalPlayer.Character.Humanoid.Sit == false
-                            if currentBoatTween then
-                                currentBoatTween:Stop()
-                            end
-                        end
-                    else
-                        local dealer = GetNearestBoatDealer()
-                        if dealer then
-                            local primaryPart = dealer.PrimaryPart or dealer:FindFirstChild("HumanoidRootPart") or dealer:FindFirstChildOfClass("BasePart")
-                            if primaryPart then
-                                local distance = (primaryPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                                if distance > 15 then
-                                    if not v391 then
-                                        topos(primaryPart.CFrame * CFrame.new(0, 0, 5))
-                                    end
-                                else
-                                    local buyArgs = {[1] = "BuyBoat", [2] = _G.SelectBoatName or "PirateBrigade"}
-                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(buyArgs))
-                                    task.wait(1.5)
+                                    until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false
                                 end
                             end
                         end
                     end
                 else
-                    local dealer = GetNearestBoatDealer()
-                    if dealer then
-                        local primaryPart = dealer.PrimaryPart or dealer:FindFirstChild("HumanoidRootPart") or dealer:FindFirstChildOfClass("BasePart")
-                        if primaryPart then
-                            local distance = (primaryPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                            if distance > 15 then
-                                if not v391 then
-                                    topos(primaryPart.CFrame * CFrame.new(0, 0, 5))
-                                end
-                            else
-                                local buyArgs = {[1] = "BuyBoat", [2] = _G.SelectBoatName or "PirateBrigade"}
-                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(buyArgs))
-                                task.wait(1.5)
-                            end
+                    buyb = TPP(CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781))
+                    if (CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
+                        if buyb then
+                            buyb:Stop()
                         end
+                        local v951 = {[1] = "BuyBoat", [2] = "PirateBrigade"}
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v951))
                     end
                 end
             end
@@ -11029,7 +10808,6 @@ v496:AddToggle({
     end
 })
 
-(function()
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -11060,7 +10838,6 @@ local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(60, 60, 60)
 stroke.Thickness = 1
 stroke.Parent = frame
-
 
 local iconBg = Instance.new("Frame")
 iconBg.Size = UDim2.new(0, 50, 0, 50)
@@ -11154,6 +10931,5 @@ tweenOut:Play()
 tweenOut.Completed:Wait()
 
 gui:Destroy()
-end)()
 
 return redzlib
