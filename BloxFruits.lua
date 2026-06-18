@@ -4247,52 +4247,6 @@ spawn(function()
         end
     end
 end)
-local _ = v485:AddSection({"Valentine"})
-
-v485:AddParagraph({"Warn", "Use farm bones to get hearts!"})
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local CommF = Remotes:WaitForChild("CommF_")
-
-_G.AutoValentineGacha = false
-
-v485:AddToggle({
-    Name = "Auto Valentine Random",
-    Description = "Auto Gacha Valentine Roll",
-    Default = false,
-    Callback = function(Value)
-        _G.AutoValentineGacha = Value
-    end
-})
-
-local function fireActivity()
-    local reportRemote = ReplicatedStorage:FindFirstChild("ReportActivity", true)
-    if reportRemote and reportRemote:IsA("RemoteEvent") then
-        pcall(function()
-            reportRemote:FireServer("GachaWindow")
-        end)
-    end
-end
-
-task.spawn(function()
-    while task.wait(2.5) do
-        if _G.AutoValentineGacha then
-            pcall(function()
-                CommF:InvokeServer("Cousin")
-                task.wait(0.1)
-
-                fireActivity()
-                task.wait(0.1)
-
-                CommF:InvokeServer("Cousin", "CheckCanBuyType", "ValentinesGacha26")
-                task.wait(0.1)
-
-                CommF:InvokeServer("Cousin", "ValentinesGacha26")
-            end)
-        end
-    end
-end)
 
 if World3 then
 local _ = v485:AddSection({"Kill Player"})
