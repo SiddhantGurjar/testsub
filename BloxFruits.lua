@@ -3577,26 +3577,34 @@ end
 function TelePPlayer(v431)
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v431
 end
+local boatTween = nil
 function TPB(v432)
     local v433 = game:service("TweenService")
     local v434 = TweenInfo.new((game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame.Position - v432.Position).Magnitude / 300, Enum.EasingStyle.Linear)
-    tween = v433:Create(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat, v434, {CFrame = v432})
-    tween:Play()
+    boatTween = v433:Create(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat, v434, {CFrame = v432})
+    boatTween:Play()
     return {Stop = function(_)
-        tween:Cancel()
+        if boatTween then
+            boatTween:Cancel()
+        end
     end}
 end
+local playerTween = nil
 function TPP(v436)
     if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health > 0 and game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") then
         local v437 = game:service("TweenService")
         local v438 = TweenInfo.new((game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - v436.Position).Magnitude / 325, Enum.EasingStyle.Linear)
-        tween = v437:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v438, {CFrame = v436})
-        tween:Play()
+        playerTween = v437:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v438, {CFrame = v436})
+        playerTween:Play()
         return {Stop = function(_)
-            tween:Cancel()
+            if playerTween then
+                playerTween:Cancel()
+            end
         end}
     else
-        tween:Cancel()
+        if playerTween then
+            playerTween:Cancel()
+        end
         repeat
             wait()
         until game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") and game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid").Health > 0
@@ -6903,63 +6911,68 @@ spawn(function()
     while wait() do
         pcall(function()
             if _G.SailBoat and (not game:GetService("Workspace").Enemies:FindFirstChild("Shark") or not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member")) then
-                if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
-                    if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
+                local boats = game:GetService("Workspace"):FindFirstChild("Boats")
+                local brigade = boats and boats:FindFirstChild("PirateBrigade")
+                if brigade then
+                    local seat = brigade:FindFirstChild("VehicleSeat")
+                    if seat then
                         if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == false then
-                            TPP(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, 1, 0))
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 1, 0)
+                            task.wait(0.5)
                         else
-                            for _, v950 in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-                                if v950.Name == "PirateBrigade" then
-                                    local currentTarget = nil
-                                    local currentBoatTween = nil
-                                    repeat
-                                        wait(1)
-                                        local myPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-                                        local distToDock = (Vector3.new(-17013.8, 10.96, 438.0) - myPos).Magnitude
-                                        local distToSea1 = (Vector3.new(-37813.7, -0.32, 6105.2) - myPos).Magnitude
-                                        local distToSea2 = (Vector3.new(-42250.2, -0.32, 9247.1) - myPos).Magnitude
-                                        
-                                        local newTarget = nil
-                                        if distToDock <= 50 then
-                                            newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                        elseif distToSea1 <= 50 then
-                                            newTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
-                                        elseif distToSea2 <= 50 then
-                                            newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                        end
-                                        
-                                        if newTarget then
-                                            if currentTarget ~= newTarget then
-                                                currentTarget = newTarget
-                                                if currentBoatTween then
-                                                    currentBoatTween:Stop()
-                                                end
-                                                currentBoatTween = TPB(currentTarget)
-                                            end
-                                        elseif not currentTarget then
-                                            if distToSea2 < distToSea1 then
-                                                currentTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
-                                            else
-                                                currentTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
-                                            end
-                                            currentBoatTween = TPB(currentTarget)
-                                        end
-                                    until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false
-                                    if currentBoatTween then
-                                        currentBoatTween:Stop()
-                                    end
+                            local currentTarget = nil
+                            local currentBoatTween = nil
+                            repeat
+                                wait(1)
+                                local myPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+                                local distToDock = (Vector3.new(-17013.8, 10.96, 438.0) - myPos).Magnitude
+                                local distToSea1 = (Vector3.new(-37813.7, -0.32, 6105.2) - myPos).Magnitude
+                                local distToSea2 = (Vector3.new(-42250.2, -0.32, 9247.1) - myPos).Magnitude
+                                
+                                local newTarget = nil
+                                if distToDock <= 50 then
+                                    newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
+                                elseif distToSea1 <= 50 then
+                                    newTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
+                                elseif distToSea2 <= 50 then
+                                    newTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
                                 end
+                                
+                                if newTarget then
+                                    if currentTarget ~= newTarget then
+                                        currentTarget = newTarget
+                                        if currentBoatTween then
+                                            currentBoatTween:Stop()
+                                        end
+                                        currentBoatTween = TPB(currentTarget)
+                                    end
+                                elseif not currentTarget then
+                                    if distToSea2 < distToSea1 then
+                                        currentTarget = CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996)
+                                    else
+                                        currentTarget = CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447)
+                                    end
+                                    currentBoatTween = TPB(currentTarget)
+                                end
+                            until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false or not brigade.Parent or game.Players.LocalPlayer.Character.Humanoid.Sit == false
+                            if currentBoatTween then
+                                currentBoatTween:Stop()
                             end
                         end
                     end
                 else
-                    buyb = TPP(CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781))
-                    if (CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
-                        if buyb then
-                            buyb:Stop()
+                    local dockCFrame = CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781)
+                    local myHRP = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if myHRP then
+                        if (dockCFrame.Position - myHRP.Position).Magnitude > 10 then
+                            if not v391 then
+                                topos(dockCFrame)
+                            end
+                        else
+                            local v951 = {[1] = "BuyBoat", [2] = "PirateBrigade"}
+                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v951))
+                            task.wait(1)
                         end
-                        local v951 = {[1] = "BuyBoat", [2] = "PirateBrigade"}
-                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v951))
                     end
                 end
             end
