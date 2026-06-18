@@ -8,7 +8,7 @@ local Plr = Players.LocalPlayer
 
 if Settings.Translator == true then
     pcall(function()
-        _G.RedzTranslator = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/SiddhantGurjar/testsub/main/testing/Translator/Portuguese.json"))
+        _G.RedzTranslator = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/SiddhantGurjar/testsub/main/Translator/Portuguese.json"))
     end)
 end
 
