@@ -4218,13 +4218,15 @@ spawn(function()
                             AutoHaki()
                             EquipWeapon(_G.SelectWeapon)
                             topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
-                            v522.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            v522.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                             v522.HumanoidRootPart.Transparency = 1
                             v522.Humanoid.JumpPower = 0
                             v522.Humanoid.WalkSpeed = 0
                             v522.HumanoidRootPart.CanCollide = false
                             FarmPos = v522.HumanoidRootPart.CFrame
                             MonFarm = v522.Name
+                            game:GetService("VirtualUser"):CaptureController()
+                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                         until not _G.AutoNear or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
                         StartBring = false
                     end
@@ -5404,7 +5406,15 @@ task.spawn(function()
                                     PosMon = v671.HumanoidRootPart.CFrame
                                     MonFarm = v671.Name
                                     topos(v671.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                    v671.HumanoidRootPart.CanCollide = false
+                                    v671.Humanoid.WalkSpeed = 0
+                                    v671.Head.CanCollide = false
+                                    v671.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
+                                    StartBring = true
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 until not _G.AutoFarmMaterial or not v671.Parent or v671.Humanoid.Health <= 0
+                                StartBring = false
                             end
                         end
                     else
