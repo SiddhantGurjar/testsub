@@ -10728,6 +10728,32 @@ v496:AddButton({
     end
 })
 v496:AddButton({
+    Title = "Debug Visible UIs",
+    Callback = function()
+        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            warn("--- LISTING ALL VISIBLE UI ELEMENTS ---")
+            for _, v in pairs(playerGui:GetDescendants()) do
+                if v:IsA("GuiObject") and v.Visible == true then
+                    local path = v:GetFullName()
+                    -- Filter out script's own UI elements
+                    if not string.find(path, "RedzHub") and not string.find(path, "Library") then
+                        warn("Visible UI: " .. path)
+                    end
+                end
+            end
+            warn("--- END OF LIST ---")
+            pcall(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Debug Complete",
+                    Text = "Check console for visible UI paths!",
+                    Duration = 5
+                })
+            end)
+        end
+    end
+})
+v496:AddButton({
     Title = "Open Title Name",
     Callback = function()
         local v1209 = {[1] = "getTitles"}
