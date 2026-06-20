@@ -10568,7 +10568,11 @@ v496:AddButton({
                 shopGui.Enabled = true
                 local shopFrame = shopGui:FindFirstChild("Shop")
                 if shopFrame then
-                    shopFrame.Visible = true
+                    if shopFrame:IsA("ScreenGui") then
+                        shopFrame.Enabled = true
+                    else
+                        shopFrame.Visible = true
+                    end
                     pcall(function()
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "RedzHub Shop Opened",
@@ -10647,7 +10651,11 @@ v496:AddButton({
                 shopGui.Enabled = true
                 local shopFrame = shopGui:FindFirstChild("Shop")
                 if shopFrame then
-                    shopFrame.Visible = true
+                    if shopFrame:IsA("ScreenGui") then
+                        shopFrame.Enabled = true
+                    else
+                        shopFrame.Visible = true
+                    end
                     pcall(function()
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "RedzHub Mirage Opened",
