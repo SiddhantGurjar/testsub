@@ -10557,15 +10557,43 @@ v496:AddButton({
 v496:AddButton({
     Title = "Open Fruit Shop",
     Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
-        game.Players.localPlayer.PlayerGui.Main.Dealer.Visible = true
+        pcall(function()
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
+        end)
+        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            for _, v in pairs(playerGui:GetDescendants()) do
+                if v:IsA("GuiObject") then
+                    local cleanName = string.lower(v.Name):gsub("%s+", "")
+                    if cleanName == "fruitdealer" or cleanName == "dealer" or cleanName == "fruitshop" then
+                        v.Visible = true
+                        return
+                    end
+                end
+            end
+            warn("[RedzHub] Fruit Shop UI not found in PlayerGui")
+        end
     end
 })
 v496:AddButton({
     Title = "Open Mirage Shop",
     Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", true)
-        game.Players.localPlayer.PlayerGui.Main.Dealer.Visible = true
+        pcall(function()
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", true)
+        end)
+        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            for _, v in pairs(playerGui:GetDescendants()) do
+                if v:IsA("GuiObject") then
+                    local cleanName = string.lower(v.Name):gsub("%s+", "")
+                    if cleanName == "advancedfruitdealer" or cleanName == "advanced" or cleanName == "mirageshop" or cleanName == "advancedfruitshop" or cleanName == "advancedshop" then
+                        v.Visible = true
+                        return
+                    end
+                end
+            end
+            warn("[RedzHub] Mirage Shop UI not found in PlayerGui")
+        end
     end
 })
 v496:AddButton({
