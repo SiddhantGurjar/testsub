@@ -10573,6 +10573,10 @@ v496:AddButton({
                     else
                         shopFrame.Visible = true
                     end
+                    local menuFrame = shopFrame:FindFirstChild("Menu")
+                    if menuFrame then
+                        menuFrame.Visible = true
+                    end
                     pcall(function()
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "RedzHub Shop Opened",
@@ -10655,6 +10659,10 @@ v496:AddButton({
                         shopFrame.Enabled = true
                     else
                         shopFrame.Visible = true
+                    end
+                    local menuFrame = shopFrame:FindFirstChild("Menu")
+                    if menuFrame then
+                        menuFrame.Visible = true
                     end
                     pcall(function()
                         game:GetService("StarterGui"):SetCore("SendNotification", {
