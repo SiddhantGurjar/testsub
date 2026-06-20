@@ -10562,16 +10562,36 @@ v496:AddButton({
         end)
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
-            for _, v in pairs(playerGui:GetDescendants()) do
-                if v:IsA("GuiObject") then
-                    local cleanName = string.lower(v.Name):gsub("%s+", "")
-                    if cleanName == "fruitdealer" or cleanName == "dealer" or cleanName == "fruitshop" then
-                        v.Visible = true
-                        return
+            local found = false
+            for i = 1, 15 do
+                for _, v in pairs(playerGui:GetDescendants()) do
+                    if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+                        local cleanName = string.lower(v.Name):gsub("%s+", "")
+                        if cleanName == "fruitdealer" or cleanName == "dealer" or cleanName == "fruitshop" or cleanName == "fruitdealerframe" then
+                            if v:IsA("ScreenGui") then
+                                v.Enabled = true
+                            else
+                                v.Visible = true
+                            end
+                            found = true
+                            return
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+            if not found then
+                warn("[RedzHub] Fruit Shop UI not found in PlayerGui. Listing top-level ScreenGuis:")
+                for _, child in pairs(playerGui:GetChildren()) do
+                    warn("  - PlayerGui child: " .. child.Name .. " (" .. child.ClassName .. ")")
+                    if child.Name == "Main" then
+                        warn("  Listing Main ScreenGui children:")
+                        for _, mainChild in pairs(child:GetChildren()) do
+                            warn("    - Main child: " .. mainChild.Name .. " (" .. mainChild.ClassName .. ")")
+                        end
                     end
                 end
             end
-            warn("[RedzHub] Fruit Shop UI not found in PlayerGui")
         end
     end
 })
@@ -10583,16 +10603,36 @@ v496:AddButton({
         end)
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
-            for _, v in pairs(playerGui:GetDescendants()) do
-                if v:IsA("GuiObject") then
-                    local cleanName = string.lower(v.Name):gsub("%s+", "")
-                    if cleanName == "advancedfruitdealer" or cleanName == "advanced" or cleanName == "mirageshop" or cleanName == "advancedfruitshop" or cleanName == "advancedshop" then
-                        v.Visible = true
-                        return
+            local found = false
+            for i = 1, 15 do
+                for _, v in pairs(playerGui:GetDescendants()) do
+                    if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+                        local cleanName = string.lower(v.Name):gsub("%s+", "")
+                        if cleanName == "advancedfruitdealer" or cleanName == "advanced" or cleanName == "mirageshop" or cleanName == "advancedfruitshop" or cleanName == "advancedshop" then
+                            if v:IsA("ScreenGui") then
+                                v.Enabled = true
+                            else
+                                v.Visible = true
+                            end
+                            found = true
+                            return
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+            if not found then
+                warn("[RedzHub] Mirage Shop UI not found in PlayerGui. Listing top-level ScreenGuis:")
+                for _, child in pairs(playerGui:GetChildren()) do
+                    warn("  - PlayerGui child: " .. child.Name .. " (" .. child.ClassName .. ")")
+                    if child.Name == "Main" then
+                        warn("  Listing Main ScreenGui children:")
+                        for _, mainChild in pairs(child:GetChildren()) do
+                            warn("    - Main child: " .. mainChild.Name .. " (" .. mainChild.ClassName .. ")")
+                        end
                     end
                 end
             end
-            warn("[RedzHub] Mirage Shop UI not found in PlayerGui")
         end
     end
 })
