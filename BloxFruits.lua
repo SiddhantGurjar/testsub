@@ -10562,10 +10562,22 @@ v496:AddButton({
         end)
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
+            local mainGui = playerGui:FindFirstChild("Main")
+            if not mainGui then
+                pcall(function()
+                    game:GetService("StarterGui"):SetCore("SendNotification", {
+                        Title = "Spawn First!",
+                        Text = "Please join a team (Pirates/Marines) to load the UI first.",
+                        Duration = 5
+                    })
+                end)
+                return
+            end
+            
             local target = nil
-            -- Try to find exact matches first
-            for _, v in pairs(playerGui:GetDescendants()) do
-                if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+            -- Try to find exact matches first inside Main
+            for _, v in pairs(mainGui:GetDescendants()) do
+                if v:IsA("GuiObject") then
                     local cleanName = string.lower(v.Name):gsub("%s+", "")
                     if cleanName == "fruitdealer" or cleanName == "dealer" or cleanName == "fruitshop" or cleanName == "fruitdealerframe" then
                         target = v
@@ -10574,10 +10586,10 @@ v496:AddButton({
                 end
             end
             
-            -- Fallback 1: Substring match containing both "fruit" and "shop"/"dealer"
+            -- Fallback 1: Substring match inside Main
             if not target then
-                for _, v in pairs(playerGui:GetDescendants()) do
-                    if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+                for _, v in pairs(mainGui:GetDescendants()) do
+                    if v:IsA("GuiObject") then
                         local cleanName = string.lower(v.Name)
                         if (string.find(cleanName, "fruit") and string.find(cleanName, "shop")) or 
                            (string.find(cleanName, "fruit") and string.find(cleanName, "dealer")) then
@@ -10588,10 +10600,10 @@ v496:AddButton({
                 end
             end
             
-            -- Fallback 2: Any frame containing "fruit" (excluding ESP/Farm)
+            -- Fallback 2: Any frame inside Main containing "fruit" (excluding ESP/Farm)
             if not target then
-                for _, v in pairs(playerGui:GetDescendants()) do
-                    if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+                for _, v in pairs(mainGui:GetDescendants()) do
+                    if v:IsA("GuiObject") then
                         local cleanName = string.lower(v.Name)
                         if string.find(cleanName, "fruit") and not string.find(cleanName, "esp") and not string.find(cleanName, "farm") then
                             target = v
@@ -10602,11 +10614,7 @@ v496:AddButton({
             end
 
             if target then
-                if target:IsA("ScreenGui") then
-                    target.Enabled = true
-                else
-                    target.Visible = true
-                end
+                target.Visible = true
                 pcall(function()
                     game:GetService("StarterGui"):SetCore("SendNotification", {
                         Title = "RedzHub Shop Opened",
@@ -10615,14 +10623,10 @@ v496:AddButton({
                     })
                 end)
             else
-                warn("[RedzHub] Fruit Shop UI not found in PlayerGui. Listing top-level ScreenGuis:")
-                for _, child in pairs(playerGui:GetChildren()) do
-                    warn("  - PlayerGui child: " .. child.Name .. " (" .. child.ClassName .. ")")
-                    if child.Name == "Main" then
-                        warn("  Listing Main ScreenGui children:")
-                        for _, mainChild in pairs(child:GetChildren()) do
-                            warn("    - Main child: " .. mainChild.Name .. " (" .. mainChild.ClassName .. ")")
-                        end
+                warn("[RedzHub] Fruit Shop UI not found in Main. Listing Main children:")
+                for _, child in pairs(mainGui:GetChildren()) do
+                    if child:IsA("GuiObject") then
+                        warn("  - Main child: " .. child.Name .. " (" .. child.ClassName .. ")")
                     end
                 end
                 pcall(function()
@@ -10644,10 +10648,22 @@ v496:AddButton({
         end)
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
+            local mainGui = playerGui:FindFirstChild("Main")
+            if not mainGui then
+                pcall(function()
+                    game:GetService("StarterGui"):SetCore("SendNotification", {
+                        Title = "Spawn First!",
+                        Text = "Please join a team (Pirates/Marines) to load the UI first.",
+                        Duration = 5
+                    })
+                end)
+                return
+            end
+            
             local target = nil
-            -- Try to find exact matches first
-            for _, v in pairs(playerGui:GetDescendants()) do
-                if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+            -- Try to find exact matches first inside Main
+            for _, v in pairs(mainGui:GetDescendants()) do
+                if v:IsA("GuiObject") then
                     local cleanName = string.lower(v.Name):gsub("%s+", "")
                     if cleanName == "advancedfruitdealer" or cleanName == "advanced" or cleanName == "mirageshop" or cleanName == "advancedfruitshop" or cleanName == "advancedshop" then
                         target = v
@@ -10656,10 +10672,10 @@ v496:AddButton({
                 end
             end
             
-            -- Fallback 1: Substring match containing "mirage" or "advanced" + "fruit"
+            -- Fallback 1: Substring match inside Main containing "mirage" or "advanced" + "fruit"
             if not target then
-                for _, v in pairs(playerGui:GetDescendants()) do
-                    if v:IsA("GuiObject") or v:IsA("ScreenGui") then
+                for _, v in pairs(mainGui:GetDescendants()) do
+                    if v:IsA("GuiObject") then
                         local cleanName = string.lower(v.Name)
                         if string.find(cleanName, "mirage") or (string.find(cleanName, "advanced") and string.find(cleanName, "fruit")) then
                             target = v
@@ -10670,11 +10686,7 @@ v496:AddButton({
             end
 
             if target then
-                if target:IsA("ScreenGui") then
-                    target.Enabled = true
-                else
-                    target.Visible = true
-                end
+                target.Visible = true
                 pcall(function()
                     game:GetService("StarterGui"):SetCore("SendNotification", {
                         Title = "RedzHub Mirage Opened",
@@ -10683,14 +10695,10 @@ v496:AddButton({
                     })
                 end)
             else
-                warn("[RedzHub] Mirage Shop UI not found in PlayerGui. Listing top-level ScreenGuis:")
-                for _, child in pairs(playerGui:GetChildren()) do
-                    warn("  - PlayerGui child: " .. child.Name .. " (" .. child.ClassName .. ")")
-                    if child.Name == "Main" then
-                        warn("  Listing Main ScreenGui children:")
-                        for _, mainChild in pairs(child:GetChildren()) do
-                            warn("    - Main child: " .. mainChild.Name .. " (" .. mainChild.ClassName .. ")")
-                        end
+                warn("[RedzHub] Mirage Shop UI not found in Main. Listing Main children:")
+                for _, child in pairs(mainGui:GetChildren()) do
+                    if child:IsA("GuiObject") then
+                        warn("  - Main child: " .. child.Name .. " (" .. child.ClassName .. ")")
                     end
                 end
                 pcall(function()
