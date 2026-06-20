@@ -10558,14 +10558,14 @@ v496:AddButton({
     Title = "Open Fruit Shop",
     Callback = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
-        game.Players.localPlayer.PlayerGui.Main.FruitShop.Visible = true
+        game.Players.localPlayer.PlayerGui.Main.Dealer.Visible = true
     end
 })
 v496:AddButton({
     Title = "Open Mirage Shop",
     Callback = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", true)
-        game.Players.localPlayer.PlayerGui.Main.FruitShop.Visible = true
+        game.Players.localPlayer.PlayerGui.Main.Dealer.Visible = true
     end
 })
 v496:AddButton({
