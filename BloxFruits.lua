@@ -6857,7 +6857,7 @@ end
         end)
     end
 end
-local _ = v489:AddSection({"Sea Events"})
+local _ = v489:AddSection({"Sea Event"})
 do
     local myBoat = nil
     local activeBoatTween = nil
@@ -6870,6 +6870,7 @@ do
     }
     local currentTargetIndex = 1
     local lastPlayerHealth = nil
+    local stuckBoats = {}
 
     local boatMapping = {
         ["Dinghy"] = "Boat",
@@ -6891,7 +6892,19 @@ do
                         if _G.Autoterrorshark then
                             return enemy
                         end
-                    elseif enemy.Name == "Shark" or enemy.Name == "Piranha" or enemy.Name == "Fish Crew Member" or enemy.Name == "PirateBrigade" or enemy.Name == "PirateBasic" then
+                    elseif enemy.Name == "Shark" then
+                        if _G.KillShark then
+                            return enemy
+                        end
+                    elseif enemy.Name == "Piranha" then
+                        if _G.KillPiranha then
+                            return enemy
+                        end
+                    elseif enemy.Name == "Fish Crew Member" then
+                        if _G.KillFishCrew then
+                            return enemy
+                        end
+                    elseif enemy.Name == "PirateBrigade" or enemy.Name == "PirateBasic" then
                         return enemy
                     end
                 end
@@ -6926,16 +6939,22 @@ do
     end
 
     local function tweenSpecificBoat(seat, targetCFrame)
-        if not seat then return nil end
+        if not seat or not seat:IsDescendantOf(workspace) then return nil end
         local tweenService = game:GetService("TweenService")
         local distance = (seat.Position - targetCFrame.Position).Magnitude
         local speed = _G.BoatTweenSpeed or 300
         local tweenInfo = TweenInfo.new(distance / speed, Enum.EasingStyle.Linear)
-        local t = tweenService:Create(seat, tweenInfo, {CFrame = targetCFrame})
-        t:Play()
+        local t = nil
+        pcall(function()
+            t = tweenService:Create(seat, tweenInfo, {CFrame = targetCFrame})
+            t:Play()
+        end)
+        if not t then return nil end
         return {
             Stop = function()
-                t:Cancel()
+                pcall(function()
+                    t:Cancel()
+                end)
             end,
             Tween = t
         }
@@ -6979,7 +6998,7 @@ do
         if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
         local playerPos = character.HumanoidRootPart.Position
 
-        if myBoat and myBoat.Parent == game:GetService("Workspace").Boats and myBoat:FindFirstChild("VehicleSeat") then
+        if myBoat and myBoat.Parent == game:GetService("Workspace").Boats and not stuckBoats[myBoat] and myBoat:FindFirstChild("VehicleSeat") then
             local seat = myBoat.VehicleSeat
             local dist = (seat.Position - playerPos).Magnitude
             if dist <= 500 then
@@ -6990,31 +7009,33 @@ do
         end
 
         for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-            local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
-            if seat then
-                local isOwner = false
-                local ownerVal = boat:FindFirstChild("Owner")
-                if ownerVal then
-                    if ownerVal:IsA("ObjectValue") and ownerVal.Value == player then
-                        isOwner = true
-                    elseif ownerVal:IsA("StringValue") and ownerVal.Value == player.Name then
-                        isOwner = true
-                    elseif tostring(ownerVal.Value) == player.Name then
+            if not stuckBoats[boat] then
+                local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
+                if seat then
+                    local isOwner = false
+                    local ownerVal = boat:FindFirstChild("Owner")
+                    if ownerVal then
+                        if ownerVal:IsA("ObjectValue") and ownerVal.Value == player then
+                            isOwner = true
+                        elseif ownerVal:IsA("StringValue") and ownerVal.Value == player.Name then
+                            isOwner = true
+                        elseif tostring(ownerVal.Value) == player.Name then
+                            isOwner = true
+                        end
+                    end
+                    if boat:GetAttribute("Owner") == player.Name or boat:GetAttribute("Owner") == player then
                         isOwner = true
                     end
-                end
-                if boat:GetAttribute("Owner") == player.Name or boat:GetAttribute("Owner") == player then
-                    isOwner = true
-                end
-                if character:FindFirstChild("Humanoid") and character.Humanoid.SeatPart == seat then
-                    isOwner = true
-                end
+                    if character:FindFirstChild("Humanoid") and character.Humanoid.SeatPart == seat then
+                        isOwner = true
+                    end
 
-                if isOwner then
-                    local dist = (seat.Position - playerPos).Magnitude
-                    if dist <= 500 then
-                        myBoat = boat
-                        return myBoat
+                    if isOwner then
+                        local dist = (seat.Position - playerPos).Magnitude
+                        if dist <= 500 then
+                            myBoat = boat
+                            return myBoat
+                        end
                     end
                 end
             end
@@ -7144,6 +7165,24 @@ do
         end)
     end
 
+    local function EquipWeapon(weaponName)
+        if not weaponName then return end
+        local character = game.Players.LocalPlayer.Character
+        if not character then return end
+        
+        if character:FindFirstChild(weaponName) then
+            return
+        end
+        
+        local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+        if backpack then
+            local tool = backpack:FindFirstChild(weaponName)
+            if tool then
+                character.Humanoid:EquipTool(tool)
+            end
+        end
+    end
+
     local function useSkills(toolType)
         local tool = equipToolByToolTip(toolType)
         if not tool then return end
@@ -7200,6 +7239,10 @@ do
     _G.SwordMoveZ = _G.SwordMoveZ == nil and true or _G.SwordMoveZ
     _G.SwordMoveX = _G.SwordMoveX == nil and true or _G.SwordMoveX
 
+    _G.KillShark = _G.KillShark == nil and false or _G.KillShark
+    _G.KillPiranha = _G.KillPiranha == nil and false or _G.KillPiranha
+    _G.KillFishCrew = _G.KillFishCrew == nil and false or _G.KillFishCrew
+
     local lastBoatPos = nil
     local lastPosTime = nil
 
@@ -7223,6 +7266,7 @@ do
                 _G.KillPiranha = false
                 _G.KillFishCrew = false
                 _G.AutoFarmSeaBeast = false
+                stuckBoats = {}
             end
         end
     })
@@ -7278,6 +7322,36 @@ do
     })
 
     v489:AddToggle({
+        Name = "Auto Farm Shark",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.KillShark = v
+            StopTween(_G.KillShark)
+        end
+    })
+
+    v489:AddToggle({
+        Name = "Auto Farm Piranha",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.KillPiranha = v
+            StopTween(_G.KillPiranha)
+        end
+    })
+
+    v489:AddToggle({
+        Name = "Auto Farm Fish Crew",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.KillFishCrew = v
+            StopTween(_G.KillFishCrew)
+        end
+    })
+
+    v489:AddToggle({
         Name = "Safe Mode",
         Description = "",
         Default = false,
@@ -7286,7 +7360,7 @@ do
         end
     })
 
-    local _ = v489:AddSection({"Auto Skills"})
+    local _ = v489:AddSection({"Auto Use Skills"})
 
     v489:AddToggle({
         Name = "Use Melee",
@@ -7415,6 +7489,9 @@ do
                                         else
                                             if os.time() - lastPosTime > 6 then
                                                 stopBoatTween()
+                                                if myBoat then
+                                                    stuckBoats[myBoat] = true
+                                                end
                                                 myBoat = nil
                                                 lastBoatPos = nil
                                                 lastPosTime = nil
