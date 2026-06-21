@@ -7081,6 +7081,8 @@ do
     end
 
     _G.BoatTweenSpeed = _G.BoatTweenSpeed or 300
+    local lastBoatPos = nil
+    local lastPosTime = nil
 
     v489:AddToggle({
         Name = "Auto Drive Boats",
@@ -7091,6 +7093,12 @@ do
             StopTween(_G.SailBoat)
             if not v948 then
                 stopBoatTween()
+                stopTeleport()
+                pcall(function()
+                    if tween then
+                        tween:Cancel()
+                    end
+                end)
             end
         end
     })
@@ -7112,6 +7120,8 @@ do
                     local enemy = getActiveSeaEvent()
                     if enemy then
                         stopBoatTween()
+                        lastBoatPos = nil
+                        lastPosTime = nil
                         
                         local char = game.Players.LocalPlayer.Character
                         if char and char:FindFirstChild("Humanoid") then
@@ -7136,28 +7146,50 @@ do
                             local boat = getMyBoat()
                             if not boat then
                                 stopBoatTween()
+                                lastBoatPos = nil
+                                lastPosTime = nil
                                 buyNewBoat()
                             else
                                 local seat = boat:FindFirstChild("VehicleSeat")
                                 if seat then
                                     if humanoid.Sit == false or humanoid.SeatPart ~= seat then
                                         stopBoatTween()
-                                        sitOnMyBoat(boat)
-                                    else
-                                        local currentTarget = targetPoints[currentTargetIndex]
-                                        local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
-                                        if distanceToTarget < 100 then
-                                            currentTargetIndex = currentTargetIndex == 1 and 2 or 1
-                                            currentTarget = targetPoints[currentTargetIndex]
-                                            stopBoatTween()
+                                        lastBoatPos = nil
+                                        lastPosTime = nil
+                                        local sat = sitOnMyBoat(boat)
+                                        if not sat then
+                                            myBoat = nil
                                         end
-                                        
-                                        local currentSpeed = _G.BoatTweenSpeed or 300
-                                        if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed then
-                                            stopBoatTween()
-                                            activeBoatTween = tweenSpecificBoat(seat, currentTarget)
-                                            activeBoatTarget = currentTarget
-                                            activeBoatSpeed = currentSpeed
+                                    else
+                                        local currentPos = seat.Position
+                                        if not lastBoatPos or (currentPos - lastBoatPos).Magnitude > 5 then
+                                            lastBoatPos = currentPos
+                                            lastPosTime = os.time()
+                                        else
+                                            if os.time() - lastPosTime > 6 then
+                                                stopBoatTween()
+                                                myBoat = nil
+                                                lastBoatPos = nil
+                                                lastPosTime = nil
+                                            end
+                                        end
+
+                                        if myBoat then
+                                            local currentTarget = targetPoints[currentTargetIndex]
+                                            local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
+                                            if distanceToTarget < 100 then
+                                                currentTargetIndex = currentTargetIndex == 1 and 2 or 1
+                                                currentTarget = targetPoints[currentTargetIndex]
+                                                stopBoatTween()
+                                            end
+                                            
+                                            local currentSpeed = _G.BoatTweenSpeed or 300
+                                            if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed then
+                                                stopBoatTween()
+                                                activeBoatTween = tweenSpecificBoat(seat, currentTarget)
+                                                activeBoatTarget = currentTarget
+                                                activeBoatSpeed = currentSpeed
+                                            end
                                         end
                                     end
                                 else
@@ -7167,6 +7199,9 @@ do
                         end
                     end
                 end)
+            else
+                lastBoatPos = nil
+                lastPosTime = nil
             end
         end
     end)
