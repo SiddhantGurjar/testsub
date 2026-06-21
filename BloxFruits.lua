@@ -6862,6 +6862,7 @@ do
     local myBoat = nil
     local activeBoatTween = nil
     local activeBoatTarget = nil
+    local activeBoatSpeed = nil
     local targetPoints = {
         CFrame.new(-37813.6953, -0.3221744, 6105.16895),
         CFrame.new(-42250.2227, -0.3221744, 9247.07715)
@@ -6899,6 +6900,7 @@ do
             end)
             activeBoatTween = nil
             activeBoatTarget = nil
+            activeBoatSpeed = nil
         end
     end
 
@@ -6906,7 +6908,8 @@ do
         if not seat then return nil end
         local tweenService = game:GetService("TweenService")
         local distance = (seat.Position - targetCFrame.Position).Magnitude
-        local tweenInfo = TweenInfo.new(distance / 300, Enum.EasingStyle.Linear)
+        local speed = _G.BoatTweenSpeed or 300
+        local tweenInfo = TweenInfo.new(distance / speed, Enum.EasingStyle.Linear)
         local t = tweenService:Create(seat, tweenInfo, {CFrame = targetCFrame})
         t:Play()
         return {
@@ -7077,6 +7080,8 @@ do
         return humanoid.Sit
     end
 
+    _G.BoatTweenSpeed = _G.BoatTweenSpeed or 300
+
     v489:AddToggle({
         Name = "Auto Drive Boats",
         Description = "",
@@ -7087,6 +7092,16 @@ do
             if not v948 then
                 stopBoatTween()
             end
+        end
+    })
+
+    v489:AddSlider({
+        Name = "Tween Speed",
+        Min = 50,
+        Max = 300,
+        Default = _G.BoatTweenSpeed,
+        Callback = function(Value)
+            _G.BoatTweenSpeed = Value
         end
     })
 
@@ -7137,10 +7152,12 @@ do
                                             stopBoatTween()
                                         end
                                         
-                                        if not activeBoatTween or activeBoatTarget ~= currentTarget then
+                                        local currentSpeed = _G.BoatTweenSpeed or 300
+                                        if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed then
                                             stopBoatTween()
                                             activeBoatTween = tweenSpecificBoat(seat, currentTarget)
                                             activeBoatTarget = currentTarget
+                                            activeBoatSpeed = currentSpeed
                                         end
                                     end
                                 else
