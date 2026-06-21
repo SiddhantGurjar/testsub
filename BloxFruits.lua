@@ -6863,11 +6863,23 @@ do
     local activeBoatTween = nil
     local activeBoatTarget = nil
     local activeBoatSpeed = nil
+    local activeBoatHeight = nil
     local targetPoints = {
         CFrame.new(-37813.6953, -0.3221744, 6105.16895),
         CFrame.new(-42250.2227, -0.3221744, 9247.07715)
     }
     local currentTargetIndex = 1
+
+    local boatMapping = {
+        ["Dinghy"] = "Boat",
+        ["Sloop"] = "Sloop",
+        ["Sailboat"] = "Sailboat",
+        ["Brigade"] = "PirateBrigade",
+        ["Grand Caboose"] = "GrandCaboose",
+        ["Luxury Boat"] = "LuxuryBoat",
+        ["Enforcer"] = "Enforcer",
+        ["Striker"] = "Striker"
+    }
 
     local function getActiveSeaEvent()
         local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
@@ -6901,6 +6913,7 @@ do
             activeBoatTween = nil
             activeBoatTarget = nil
             activeBoatSpeed = nil
+            activeBoatHeight = nil
         end
     end
 
@@ -7024,7 +7037,10 @@ do
             existingBoats[b] = true
         end
         
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyBoat", "PirateBrigade")
+        local selectedBoatDisplayName = _G.SelectBoat or "Brigade"
+        local selectedBoatInternalName = boatMapping[selectedBoatDisplayName] or "PirateBrigade"
+        
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyBoat", selectedBoatInternalName)
         
         local newBoat = nil
         for i = 1, 30 do
@@ -7080,7 +7096,9 @@ do
         return humanoid.Sit
     end
 
+    _G.SelectBoat = _G.SelectBoat or "Brigade"
     _G.BoatTweenSpeed = _G.BoatTweenSpeed or 300
+    _G.BoatTweenHeight = _G.BoatTweenHeight or 0
     local lastBoatPos = nil
     local lastPosTime = nil
 
@@ -7103,6 +7121,16 @@ do
         end
     })
 
+    v489:AddDropdown({
+        Name = "Select Boat",
+        Description = "Select the boat you want to spawn and drive",
+        Options = {"Dinghy", "Sloop", "Sailboat", "Brigade", "Grand Caboose", "Luxury Boat", "Enforcer", "Striker"},
+        Default = _G.SelectBoat,
+        Callback = function(Value)
+            _G.SelectBoat = Value
+        end
+    })
+
     v489:AddSlider({
         Name = "Tween Speed",
         Min = 50,
@@ -7110,6 +7138,16 @@ do
         Default = _G.BoatTweenSpeed,
         Callback = function(Value)
             _G.BoatTweenSpeed = Value
+        end
+    })
+
+    v489:AddSlider({
+        Name = "Tween Height",
+        Min = 0,
+        Max = 50,
+        Default = _G.BoatTweenHeight,
+        Callback = function(Value)
+            _G.BoatTweenHeight = Value
         end
     })
 
@@ -7184,11 +7222,15 @@ do
                                             end
                                             
                                             local currentSpeed = _G.BoatTweenSpeed or 300
-                                            if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed then
+                                            local currentHeight = _G.BoatTweenHeight or 0
+                                            local adjustedTarget = currentTarget * CFrame.new(0, currentHeight, 0)
+                                            
+                                            if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed or activeBoatHeight ~= currentHeight then
                                                 stopBoatTween()
-                                                activeBoatTween = tweenSpecificBoat(seat, currentTarget)
+                                                activeBoatTween = tweenSpecificBoat(seat, adjustedTarget)
                                                 activeBoatTarget = currentTarget
                                                 activeBoatSpeed = currentSpeed
+                                                activeBoatHeight = currentHeight
                                             end
                                         end
                                     end
