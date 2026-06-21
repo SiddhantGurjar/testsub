@@ -7227,6 +7227,14 @@ do
                                             
                                             if not activeBoatTween or activeBoatTarget ~= currentTarget or activeBoatSpeed ~= currentSpeed or activeBoatHeight ~= currentHeight then
                                                 stopBoatTween()
+                                                
+                                                local targetY = adjustedTarget.Y
+                                                if math.abs(seat.Position.Y - targetY) > 2 then
+                                                    pcall(function()
+                                                        seat.CFrame = CFrame.new(seat.Position.X, targetY, seat.Position.Z) * (seat.CFrame - seat.CFrame.Position)
+                                                    end)
+                                                end
+                                                
                                                 activeBoatTween = tweenSpecificBoat(seat, adjustedTarget)
                                                 activeBoatTarget = currentTarget
                                                 activeBoatSpeed = currentSpeed
