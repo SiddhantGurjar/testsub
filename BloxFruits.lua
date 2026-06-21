@@ -6858,65 +6858,302 @@ if World3 then
     end
 end
 local _ = v489:AddSection({"Sea Events"})
-v489:AddToggle({
-    Name = "Auto Drive Boats",
-    Description = "",
-    Default = false,
-    Callback = function(v948)
-        _G.SailBoat = v948
-        StopTween(_G.SailBoat)
+do
+    local myBoat = nil
+    local activeBoatTween = nil
+    local activeBoatTarget = nil
+    local targetPoints = {
+        CFrame.new(-37813.6953, -0.3221744, 6105.16895),
+        CFrame.new(-42250.2227, -0.3221744, 9247.07715)
+    }
+    local currentTargetIndex = 1
+
+    local function getActiveSeaEvent()
+        local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
+        if enemies then
+            for _, enemy in pairs(enemies:GetChildren()) do
+                if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                    if enemy.Name == "Terrorshark" or enemy.Name == "Shark" or enemy.Name == "Piranha" or enemy.Name == "Fish Crew Member" or enemy.Name == "PirateBrigade" or enemy.Name == "PirateBasic" then
+                        return enemy
+                    end
+                end
+            end
+        end
+        
+        local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
+        if seabeasts then
+            for _, sb in pairs(seabeasts:GetChildren()) do
+                if sb:FindFirstChild("Humanoid") and sb.Humanoid.Health > 0 then
+                    return sb
+                end
+            end
+        end
+        
+        return nil
     end
-})
-spawn(function()
-    while wait() do
-        pcall(function()
-            if _G.SailBoat and (not game:GetService("Workspace").Enemies:FindFirstChild("Shark") or not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member")) then
-                if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
-                    if game:GetService("Workspace").Boats:FindFirstChild("PirateBrigade") then
-                        if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == false then
-                            TPP(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, 1, 0))
-                        else
-                            for _, v950 in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-                                if v950.Name == "PirateBrigade" then
-                                    repeat
-                                        wait()
-                                        if (CFrame.new(-17013.80078125, 10.962434768676758, 438.0169982910156).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
-                                            TPB(CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996))
-                                        elseif (CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude > 10 then
-                                            if (CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
-                                                TPB(CFrame.new(-37813.6953, -0.3221744, 6105.16895, -0.252362996, 4.13621581E-9, 0.967632651, 2.87320709E-8, 1, 3.21888249E-9, -0.967632651, 2.86144175E-8, -0.252362996))
-                                            end
-                                        else
-                                            TPB(CFrame.new(-42250.2227, -0.3221744, 9247.07715, -0.45916447, 6.39043236E-8, 0.888351262, -3.36711423E-8, 1, -8.93395651E-8, -0.888351262, -7.09333605E-8, -0.45916447))
+
+    local function stopBoatTween()
+        if activeBoatTween then
+            pcall(function()
+                activeBoatTween:Stop()
+            end)
+            activeBoatTween = nil
+            activeBoatTarget = nil
+        end
+    end
+
+    local function tweenSpecificBoat(seat, targetCFrame)
+        if not seat then return nil end
+        local tweenService = game:GetService("TweenService")
+        local distance = (seat.Position - targetCFrame.Position).Magnitude
+        local tweenInfo = TweenInfo.new(distance / 300, Enum.EasingStyle.Linear)
+        local t = tweenService:Create(seat, tweenInfo, {CFrame = targetCFrame})
+        t:Play()
+        return {
+            Stop = function()
+                t:Cancel()
+            end,
+            Tween = t
+        }
+    end
+
+    local function getBoatDealer()
+        local nearestDealer = nil
+        local shortestDistance = math.huge
+        local playerPos = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+
+        local function checkNpc(npc)
+            if npc:IsA("Model") and (npc.Name:find("Boat Dealer") or (npc.Name:find("Dealer") and not npc.Name:find("Sword") and not npc.Name:find("Fruit") and not npc.Name:find("Color"))) then
+                local primaryPart = npc.PrimaryPart or npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildWhichIsA("BasePart")
+                if primaryPart then
+                    if playerPos then
+                        local dist = (primaryPart.Position - playerPos).Magnitude
+                        if dist < shortestDistance then
+                            shortestDistance = dist
+                            nearestDealer = npc
+                        end
+                    else
+                        nearestDealer = npc
+                    end
+                end
+            end
+        end
+
+        for _, npc in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
+            checkNpc(npc)
+        end
+        for _, npc in pairs(game:GetService("Workspace"):GetChildren()) do
+            checkNpc(npc)
+        end
+
+        return nearestDealer
+    end
+
+    local function getMyBoat()
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+        local playerPos = character.HumanoidRootPart.Position
+
+        if myBoat and myBoat.Parent == game:GetService("Workspace").Boats and myBoat:FindFirstChild("VehicleSeat") then
+            local seat = myBoat.VehicleSeat
+            local dist = (seat.Position - playerPos).Magnitude
+            if dist <= 500 then
+                return myBoat
+            else
+                myBoat = nil
+            end
+        end
+
+        for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+            local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
+            if seat then
+                local isOwner = false
+                local ownerVal = boat:FindFirstChild("Owner")
+                if ownerVal then
+                    if ownerVal:IsA("ObjectValue") and ownerVal.Value == player then
+                        isOwner = true
+                    elseif ownerVal:IsA("StringValue") and ownerVal.Value == player.Name then
+                        isOwner = true
+                    elseif tostring(ownerVal.Value) == player.Name then
+                        isOwner = true
+                    end
+                end
+                if boat:GetAttribute("Owner") == player.Name or boat:GetAttribute("Owner") == player then
+                    isOwner = true
+                end
+                if character:FindFirstChild("Humanoid") and character.Humanoid.SeatPart == seat then
+                    isOwner = true
+                end
+
+                if isOwner then
+                    local dist = (seat.Position - playerPos).Magnitude
+                    if dist <= 500 then
+                        myBoat = boat
+                        return myBoat
+                    end
+                end
+            end
+        end
+        
+        return nil
+    end
+
+    local function buyNewBoat()
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+        
+        local dealer = getBoatDealer()
+        local dealerCFrame = dealer and (dealer.PrimaryPart and dealer.PrimaryPart.CFrame or dealer:FindFirstChildWhichIsA("BasePart") and dealer:FindFirstChildWhichIsA("BasePart").CFrame) or CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781)
+        
+        local t = TPP(dealerCFrame)
+        local startWait = os.time()
+        repeat
+            task.wait()
+        until not _G.SailBoat or (character:FindFirstChild("HumanoidRootPart") and (character.HumanoidRootPart.Position - dealerCFrame.Position).Magnitude <= 15) or (os.time() - startWait > 10)
+        
+        if t then t:Stop() end
+        if not _G.SailBoat then return nil end
+        
+        local existingBoats = {}
+        for _, b in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+            existingBoats[b] = true
+        end
+        
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyBoat", "PirateBrigade")
+        
+        local newBoat = nil
+        for i = 1, 30 do
+            if not _G.SailBoat then break end
+            for _, b in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                if not existingBoats[b] and b:FindFirstChild("VehicleSeat") then
+                    newBoat = b
+                    break
+                end
+            end
+            if newBoat then break end
+            task.wait(0.1)
+        end
+        
+        if not newBoat then
+            local shortestDist = 300
+            for _, b in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                local seat = b:FindFirstChild("VehicleSeat")
+                if seat then
+                    local dist = (seat.Position - character.HumanoidRootPart.Position).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        newBoat = b
+                    end
+                end
+            end
+        end
+        
+        myBoat = newBoat
+        return myBoat
+    end
+
+    local function sitOnMyBoat(boat)
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if not character then return false end
+        local humanoid = character:FindFirstChild("Humanoid")
+        if not humanoid then return false end
+        
+        local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
+        if not seat then return false end
+        
+        local startTime = os.time()
+        while _G.SailBoat and humanoid.Sit == false and (os.time() - startTime < 10) do
+            local t = TPP(seat.CFrame * CFrame.new(0, 1.5, 0))
+            task.wait(0.1)
+            if t then t:Stop() end
+            
+            pcall(function()
+                seat:Sit(humanoid)
+            end)
+        end
+        return humanoid.Sit
+    end
+
+    v489:AddToggle({
+        Name = "Auto Drive Boats",
+        Description = "",
+        Default = false,
+        Callback = function(v948)
+            _G.SailBoat = v948
+            StopTween(_G.SailBoat)
+            if not v948 then
+                stopBoatTween()
+            end
+        end
+    })
+
+    spawn(function()
+        while wait() do
+            if _G.SailBoat then
+                pcall(function()
+                    local enemy = getActiveSeaEvent()
+                    if enemy then
+                        stopBoatTween()
+                        
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("Humanoid") then
+                            char.Humanoid.Sit = false
+                        end
+                        
+                        if enemy.Name == "Terrorshark" then
+                            _G.Autoterrorshark = true
+                        elseif enemy.Name == "Shark" then
+                            _G.KillShark = true
+                        elseif enemy.Name == "Piranha" then
+                            _G.KillPiranha = true
+                        elseif enemy.Name == "Fish Crew Member" then
+                            _G.KillFishCrew = true
+                        end
+                        
+                        task.wait(1)
+                    else
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("Humanoid") then
+                            local humanoid = char.Humanoid
+                            local boat = getMyBoat()
+                            if not boat then
+                                stopBoatTween()
+                                buyNewBoat()
+                            else
+                                local seat = boat:FindFirstChild("VehicleSeat")
+                                if seat then
+                                    if humanoid.Sit == false or humanoid.SeatPart ~= seat then
+                                        stopBoatTween()
+                                        sitOnMyBoat(boat)
+                                    else
+                                        local currentTarget = targetPoints[currentTargetIndex]
+                                        local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
+                                        if distanceToTarget < 100 then
+                                            currentTargetIndex = currentTargetIndex == 1 and 2 or 1
+                                            currentTarget = targetPoints[currentTargetIndex]
+                                            stopBoatTween()
                                         end
-                                    until game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or _G.SailBoat == false
+                                        
+                                        if not activeBoatTween or activeBoatTarget ~= currentTarget then
+                                            stopBoatTween()
+                                            activeBoatTween = tweenSpecificBoat(seat, currentTarget)
+                                            activeBoatTarget = currentTarget
+                                        end
+                                    end
+                                else
+                                    myBoat = nil
                                 end
                             end
                         end
                     end
-                else
-                    buyb = TPP(CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781))
-                    if (CFrame.new(-16927.451171875, 9.0863618850708, 433.8642883300781).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 10 then
-                        if buyb then
-                            buyb:Stop()
-                        end
-                        local v951 = {[1] = "BuyBoat", [2] = "PirateBrigade"}
-                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v951))
-                    end
-                end
-            end
-        end)
-    end
-end)
-spawn(function()
-    pcall(function()
-        while wait() do
-            if _G.SailBoat and (game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member")) then
-                game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                end)
             end
         end
     end)
-end)
+end
 v489:AddToggle({
     Name = "Auto Kill Terror Shank",
     Description = "",
@@ -6930,36 +7167,25 @@ spawn(function()
     while wait() do
         if _G.Autoterrorshark and World3 then
             pcall(function()
-                if not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
-                    for _, v954 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                        if v954.Name ~= "Terrorshark" then
-                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                        else
-                            topos(v954.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                        end
-                    end
-                else
-                    for _, v956 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v956.Name == "Terrorshark" and v956:FindFirstChild("Humanoid") and v956:FindFirstChild("HumanoidRootPart") and v956.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v956.HumanoidRootPart.CanCollide = false
-                                v956.Humanoid.WalkSpeed = 0
-                                v956.Head.CanCollide = false
-                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
-                                MonFarm = v956.Name
-                                PosMon = v956.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                                if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
-                                    topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
-                                else
-                                    topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 60, 0))
-                                end
-                            until not _G.Autoterrorshark or not v956.Parent or v956.Humanoid.Health <= 0
-                        end
+                for _, v956 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v956.Name == "Terrorshark" and v956:FindFirstChild("Humanoid") and v956:FindFirstChild("HumanoidRootPart") and v956.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            v956.HumanoidRootPart.CanCollide = false
+                            v956.Humanoid.WalkSpeed = 0
+                            v956.Head.CanCollide = false
+                            topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                            MonFarm = v956.Name
+                            PosMon = v956.HumanoidRootPart.CFrame
+                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                            if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
+                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
+                            else
+                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 60, 0))
+                            end
+                        until not _G.Autoterrorshark or not v956.Parent or v956.Humanoid.Health <= 0
                     end
                 end
             end)
@@ -7045,31 +7271,20 @@ spawn(function()
     while wait() do
         if _G.KillShark and World3 and _G.SailBoat then
             pcall(function()
-                if not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
-                    for _, v970 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                        if not v970.Name == "Shark" then
-                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                        elseif v970.Name == "Shark" then
-                            topos(v970.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                        end
-                    end
-                else
-                    for _, v972 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v972.Name == "Shark" and v972:FindFirstChild("Humanoid") and v972:FindFirstChild("HumanoidRootPart") and v972.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v972.HumanoidRootPart.CanCollide = false
-                                v972.Humanoid.WalkSpeed = 0
-                                v972.Head.CanCollide = false
-                                topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
-                                MonFarm = v972.Name
-                                PosMon = v972.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
-                        end
+                for _, v972 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v972.Name == "Shark" and v972:FindFirstChild("Humanoid") and v972:FindFirstChild("HumanoidRootPart") and v972.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            v972.HumanoidRootPart.CanCollide = false
+                            v972.Humanoid.WalkSpeed = 0
+                            v972.Head.CanCollide = false
+                            topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                            MonFarm = v972.Name
+                            PosMon = v972.HumanoidRootPart.CFrame
+                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                        until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
                     end
                 end
             end)
@@ -7089,31 +7304,20 @@ spawn(function()
     while wait() do
         if _G.KillPiranha and World3 then
             pcall(function()
-                if game:GetService("Workspace").Enemies:FindFirstChild("Piranha") or game:GetService("Workspace").Enemies:FindFirstChild("Shark") or game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") or game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") or game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") or game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") or game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    for _, v975 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v975.Name == "Piranha" and v975:FindFirstChild("Humanoid") and v975:FindFirstChild("HumanoidRootPart") and v975.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v975.HumanoidRootPart.CanCollide = false
-                                v975.Humanoid.WalkSpeed = 0
-                                v975.Head.CanCollide = false
-                                topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
-                                MonFarm = v975.Name
-                                PosMon = v975.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
-                        end
-                    end
-                else
-                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
-                    for _, v977 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                        if not v977.Name == "Piranha" then
-                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                        elseif v977.Name == "Piranha" then
-                            topos(v977.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                        end
+                for _, v975 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v975.Name == "Piranha" and v975:FindFirstChild("Humanoid") and v975:FindFirstChild("HumanoidRootPart") and v975.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            v975.HumanoidRootPart.CanCollide = false
+                            v975.Humanoid.WalkSpeed = 0
+                            v975.Head.CanCollide = false
+                            topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                            MonFarm = v975.Name
+                            PosMon = v975.HumanoidRootPart.CFrame
+                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                        until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
                     end
                 end
             end)
@@ -7133,29 +7337,20 @@ spawn(function()
     while wait() do
         if _G.KillFishCrew and World3 then
             pcall(function()
-                if not game:GetService("Workspace").Enemies:FindFirstChild("Fish Crew Member") and not game:GetService("Workspace").Enemies:FindFirstChild("Piranha") and not game:GetService("Workspace").Enemies:FindFirstChild("Shark") and not game:GetService("Workspace").Enemies:FindFirstChild("Terrorshark") and not game:GetService("Workspace").SeaBeasts:FindFirstChild("SeaBeast1") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBrigade") and not game:GetService("Workspace").Enemies:FindFirstChild("PirateBasic") then
-                    topos(game:GetService("Workspace").Boats.PirateBrigade.VehicleSeat.CFrame * CFrame.new(0, -1, 0))
-                    for _, v980 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                        if not v980.Name == "Fish Crew Member" then
-                            game:GetService("Workspace").Boats.VehicleSeat.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                        end
-                    end
-                else
-                    for _, v982 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v982.Name == "Fish Crew Member" and v982:FindFirstChild("Humanoid") and v982:FindFirstChild("HumanoidRootPart") and v982.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v982.HumanoidRootPart.CanCollide = false
-                                v982.Humanoid.WalkSpeed = 0
-                                v982.Head.CanCollide = false
-                                topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
-                                MonFarm = v982.Name
-                                PosMon = v982.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
-                        end
+                for _, v982 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v982.Name == "Fish Crew Member" and v982:FindFirstChild("Humanoid") and v982:FindFirstChild("HumanoidRootPart") and v982.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            v982.HumanoidRootPart.CanCollide = false
+                            v982.Humanoid.WalkSpeed = 0
+                            v982.Head.CanCollide = false
+                            topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                            MonFarm = v982.Name
+                            PosMon = v982.HumanoidRootPart.CFrame
+                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                        until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
                     end
                 end
             end)
@@ -10552,210 +10747,6 @@ v496:AddButton({
     Title = "Join Marines Team",
     Callback = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
-    end
-})
-v496:AddButton({
-    Title = "Open Fruit Shop",
-    Callback = function()
-        pcall(function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", false)
-        end)
-        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
-        if playerGui then
-            -- 1. Try direct path from user's Dex Explorer discovery
-            local shopGui = playerGui:FindFirstChild("FruitShopAndDealer")
-            if shopGui then
-                shopGui.Enabled = true
-                local shopFrame = shopGui:FindFirstChild("Shop")
-                if shopFrame then
-                    if shopFrame:IsA("ScreenGui") then
-                        shopFrame.Enabled = true
-                    else
-                        shopFrame.Visible = true
-                    end
-                    local menuFrame = shopFrame:FindFirstChild("Menu")
-                    if menuFrame then
-                        menuFrame.Visible = true
-                    end
-                    pcall(function()
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "RedzHub Shop Opened",
-                            Text = "Opened FruitShopAndDealer.Shop",
-                            Duration = 5
-                        })
-                    end)
-                    return
-                end
-            end
-            
-            -- 2. Fallback search inside Main ScreenGui if direct path fails
-            local mainGui = playerGui:FindFirstChild("Main")
-            if mainGui then
-                local target = nil
-                -- Try exact match
-                for _, v in pairs(mainGui:GetDescendants()) do
-                    if v:IsA("GuiObject") then
-                        local cleanName = string.lower(v.Name):gsub("%s+", "")
-                        if cleanName == "fruitdealer" or cleanName == "dealer" or cleanName == "fruitshop" or cleanName == "fruitdealerframe" then
-                            target = v
-                            break
-                        end
-                    end
-                end
-                
-                -- Fallback 1: Substring
-                if not target then
-                    for _, v in pairs(mainGui:GetDescendants()) do
-                        if v:IsA("GuiObject") then
-                            local cleanName = string.lower(v.Name)
-                            if (string.find(cleanName, "fruit") and string.find(cleanName, "shop")) or 
-                               (string.find(cleanName, "fruit") and string.find(cleanName, "dealer")) then
-                                target = v
-                                break
-                            end
-                        end
-                    end
-                end
-
-                if target then
-                    target.Visible = true
-                    pcall(function()
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "RedzHub Shop Opened",
-                            Text = "Found: " .. target.Name,
-                            Duration = 5
-                        })
-                    end)
-                    return
-                end
-            end
-            
-            -- If still not found, show notification
-            pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Shop Not Found!",
-                    Text = "Could not locate the Shop UI.",
-                    Duration = 5
-                })
-            end)
-        end
-    end
-})
-v496:AddButton({
-    Title = "Open Mirage Shop",
-    Callback = function()
-        pcall(function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", true)
-        end)
-        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
-        if playerGui then
-            -- 1. Try direct path first since Mirage usually uses same/similar GUI structure
-            local shopGui = playerGui:FindFirstChild("FruitShopAndDealer")
-            if shopGui then
-                shopGui.Enabled = true
-                local shopFrame = shopGui:FindFirstChild("Shop")
-                if shopFrame then
-                    if shopFrame:IsA("ScreenGui") then
-                        shopFrame.Enabled = true
-                    else
-                        shopFrame.Visible = true
-                    end
-                    local menuFrame = shopFrame:FindFirstChild("Menu")
-                    if menuFrame then
-                        menuFrame.Visible = true
-                    end
-                    pcall(function()
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "RedzHub Mirage Opened",
-                            Text = "Opened FruitShopAndDealer.Shop",
-                            Duration = 5
-                        })
-                    end)
-                    return
-                end
-            end
-            
-            -- 2. Fallback search inside Main ScreenGui if direct path fails
-            local mainGui = playerGui:FindFirstChild("Main")
-            if mainGui then
-                local target = nil
-                -- Try exact match
-                for _, v in pairs(mainGui:GetDescendants()) do
-                    if v:IsA("GuiObject") then
-                        local cleanName = string.lower(v.Name):gsub("%s+", "")
-                        if cleanName == "advancedfruitdealer" or cleanName == "advanced" or cleanName == "mirageshop" or cleanName == "advancedfruitshop" or cleanName == "advancedshop" then
-                            target = v
-                            break
-                        end
-                    end
-                end
-                
-                -- Fallback 1: Substring
-                if not target then
-                    for _, v in pairs(mainGui:GetDescendants()) do
-                        if v:IsA("GuiObject") then
-                            local cleanName = string.lower(v.Name)
-                            if string.find(cleanName, "mirage") or (string.find(cleanName, "advanced") and string.find(cleanName, "fruit")) then
-                                target = v
-                                break
-                            end
-                        end
-                    end
-                end
-
-                if target then
-                    target.Visible = true
-                    pcall(function()
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "RedzHub Mirage Opened",
-                            Text = "Found: " .. target.Name,
-                            Duration = 5
-                        })
-                    end)
-                    return
-                end
-            end
-            
-            -- If still not found, show notification
-            pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Mirage Shop Not Found!",
-                    Text = "Could not locate the Mirage Shop UI.",
-                    Duration = 5
-                })
-            end)
-        end
-    end
-})
-v496:AddButton({
-    Title = "Debug Visible UIs",
-    Callback = function()
-        local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
-        if playerGui then
-            warn("--- FILTERED SHOP UI PATHS ---")
-            local count = 0
-            for _, v in pairs(playerGui:GetDescendants()) do
-                if v:IsA("GuiObject") and v.Visible == true then
-                    local path = v:GetFullName()
-                    local cleanName = string.lower(v.Name)
-                    -- Filter out script's own UI elements and strictly match keywords
-                    if not string.find(path, "RedzHub") and not string.find(path, "Library") then
-                        if string.find(cleanName, "fruit") or string.find(cleanName, "shop") or string.find(cleanName, "dealer") or string.find(cleanName, "stock") then
-                            warn("FOUND PATH: " .. path)
-                            count = count + 1
-                        end
-                    end
-                end
-            end
-            warn("--- END OF LIST (Found " .. tostring(count) .. ") ---")
-            pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Debug Complete",
-                    Text = "Printed " .. tostring(count) .. " matching paths to console.",
-                    Duration = 5
-                })
-            end)
-        end
     end
 })
 v496:AddButton({
