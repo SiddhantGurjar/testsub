@@ -10558,7 +10558,7 @@ v496:AddButton({
     Title = "Open Fruit Shop",
     Callback = function()
         pcall(function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits", false)
         end)
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
@@ -10732,21 +10732,26 @@ v496:AddButton({
     Callback = function()
         local playerGui = game.Players.localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
-            warn("--- LISTING ALL VISIBLE UI ELEMENTS ---")
+            warn("--- FILTERED SHOP UI PATHS ---")
+            local count = 0
             for _, v in pairs(playerGui:GetDescendants()) do
                 if v:IsA("GuiObject") and v.Visible == true then
                     local path = v:GetFullName()
-                    -- Filter out script's own UI elements
+                    local cleanName = string.lower(v.Name)
+                    -- Filter out script's own UI elements and strictly match keywords
                     if not string.find(path, "RedzHub") and not string.find(path, "Library") then
-                        warn("Visible UI: " .. path)
+                        if string.find(cleanName, "fruit") or string.find(cleanName, "shop") or string.find(cleanName, "dealer") or string.find(cleanName, "stock") then
+                            warn("FOUND PATH: " .. path)
+                            count = count + 1
+                        end
                     end
                 end
             end
-            warn("--- END OF LIST ---")
+            warn("--- END OF LIST (Found " .. tostring(count) .. ") ---")
             pcall(function()
                 game:GetService("StarterGui"):SetCore("SendNotification", {
                     Title = "Debug Complete",
-                    Text = "Check console for visible UI paths!",
+                    Text = "Printed " .. tostring(count) .. " matching paths to console.",
                     Duration = 5
                 })
             end)
