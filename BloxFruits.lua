@@ -6922,8 +6922,6 @@ do
                     return true
                 elseif name:find("fish crew") and _G.KillFishCrew then
                     return true
-                elseif name:find("pirate") then
-                    return true
                 end
             end
         end
@@ -6944,23 +6942,13 @@ do
             for _, enemy in pairs(enemies:GetChildren()) do
                 if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                     local name = enemy.Name:lower()
-                    if name:find("terror") then
-                        if _G.Autoterrorshark then
-                            return enemy
-                        end
-                    elseif name == "shark" then
-                        if _G.KillShark then
-                            return enemy
-                        end
-                    elseif name:find("piranha") then
-                        if _G.KillPiranha then
-                            return enemy
-                        end
-                    elseif name:find("fish crew") then
-                        if _G.KillFishCrew then
-                            return enemy
-                        end
-                    elseif name:find("pirate") then
+                    if name:find("terror") and _G.Autoterrorshark then
+                        return enemy
+                    elseif name == "shark" and _G.KillShark then
+                        return enemy
+                    elseif name:find("piranha") and _G.KillPiranha then
+                        return enemy
+                    elseif name:find("fish crew") and _G.KillFishCrew then
                         return enemy
                     end
                 end
@@ -7160,14 +7148,32 @@ do
         if not seat then return false end
         
         local startTime = os.time()
-        while _G.SailBoat and not isSeaEventSpawningOrActive() and humanoid.Sit == false and (os.time() - startTime < 10) do
-            local t = TPP(seat.CFrame * CFrame.new(0, 1.5, 0))
-            task.wait(0.1)
-            if t then t:Stop() end
+        while _G.SailBoat and not isSeaEventSpawningOrActive() and humanoid.Sit == false and (os.time() - startTime < 15) do
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if not root then break end
             
-            pcall(function()
-                seat:Sit(humanoid)
-            end)
+            local seatPos = seat.Position
+            local playerPos = root.Position
+            local dist = (seatPos - playerPos).Magnitude
+            
+            if dist > 15 then
+                local t = TPP(seat.CFrame * CFrame.new(0, 1.5, 0))
+                repeat
+                    task.wait(0.1)
+                    local curRoot = character:FindFirstChild("HumanoidRootPart")
+                    if not curRoot then break end
+                    playerPos = curRoot.Position
+                    dist = (seatPos - playerPos).Magnitude
+                until not _G.SailBoat or isSeaEventSpawningOrActive() or humanoid.Sit or dist <= 15 or (os.time() - startTime > 15)
+                if t then t:Stop() end
+            end
+            
+            if humanoid.Sit == false and not isSeaEventSpawningOrActive() then
+                pcall(function()
+                    seat:Sit(humanoid)
+                end)
+                task.wait(0.1)
+            end
         end
         return humanoid.Sit
     end
@@ -7870,6 +7876,9 @@ do
                                     task.wait(1.5)
                                 else
                                     topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                    if _G.UseMeleeSkills then useSkills("Melee") end
+                                    if _G.UseFruitSkills then useSkills("Blox Fruit") end
+                                    if _G.UseSwordSkills then useSkills("Sword") end
                                     spamM1()
                                 end
                                 
