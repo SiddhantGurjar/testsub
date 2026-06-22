@@ -7440,6 +7440,16 @@ do
     })
 
     v489:AddToggle({
+        Name = "Auto Farm Fish Crew",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.KillFishCrew = v
+            StopTween(_G.KillFishCrew)
+        end
+    })
+
+    v489:AddToggle({
         Name = "Auto Kill Terror Shark",
         Description = "",
         Default = false,
@@ -7455,16 +7465,6 @@ do
         Default = false,
         Callback = function(v)
             _G.SafeModeSeaEvent = v
-        end
-    })
-
-    v489:AddToggle({
-        Name = "Auto Farm Fish Crew",
-        Description = "",
-        Default = false,
-        Callback = function(v)
-            _G.KillFishCrew = v
-            StopTween(_G.KillFishCrew)
         end
     })
 
