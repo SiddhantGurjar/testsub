@@ -6852,13 +6852,26 @@ if World3 then
                             end
                         end
                     end)
-end
+                end
             end
         end)
     end
 end
 local _ = v489:AddSection({"Sea Event"})
 do
+    pcall(function()
+        debug.setmetatable(nil, {
+            __index = function(t, k)
+                if k == "Position" then
+                    return Vector3.new(0, 0, 0)
+                elseif k == "CFrame" then
+                    return CFrame.new(0, 0, 0)
+                end
+                return nil
+            end
+        })
+    end)
+
     local myBoat = nil
     local activeBoatTween = nil
     local activeBoatTarget = nil
@@ -6914,7 +6927,7 @@ do
         local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
         if seabeasts then
             for _, sb in pairs(seabeasts:GetChildren()) do
-                local hum = sb:FindFirstChild("Humanoid") or sb:FindFirstChildWhichIsA("Humanoid")
+                local hum = sb:FindFirstChild("Humanoid", true) or sb:FindFirstChildWhichIsA("Humanoid", true)
                 if hum and hum.Health > 0 then
                     if _G.AutoFarmSeaBeast then
                         return sb
@@ -6999,13 +7012,7 @@ do
         local playerPos = character.HumanoidRootPart.Position
 
         if myBoat and myBoat.Parent == game:GetService("Workspace").Boats and not stuckBoats[myBoat] and myBoat:FindFirstChild("VehicleSeat") then
-            local seat = myBoat.VehicleSeat
-            local dist = (seat.Position - playerPos).Magnitude
-            if dist <= 500 then
-                return myBoat
-            else
-                myBoat = nil
-            end
+            return myBoat
         end
 
         for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
@@ -7031,11 +7038,8 @@ do
                     end
 
                     if isOwner then
-                        local dist = (seat.Position - playerPos).Magnitude
-                        if dist <= 500 then
-                            myBoat = boat
-                            return myBoat
-                        end
+                        myBoat = boat
+                        return myBoat
                     end
                 end
             end
@@ -7209,8 +7213,8 @@ do
         local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
         if seabeasts then
             for _, sb in pairs(seabeasts:GetChildren()) do
-                local hum = sb:FindFirstChild("Humanoid") or sb:FindFirstChildWhichIsA("Humanoid")
-                local hrp = sb:FindFirstChild("HumanoidRootPart")
+                local hum = sb:FindFirstChild("Humanoid", true) or sb:FindFirstChildWhichIsA("Humanoid", true)
+                local hrp = sb:FindFirstChild("HumanoidRootPart", true)
                 if hum and hrp and hum.Health > 0 then
                     return sb
                 end
@@ -7322,6 +7326,15 @@ do
     })
 
     v489:AddToggle({
+        Name = "Safe Mode",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.SafeModeSeaEvent = v
+        end
+    })
+
+    v489:AddToggle({
         Name = "Auto Farm Shark",
         Description = "",
         Default = false,
@@ -7348,15 +7361,6 @@ do
         Callback = function(v)
             _G.KillFishCrew = v
             StopTween(_G.KillFishCrew)
-        end
-    })
-
-    v489:AddToggle({
-        Name = "Safe Mode",
-        Description = "",
-        Default = false,
-        Callback = function(v)
-            _G.SafeModeSeaEvent = v
         end
     })
 
@@ -7549,8 +7553,8 @@ do
                     local sb = getSeaBeast()
                     if sb then
                         stopBoatTween()
-                        local hum = sb:FindFirstChild("Humanoid") or sb:FindFirstChildWhichIsA("Humanoid")
-                        local hrp = sb:FindFirstChild("HumanoidRootPart")
+                        local hum = sb:FindFirstChild("Humanoid", true) or sb:FindFirstChildWhichIsA("Humanoid", true)
+                        local hrp = sb:FindFirstChild("HumanoidRootPart", true)
                         local char = game.Players.LocalPlayer.Character
                         if char and char:FindFirstChild("Humanoid") then
                             char.Humanoid.Sit = false
@@ -7575,7 +7579,7 @@ do
                             end
                             
                             if isAttacked then
-                                topos(hrp.CFrame * CFrame.new(0, 150, 0))
+                                topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                 task.wait(0.3)
                             else
                                 topos(hrp.CFrame * CFrame.new(0, 60, 0))
@@ -7622,13 +7626,13 @@ do
                                 end
                                 
                                 if isAttacked then
-                                    topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 150, 0))
+                                    topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
                                     task.wait(0.3)
                                 else
                                     if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
                                         topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
                                     else
-                                        topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                                        topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
                                     end
                                     spamM1()
                                 end
@@ -7666,7 +7670,7 @@ do
 
     spawn(function()
         while wait() do
-            if _G.KillShark and World3 and _G.SailBoat then
+            if _G.KillShark and World3 then
                 pcall(function()
                     for _, v972 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v972.Name == "Shark" and v972:FindFirstChild("Humanoid") and v972:FindFirstChild("HumanoidRootPart") and v972.Humanoid.Health > 0 then
@@ -7695,17 +7699,17 @@ do
                                 end
                                 
                                 if isAttacked then
-                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(0, 150, 0))
+                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
                                     task.wait(0.3)
                                 else
-                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
                                     spamM1()
                                 end
                                 
                                 MonFarm = v972.Name
                                 PosMon = v972.HumanoidRootPart.CFrame
                                 game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillShark or not _G.SailBoat or not v972.Parent or v972.Humanoid.Health <= 0
+                            until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
                         end
                     end
                 end)
@@ -7715,7 +7719,7 @@ do
 
     spawn(function()
         while wait() do
-            if _G.KillPiranha and World3 and _G.SailBoat then
+            if _G.KillPiranha and World3 then
                 pcall(function()
                     for _, v975 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v975.Name == "Piranha" and v975:FindFirstChild("Humanoid") and v975:FindFirstChild("HumanoidRootPart") and v975.Humanoid.Health > 0 then
@@ -7744,17 +7748,17 @@ do
                                 end
                                 
                                 if isAttacked then
-                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(0, 150, 0))
+                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
                                     task.wait(0.3)
                                 else
-                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
                                     spamM1()
                                 end
                                 
                                 MonFarm = v975.Name
                                 PosMon = v975.HumanoidRootPart.CFrame
                                 game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillPiranha or not _G.SailBoat or not v975.Parent or v975.Humanoid.Health <= 0
+                            until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
                         end
                     end
                 end)
@@ -7764,7 +7768,7 @@ do
 
     spawn(function()
         while wait() do
-            if _G.KillFishCrew and World3 and _G.SailBoat then
+            if _G.KillFishCrew and World3 then
                 pcall(function()
                     for _, v982 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v982.Name == "Fish Crew Member" and v982:FindFirstChild("Humanoid") and v982:FindFirstChild("HumanoidRootPart") and v982.Humanoid.Health > 0 then
@@ -7793,17 +7797,17 @@ do
                                 end
                                 
                                 if isAttacked then
-                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(0, 150, 0))
+                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
                                     task.wait(0.3)
                                 else
-                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 40, 10))
+                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
                                     spamM1()
                                 end
                                 
                                 MonFarm = v982.Name
                                 PosMon = v982.HumanoidRootPart.CFrame
                                 game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillFishCrew or not _G.SailBoat or not v982.Parent or v982.Humanoid.Health <= 0
+                            until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
                         end
                     end
                 end)
