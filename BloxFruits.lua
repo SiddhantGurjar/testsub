@@ -6896,17 +6896,24 @@ do
         ["Striker"] = "Striker"
     }
 
-    local function getSeaBeastHumanoidAndRoot(sb)
+    local function getEnemyHumanoidAndRoot(enemy)
+        if not enemy or not enemy.Parent then return nil, nil end
         local hum, hrp = nil, nil
-        for _, desc in pairs(sb:GetDescendants()) do
+        for _, desc in pairs(enemy:GetDescendants()) do
             if desc:IsA("Humanoid") then
                 hum = desc
             elseif desc.Name == "HumanoidRootPart" then
                 hrp = desc
             end
-            if hum and hrp then break end
+        end
+        if not hrp and enemy then
+            hrp = enemy.PrimaryPart or enemy:FindFirstChildWhichIsA("BasePart")
         end
         return hum, hrp
+    end
+
+    local function getSeaBeastHumanoidAndRoot(sb)
+        return getEnemyHumanoidAndRoot(sb)
     end
 
     local function isSeaEventSpawningOrActive()
@@ -7259,17 +7266,8 @@ do
     end
 
     local function isValidTarget(target)
-        if not target or not target.Parent then return false end
-        local hum = target:FindFirstChildOfClass("Humanoid")
-        if not hum then
-            for _, desc in pairs(target:GetDescendants()) do
-                if desc:IsA("Humanoid") then
-                    hum = desc
-                    break
-                end
-            end
-        end
-        return hum and hum.Health > 0
+        local hum, hrp = getEnemyHumanoidAndRoot(target)
+        return hum and hrp and hum.Health > 0
     end
 
     local function canAcquireTarget(target)
@@ -7284,16 +7282,8 @@ do
         local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
         if seabeasts then
             for _, sb in pairs(seabeasts:GetChildren()) do
-                local hum = sb:FindFirstChild("Humanoid")
-                if not hum then
-                    for _, desc in pairs(sb:GetDescendants()) do
-                        if desc:IsA("Humanoid") then
-                            hum = desc
-                            break
-                        end
-                    end
-                end
-                if hum and hum.Health > 0 then
+                local hum, hrp = getEnemyHumanoidAndRoot(sb)
+                if hum and hrp and hum.Health > 0 then
                     return true
                 end
             end
@@ -7306,8 +7296,11 @@ do
         local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
         if enemies then
             for _, enemy in pairs(enemies:GetChildren()) do
-                if enemy.Name:lower():find("terror") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                    return true
+                if enemy.Name:lower():find("terror") then
+                    local hum, hrp = getEnemyHumanoidAndRoot(enemy)
+                    if hum and hrp and hum.Health > 0 then
+                        return true
+                    end
                 end
             end
         end
@@ -7726,7 +7719,8 @@ do
                 pcall(function()
                     if isSeaBeastPresent() then return end
                     for _, v956 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v956.Name:lower():find("terror") and v956:FindFirstChild("Humanoid") and v956:FindFirstChild("HumanoidRootPart") and v956.Humanoid.Health > 0 then
+                        local hum, hrp = getEnemyHumanoidAndRoot(v956)
+                        if v956.Name:lower():find("terror") and hum and hrp and hum.Health > 0 then
                             if canAcquireTarget(v956) then
                                 _G.ActiveSeaEventTarget = v956
                                 _G.FastAttackMultiplier = 12
@@ -7734,11 +7728,13 @@ do
                                 local success, err = pcall(function()
                                     repeat
                                         task.wait()
+                                        local hum, hrp = getEnemyHumanoidAndRoot(v956)
+                                        if not hum or not hrp or hum.Health <= 0 then break end
                                         AutoHaki()
                                         EquipWeapon(_G.SelectWeapon)
-                                        v956.HumanoidRootPart.CanCollide = false
-                                        v956.Humanoid.WalkSpeed = 0
-                                        v956.Head.CanCollide = false
+                                        hrp.CanCollide = false
+                                        hum.WalkSpeed = 0
+                                        if v956:FindFirstChild("Head") then v956.Head.CanCollide = false end
                                         
                                         local isAttacked = false
                                         if _G.SafeModeSeaEvent then
@@ -7761,21 +7757,23 @@ do
                                         end
                                         
                                         if isAttacked then
-                                            topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                             task.wait(1.5)
                                         else
                                             if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
-                                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
+                                                topos(hrp.CFrame * CFrame.new(0, 300, 0))
                                             else
-                                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                                topos(hrp.CFrame * CFrame.new(5, 50, 10))
                                             end
                                             spamM1()
                                         end
                                         
                                         MonFarm = v956.Name
-                                        PosMon = v956.HumanoidRootPart.CFrame
-                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                                    until not _G.Autoterrorshark or not v956.Parent or v956.Humanoid.Health <= 0
+                                        PosMon = hrp.CFrame
+                                        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+                                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                        end
+                                    until not _G.Autoterrorshark or not v956.Parent or hum.Health <= 0
                                 end)
                                 _G.FastAttackMultiplier = nil
                                 _G.AttackRange = nil
@@ -7814,17 +7812,20 @@ do
                 pcall(function()
                     if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v972 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v972.Name:lower() == "shark" and v972:FindFirstChild("Humanoid") and v972:FindFirstChild("HumanoidRootPart") and v972.Humanoid.Health > 0 then
+                        local hum, hrp = getEnemyHumanoidAndRoot(v972)
+                        if v972.Name:lower() == "shark" and hum and hrp and hum.Health > 0 then
                             if canAcquireTarget(v972) then
                                 _G.ActiveSeaEventTarget = v972
                                 local success, err = pcall(function()
                                     repeat
                                         task.wait()
+                                        local hum, hrp = getEnemyHumanoidAndRoot(v972)
+                                        if not hum or not hrp or hum.Health <= 0 then break end
                                         AutoHaki()
                                         EquipWeapon(_G.SelectWeapon)
-                                        v972.HumanoidRootPart.CanCollide = false
-                                        v972.Humanoid.WalkSpeed = 0
-                                        v972.Head.CanCollide = false
+                                        hrp.CanCollide = false
+                                        hum.WalkSpeed = 0
+                                        if v972:FindFirstChild("Head") then v972.Head.CanCollide = false end
                                         
                                         local isAttacked = false
                                         if _G.SafeModeSeaEvent then
@@ -7847,17 +7848,19 @@ do
                                         end
                                         
                                         if isAttacked then
-                                            topos(v972.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                             task.wait(1.5)
                                         else
-                                            topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            topos(hrp.CFrame * CFrame.new(5, 50, 10))
                                             spamM1()
                                         end
                                         
                                         MonFarm = v972.Name
-                                        PosMon = v972.HumanoidRootPart.CFrame
-                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                                    until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
+                                        PosMon = hrp.CFrame
+                                        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+                                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                        end
+                                    until not _G.KillShark or not v972.Parent or hum.Health <= 0
                                 end)
                                 _G.ActiveSeaEventTarget = nil
                             end
@@ -7874,17 +7877,20 @@ do
                 pcall(function()
                     if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v975 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v975.Name:lower():find("piranha") and v975:FindFirstChild("Humanoid") and v975:FindFirstChild("HumanoidRootPart") and v975.Humanoid.Health > 0 then
+                        local hum, hrp = getEnemyHumanoidAndRoot(v975)
+                        if v975.Name:lower():find("piranha") and hum and hrp and hum.Health > 0 then
                             if canAcquireTarget(v975) then
                                 _G.ActiveSeaEventTarget = v975
                                 local success, err = pcall(function()
                                     repeat
                                         task.wait()
+                                        local hum, hrp = getEnemyHumanoidAndRoot(v975)
+                                        if not hum or not hrp or hum.Health <= 0 then break end
                                         AutoHaki()
                                         EquipWeapon(_G.SelectWeapon)
-                                        v975.HumanoidRootPart.CanCollide = false
-                                        v975.Humanoid.WalkSpeed = 0
-                                        v975.Head.CanCollide = false
+                                        hrp.CanCollide = false
+                                        hum.WalkSpeed = 0
+                                        if v975:FindFirstChild("Head") then v975.Head.CanCollide = false end
                                         
                                         local isAttacked = false
                                         if _G.SafeModeSeaEvent then
@@ -7907,17 +7913,19 @@ do
                                         end
                                         
                                         if isAttacked then
-                                            topos(v975.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                             task.wait(1.5)
                                         else
-                                            topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            topos(hrp.CFrame * CFrame.new(5, 50, 10))
                                             spamM1()
                                         end
                                         
                                         MonFarm = v975.Name
-                                        PosMon = v975.HumanoidRootPart.CFrame
-                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                                    until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
+                                        PosMon = hrp.CFrame
+                                        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+                                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                        end
+                                    until not _G.KillPiranha or not v975.Parent or hum.Health <= 0
                                 end)
                                 _G.ActiveSeaEventTarget = nil
                             end
@@ -7934,17 +7942,20 @@ do
                 pcall(function()
                     if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v982 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v982.Name:lower():find("fish crew") and v982:FindFirstChild("Humanoid") and v982:FindFirstChild("HumanoidRootPart") and v982.Humanoid.Health > 0 then
+                        local hum, hrp = getEnemyHumanoidAndRoot(v982)
+                        if v982.Name:lower():find("fish crew") and hum and hrp and hum.Health > 0 then
                             if canAcquireTarget(v982) then
                                 _G.ActiveSeaEventTarget = v982
                                 local success, err = pcall(function()
                                     repeat
                                         task.wait()
+                                        local hum, hrp = getEnemyHumanoidAndRoot(v982)
+                                        if not hum or not hrp or hum.Health <= 0 then break end
                                         AutoHaki()
                                         EquipWeapon(_G.SelectWeapon)
-                                        v982.HumanoidRootPart.CanCollide = false
-                                        v982.Humanoid.WalkSpeed = 0
-                                        v982.Head.CanCollide = false
+                                        hrp.CanCollide = false
+                                        hum.WalkSpeed = 0
+                                        if v982:FindFirstChild("Head") then v982.Head.CanCollide = false end
                                         
                                         local isAttacked = false
                                         if _G.SafeModeSeaEvent then
@@ -7967,10 +7978,10 @@ do
                                         end
                                         
                                         if isAttacked then
-                                            topos(v982.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                             task.wait(1.5)
                                         else
-                                            topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            topos(hrp.CFrame * CFrame.new(5, 50, 10))
                                             if _G.UseMeleeSkills then useSkills("Melee") end
                                             if _G.UseFruitSkills then useSkills("Blox Fruit") end
                                             if _G.UseSwordSkills then useSkills("Sword") end
@@ -7978,9 +7989,11 @@ do
                                         end
                                         
                                         MonFarm = v982.Name
-                                        PosMon = v982.HumanoidRootPart.CFrame
-                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                                    until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
+                                        PosMon = hrp.CFrame
+                                        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+                                            game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                        end
+                                    until not _G.KillFishCrew or not v982.Parent or hum.Health <= 0
                                 end)
                                 _G.ActiveSeaEventTarget = nil
                             end
