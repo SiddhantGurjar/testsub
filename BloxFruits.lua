@@ -7258,6 +7258,62 @@ do
         end
     end
 
+    local function isValidTarget(target)
+        if not target or not target.Parent then return false end
+        local hum = target:FindFirstChildOfClass("Humanoid")
+        if not hum then
+            for _, desc in pairs(target:GetDescendants()) do
+                if desc:IsA("Humanoid") then
+                    hum = desc
+                    break
+                end
+            end
+        end
+        return hum and hum.Health > 0
+    end
+
+    local function canAcquireTarget(target)
+        if not _G.ActiveSeaEventTarget or not isValidTarget(_G.ActiveSeaEventTarget) then
+            return true
+        end
+        return _G.ActiveSeaEventTarget == target
+    end
+
+    local function isSeaBeastPresent()
+        if not _G.AutoFarmSeaBeast then return false end
+        local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
+        if seabeasts then
+            for _, sb in pairs(seabeasts:GetChildren()) do
+                local hum = sb:FindFirstChild("Humanoid")
+                if not hum then
+                    for _, desc in pairs(sb:GetDescendants()) do
+                        if desc:IsA("Humanoid") then
+                            hum = desc
+                            break
+                        end
+                    end
+                end
+                if hum and hum.Health > 0 then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
+    local function isTerrorSharkPresent()
+        if not _G.Autoterrorshark then return false end
+        local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
+        if enemies then
+            for _, enemy in pairs(enemies:GetChildren()) do
+                if enemy.Name:lower():find("terror") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
     local function getSeaBeast()
         local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
         if seabeasts then
@@ -7364,15 +7420,6 @@ do
     })
 
     v489:AddToggle({
-        Name = "Safe Mode",
-        Description = "",
-        Default = false,
-        Callback = function(v)
-            _G.SafeModeSeaEvent = v
-        end
-    })
-
-    v489:AddToggle({
         Name = "Auto Farm Shark",
         Description = "",
         Default = false,
@@ -7399,6 +7446,15 @@ do
         Callback = function(v952)
             _G.Autoterrorshark = v952
             StopTween(_G.Autoterrorshark)
+        end
+    })
+
+    v489:AddToggle({
+        Name = "Safe Mode",
+        Description = "",
+        Default = false,
+        Callback = function(v)
+            _G.SafeModeSeaEvent = v
         end
     })
 
@@ -7486,24 +7542,31 @@ do
     -- Spawn threads
     spawn(function()
         while wait() do
-            if _G.SailBoat then
+            local isEventActive = isSeaEventSpawningOrActive() or getActiveSeaEvent()
+            
+            -- If any sea event is active, stand player up and stop boat tween (if any)
+            if isEventActive then
                 pcall(function()
-                    local isEventActive = isSeaEventSpawningOrActive() or getActiveSeaEvent()
-                    if isEventActive then
-                        stopBoatTween()
-                        lastBoatPos = nil
-                        lastPosTime = nil
-                        
-                        local char = game.Players.LocalPlayer.Character
-                        if char and char:FindFirstChild("Humanoid") then
-                            if char.Humanoid.Sit then
-                                char.Humanoid.Sit = false
-                                if char:FindFirstChild("HumanoidRootPart") then
-                                    char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
-                                end
+                    stopBoatTween()
+                    lastBoatPos = nil
+                    lastPosTime = nil
+                    
+                    local char = game.Players.LocalPlayer.Character
+                    if char and char:FindFirstChild("Humanoid") then
+                        if char.Humanoid.Sit then
+                            char.Humanoid.Sit = false
+                            if char:FindFirstChild("HumanoidRootPart") then
+                                char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
                             end
                         end
-                        
+                    end
+                end)
+            end
+
+            -- Now, if auto sail boat is enabled, handle normal sailing/detection logic
+            if _G.SailBoat then
+                pcall(function()
+                    if isEventActive then
                         local enemy = getActiveSeaEvent()
                         if enemy then
                             if enemy.Name == "Terrorshark" then
@@ -7518,7 +7581,6 @@ do
                                 _G.AutoFarmSeaBeast = true
                             end
                         end
-                        
                         task.wait(1)
                     else
                         local char = game.Players.LocalPlayer.Character
@@ -7607,70 +7669,21 @@ do
             if _G.AutoFarmSeaBeast and World3 then
                 pcall(function()
                     local sb = getSeaBeast()
-                    if sb then
-                        stopBoatTween()
-                        local hum, hrp = getSeaBeastHumanoidAndRoot(sb)
-                        local char = game.Players.LocalPlayer.Character
-                        if char and char:FindFirstChild("Humanoid") then
-                            char.Humanoid.Sit = false
-                        end
-                        repeat
-                            task.wait()
-                            if not hrp or not hum or hum.Health <= 0 then break end
-                            
-                            local isAttacked = false
-                            if _G.SafeModeSeaEvent then
-                                if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
-                                    local currentHealth = char.Humanoid.Health
-                                    if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
-                                        isAttacked = true
-                                    end
-                                    lastPlayerHealth = currentHealth
-                                    
-                                    if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
-                                        isAttacked = true
-                                    end
-                                    
-                                    if currentHealth / char.Humanoid.MaxHealth < 0.6 then
-                                        isAttacked = true
-                                    end
-                                end
+                    if sb and canAcquireTarget(sb) then
+                        _G.ActiveSeaEventTarget = sb
+                        local success, err = pcall(function()
+                            stopBoatTween()
+                            local hum, hrp = getSeaBeastHumanoidAndRoot(sb)
+                            local char = game.Players.LocalPlayer.Character
+                            if char and char:FindFirstChild("Humanoid") then
+                                char.Humanoid.Sit = false
                             end
-                            
-                            if isAttacked then
-                                topos(hrp.CFrame * CFrame.new(0, 250, 0))
-                                task.wait(1.5)
-                            else
-                                topos(hrp.CFrame * CFrame.new(0, 60, 0))
-                                AutoHaki()
-                                if _G.UseMeleeSkills then useSkills("Melee") end
-                                if _G.UseFruitSkills then useSkills("Blox Fruit") end
-                                if _G.UseSwordSkills then useSkills("Sword") end
-                            end
-                        until not _G.AutoFarmSeaBeast or not sb.Parent or hum.Health <= 0
-                    end
-                end)
-            end
-        end
-    end)
-
-    spawn(function()
-        while wait() do
-            if _G.Autoterrorshark and World3 then
-                pcall(function()
-                    for _, v956 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v956.Name:lower():find("terror") and v956:FindFirstChild("Humanoid") and v956:FindFirstChild("HumanoidRootPart") and v956.Humanoid.Health > 0 then
                             repeat
                                 task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v956.HumanoidRootPart.CanCollide = false
-                                v956.Humanoid.WalkSpeed = 0
-                                v956.Head.CanCollide = false
+                                if not hrp or not hum or hum.Health <= 0 then break end
                                 
                                 local isAttacked = false
                                 if _G.SafeModeSeaEvent then
-                                    local char = game.Players.LocalPlayer.Character
                                     if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
                                         local currentHealth = char.Humanoid.Health
                                         if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
@@ -7689,21 +7702,85 @@ do
                                 end
                                 
                                 if isAttacked then
-                                    topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                    topos(hrp.CFrame * CFrame.new(0, 250, 0))
                                     task.wait(1.5)
                                 else
-                                    if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
-                                        topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
-                                    else
-                                        topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
-                                    end
-                                    spamM1()
+                                    topos(hrp.CFrame * CFrame.new(0, 60, 0))
+                                    AutoHaki()
+                                    if _G.UseMeleeSkills then useSkills("Melee") end
+                                    if _G.UseFruitSkills then useSkills("Blox Fruit") end
+                                    if _G.UseSwordSkills then useSkills("Sword") end
                                 end
-                                
-                                MonFarm = v956.Name
-                                PosMon = v956.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.Autoterrorshark or not v956.Parent or v956.Humanoid.Health <= 0
+                            until not _G.AutoFarmSeaBeast or not sb.Parent or hum.Health <= 0
+                        end)
+                        _G.ActiveSeaEventTarget = nil
+                    end
+                end)
+            end
+        end
+    end)
+
+    spawn(function()
+        while wait() do
+            if _G.Autoterrorshark and World3 then
+                pcall(function()
+                    if isSeaBeastPresent() then return end
+                    for _, v956 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                        if v956.Name:lower():find("terror") and v956:FindFirstChild("Humanoid") and v956:FindFirstChild("HumanoidRootPart") and v956.Humanoid.Health > 0 then
+                            if canAcquireTarget(v956) then
+                                _G.ActiveSeaEventTarget = v956
+                                _G.FastAttackMultiplier = 12
+                                _G.AttackRange = 350
+                                local success, err = pcall(function()
+                                    repeat
+                                        task.wait()
+                                        AutoHaki()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        v956.HumanoidRootPart.CanCollide = false
+                                        v956.Humanoid.WalkSpeed = 0
+                                        v956.Head.CanCollide = false
+                                        
+                                        local isAttacked = false
+                                        if _G.SafeModeSeaEvent then
+                                            local char = game.Players.LocalPlayer.Character
+                                            if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
+                                                local currentHealth = char.Humanoid.Health
+                                                if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
+                                                    isAttacked = true
+                                                end
+                                                lastPlayerHealth = currentHealth
+                                                
+                                                if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
+                                                    isAttacked = true
+                                                end
+                                                
+                                                if currentHealth / char.Humanoid.MaxHealth < 0.6 then
+                                                    isAttacked = true
+                                                end
+                                            end
+                                        end
+                                        
+                                        if isAttacked then
+                                            topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            task.wait(1.5)
+                                        else
+                                            if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") then
+                                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(0, 300, 0))
+                                            else
+                                                topos(v956.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            end
+                                            spamM1()
+                                        end
+                                        
+                                        MonFarm = v956.Name
+                                        PosMon = v956.HumanoidRootPart.CFrame
+                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                    until not _G.Autoterrorshark or not v956.Parent or v956.Humanoid.Health <= 0
+                                end)
+                                _G.FastAttackMultiplier = nil
+                                _G.AttackRange = nil
+                                _G.ActiveSeaEventTarget = nil
+                            end
                         end
                     end
                 end)
@@ -7735,48 +7812,55 @@ do
         while wait() do
             if _G.KillShark and World3 then
                 pcall(function()
+                    if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v972 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v972.Name:lower() == "shark" and v972:FindFirstChild("Humanoid") and v972:FindFirstChild("HumanoidRootPart") and v972.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v972.HumanoidRootPart.CanCollide = false
-                                v972.Humanoid.WalkSpeed = 0
-                                v972.Head.CanCollide = false
-                                
-                                local isAttacked = false
-                                if _G.SafeModeSeaEvent then
-                                    local char = game.Players.LocalPlayer.Character
-                                    if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
-                                        local currentHealth = char.Humanoid.Health
-                                        if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
-                                            isAttacked = true
-                                        end
-                                        lastPlayerHealth = currentHealth
+                            if canAcquireTarget(v972) then
+                                _G.ActiveSeaEventTarget = v972
+                                local success, err = pcall(function()
+                                    repeat
+                                        task.wait()
+                                        AutoHaki()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        v972.HumanoidRootPart.CanCollide = false
+                                        v972.Humanoid.WalkSpeed = 0
+                                        v972.Head.CanCollide = false
                                         
-                                        if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
-                                            isAttacked = true
+                                        local isAttacked = false
+                                        if _G.SafeModeSeaEvent then
+                                            local char = game.Players.LocalPlayer.Character
+                                            if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
+                                                local currentHealth = char.Humanoid.Health
+                                                if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
+                                                    isAttacked = true
+                                                end
+                                                lastPlayerHealth = currentHealth
+                                                
+                                                if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
+                                                    isAttacked = true
+                                                end
+                                                
+                                                if currentHealth / char.Humanoid.MaxHealth < 0.6 then
+                                                    isAttacked = true
+                                                end
+                                            end
                                         end
                                         
-                                        if currentHealth / char.Humanoid.MaxHealth < 0.6 then
-                                            isAttacked = true
+                                        if isAttacked then
+                                            topos(v972.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            task.wait(1.5)
+                                        else
+                                            topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            spamM1()
                                         end
-                                    end
-                                end
-                                
-                                if isAttacked then
-                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
-                                    task.wait(1.5)
-                                else
-                                    topos(v972.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
-                                    spamM1()
-                                end
-                                
-                                MonFarm = v972.Name
-                                PosMon = v972.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
+                                        
+                                        MonFarm = v972.Name
+                                        PosMon = v972.HumanoidRootPart.CFrame
+                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                    until not _G.KillShark or not v972.Parent or v972.Humanoid.Health <= 0
+                                end)
+                                _G.ActiveSeaEventTarget = nil
+                            end
                         end
                     end
                 end)
@@ -7788,48 +7872,55 @@ do
         while wait() do
             if _G.KillPiranha and World3 then
                 pcall(function()
+                    if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v975 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v975.Name:lower():find("piranha") and v975:FindFirstChild("Humanoid") and v975:FindFirstChild("HumanoidRootPart") and v975.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v975.HumanoidRootPart.CanCollide = false
-                                v975.Humanoid.WalkSpeed = 0
-                                v975.Head.CanCollide = false
-                                
-                                local isAttacked = false
-                                if _G.SafeModeSeaEvent then
-                                    local char = game.Players.LocalPlayer.Character
-                                    if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
-                                        local currentHealth = char.Humanoid.Health
-                                        if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
-                                            isAttacked = true
-                                        end
-                                        lastPlayerHealth = currentHealth
+                            if canAcquireTarget(v975) then
+                                _G.ActiveSeaEventTarget = v975
+                                local success, err = pcall(function()
+                                    repeat
+                                        task.wait()
+                                        AutoHaki()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        v975.HumanoidRootPart.CanCollide = false
+                                        v975.Humanoid.WalkSpeed = 0
+                                        v975.Head.CanCollide = false
                                         
-                                        if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
-                                            isAttacked = true
+                                        local isAttacked = false
+                                        if _G.SafeModeSeaEvent then
+                                            local char = game.Players.LocalPlayer.Character
+                                            if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
+                                                local currentHealth = char.Humanoid.Health
+                                                if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
+                                                    isAttacked = true
+                                                end
+                                                lastPlayerHealth = currentHealth
+                                                
+                                                if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
+                                                    isAttacked = true
+                                                end
+                                                
+                                                if currentHealth / char.Humanoid.MaxHealth < 0.6 then
+                                                    isAttacked = true
+                                                end
+                                            end
                                         end
                                         
-                                        if currentHealth / char.Humanoid.MaxHealth < 0.6 then
-                                            isAttacked = true
+                                        if isAttacked then
+                                            topos(v975.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            task.wait(1.5)
+                                        else
+                                            topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            spamM1()
                                         end
-                                    end
-                                end
-                                
-                                if isAttacked then
-                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
-                                    task.wait(1.5)
-                                else
-                                    topos(v975.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
-                                    spamM1()
-                                end
-                                
-                                MonFarm = v975.Name
-                                PosMon = v975.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
+                                        
+                                        MonFarm = v975.Name
+                                        PosMon = v975.HumanoidRootPart.CFrame
+                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                    until not _G.KillPiranha or not v975.Parent or v975.Humanoid.Health <= 0
+                                end)
+                                _G.ActiveSeaEventTarget = nil
+                            end
                         end
                     end
                 end)
@@ -7841,51 +7932,58 @@ do
         while wait() do
             if _G.KillFishCrew and World3 then
                 pcall(function()
+                    if isSeaBeastPresent() or isTerrorSharkPresent() then return end
                     for _, v982 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                         if v982.Name:lower():find("fish crew") and v982:FindFirstChild("Humanoid") and v982:FindFirstChild("HumanoidRootPart") and v982.Humanoid.Health > 0 then
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v982.HumanoidRootPart.CanCollide = false
-                                v982.Humanoid.WalkSpeed = 0
-                                v982.Head.CanCollide = false
-                                
-                                local isAttacked = false
-                                if _G.SafeModeSeaEvent then
-                                    local char = game.Players.LocalPlayer.Character
-                                    if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
-                                        local currentHealth = char.Humanoid.Health
-                                        if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
-                                            isAttacked = true
-                                        end
-                                        lastPlayerHealth = currentHealth
+                            if canAcquireTarget(v982) then
+                                _G.ActiveSeaEventTarget = v982
+                                local success, err = pcall(function()
+                                    repeat
+                                        task.wait()
+                                        AutoHaki()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        v982.HumanoidRootPart.CanCollide = false
+                                        v982.Humanoid.WalkSpeed = 0
+                                        v982.Head.CanCollide = false
                                         
-                                        if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
-                                            isAttacked = true
+                                        local isAttacked = false
+                                        if _G.SafeModeSeaEvent then
+                                            local char = game.Players.LocalPlayer.Character
+                                            if char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") then
+                                                local currentHealth = char.Humanoid.Health
+                                                if lastPlayerHealth and currentHealth < lastPlayerHealth and currentHealth > 0 then
+                                                    isAttacked = true
+                                                end
+                                                lastPlayerHealth = currentHealth
+                                                
+                                                if game:GetService("Workspace")._WorldOrigin:FindFirstChild("Typhoon Splash") or game:GetService("Workspace")._WorldOrigin:FindFirstChild("Splash") then
+                                                    isAttacked = true
+                                                end
+                                                
+                                                if currentHealth / char.Humanoid.MaxHealth < 0.6 then
+                                                    isAttacked = true
+                                                end
+                                            end
                                         end
                                         
-                                        if currentHealth / char.Humanoid.MaxHealth < 0.6 then
-                                            isAttacked = true
+                                        if isAttacked then
+                                            topos(v982.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
+                                            task.wait(1.5)
+                                        else
+                                            topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
+                                            if _G.UseMeleeSkills then useSkills("Melee") end
+                                            if _G.UseFruitSkills then useSkills("Blox Fruit") end
+                                            if _G.UseSwordSkills then useSkills("Sword") end
+                                            spamM1()
                                         end
-                                    end
-                                end
-                                
-                                if isAttacked then
-                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(0, 250, 0))
-                                    task.wait(1.5)
-                                else
-                                    topos(v982.HumanoidRootPart.CFrame * CFrame.new(5, 50, 10))
-                                    if _G.UseMeleeSkills then useSkills("Melee") end
-                                    if _G.UseFruitSkills then useSkills("Blox Fruit") end
-                                    if _G.UseSwordSkills then useSkills("Sword") end
-                                    spamM1()
-                                end
-                                
-                                MonFarm = v982.Name
-                                PosMon = v982.HumanoidRootPart.CFrame
-                                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-                            until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
+                                        
+                                        MonFarm = v982.Name
+                                        PosMon = v982.HumanoidRootPart.CFrame
+                                        game.Players.LocalPlayer.Character.Humanoid.Sit = false
+                                    until not _G.KillFishCrew or not v982.Parent or v982.Humanoid.Health <= 0
+                                end)
+                                _G.ActiveSeaEventTarget = nil
+                            end
                         end
                     end
                 end)
@@ -10925,7 +11023,7 @@ task.spawn(function()
                     local _HumanoidRootPart = v22:FindFirstChild('HumanoidRootPart')
                     local _Humanoid = v22:FindFirstChild('Humanoid')
 
-                    if v22 ~= _Character and (_HumanoidRootPart and (_Humanoid and (_Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 60))) then
+                    if v22 ~= _Character and (_HumanoidRootPart and (_Humanoid and (_Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= (_G.AttackRange or 60)))) then
                         local v25, v26, v27 = ipairs(v22:GetChildren())
 
                         while true do
@@ -10936,7 +11034,7 @@ task.spawn(function()
                             if v27 == nil then
                                 break
                             end
-                            if v28:IsA('BasePart') and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 60 then
+                            if v28:IsA('BasePart') and (_HumanoidRootPart.Position - v13.Position).Magnitude <= (_G.AttackRange or 60) then
                                 u17[#u17 + 1] = {v22, v28}
                             end
                         end
@@ -10949,15 +11047,18 @@ task.spawn(function()
             if #u17 > 0 and (_Tool and (_Tool:GetAttribute('WeaponType') == 'Melee' or _Tool:GetAttribute('WeaponType') == 'Sword')) then
                 pcall(function()
                     require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
-                    game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
+                    local multiplier = _G.FastAttackMultiplier or 1
+                    for i = 1, multiplier do
+                        game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
 
-                    local _Head = u17[1][1]:FindFirstChild('Head')
+                        local _Head = u17[1][1]:FindFirstChild('Head')
 
-                    if _Head then
-                        game.ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(game.Players.LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
-                        cloneref(u4):FireServer(string.gsub('RE/RegisterHit', '.', function(p31)
-                            return string.char(bit32.bxor(string.byte(p31), math.floor(workspace:GetServerTimeNow() / 10 % 10) + 1))
-                        end), bit32.bxor(u5 + 909090, game.ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17)
+                        if _Head then
+                            game.ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(game.Players.LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
+                            cloneref(u4):FireServer(string.gsub('RE/RegisterHit', '.', function(p31)
+                                return string.char(bit32.bxor(string.byte(p31), math.floor(workspace:GetServerTimeNow() / 10 % 10) + 1))
+                            end), bit32.bxor(u5 + 909090, game.ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17)
+                        end
                     end
                 end)
             end
