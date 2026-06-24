@@ -9879,180 +9879,6 @@ v497:AddToggle({
     end
 })
 
-local _ = v494:AddSection({"Aimbot Nearest"})
-
-local v1 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Aimbot-skill-config/refs/heads/main/Aimbot.lua"))()
-
-local AimbotEnabled = false
-local AimPlayers = false
-local AimMobs = false
-local IgnoreMobs = true
-
--- ===============================
--- FUNÇÃO DE ATUALIZAÇÃO (COMPATÍVEL COM SUA LÓGICA)
--- ===============================
-local function UpdateAimbot()
-    if not AimbotEnabled then
-        v1:SetPlayerSilentAim(false)
-        v1:SetNPCSilentAim(false)
-        return
-    end
-
-    -- Se estiver mirando players
-    if AimPlayers then
-        v1:SetPlayerSilentAim(true)
-        v1:SetNPCSilentAim(false)
-        return
-    end
-
-    -- Se estiver mirando mobs
-    if AimMobs then
-        if IgnoreMobs then
-            v1:SetNPCSilentAim(false)
-        else
-            v1:SetNPCSilentAim(true)
-        end
-        v1:SetPlayerSilentAim(false)
-        return
-    end
-
-    -- fallback de segurança
-    v1:SetPlayerSilentAim(false)
-    v1:SetNPCSilentAim(false)
-end
-
--- ===============================
--- TOGGLE PRINCIPAL
--- ===============================
-v494:AddToggle({
-    Name = "Aimbot Gun",
-    Default = false,
-    Callback = function(v)
-        AimbotEnabled = v
-
-        if not v then
-            v1:Pause()
-        else
-            v1:Restore()
-        end
-
-        UpdateAimbot()
-    end
-})
-
--- ===============================
--- AIM PLAYERS
--- ===============================
-v494:AddToggle({
-    Name = "Aimbot Tap",
-    Default = false,
-    Callback = function(v)
-        AimPlayers = v
-
-        if v then
-            AimMobs = false
-        end
-
-        UpdateAimbot()
-    end
-})
-
--- ===============================
--- AIM MOBS
--- ===============================
-v494:AddToggle({
-    Name = "Aimbot Skills",
-    Default = false,
-    Callback = function(v)
-        AimMobs = v
-
-        if v then
-            AimPlayers = false
-        end
-
-        UpdateAimbot()
-    end
-})
-
--- ===============================
--- IGNORE MOBS (AGORA FUNCIONAL)
--- ===============================
-v494:AddToggle({
-    Name = "Ignore Mobs",
-    Default = true,
-    Callback = function(v)
-        IgnoreMobs = v
-        UpdateAimbot()
-    end
-})
-
-local _ = v494:AddSection({"Aimbot skill V2"})
-local v1 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Aimbot-skill-config/refs/heads/main/Aimbot.lua"))()
-
-local AimbotEnabled = false
-local AimPlayers = false
-local AimMobs = false
-
-v494:AddToggle({
-    Name = "Enable Aimbot Skill",
-    Default = false,
-    Callback = function(v)
-        AimbotEnabled = v
-
-        if not v then
-            v1:Pause()
-            v1:SetPlayerSilentAim(false)
-            v1:SetNPCSilentAim(false)
-        else
-            if AimPlayers then
-                v1:SetPlayerSilentAim(true)
-            end
-            if AimMobs then
-                v1:SetNPCSilentAim(true)
-            end
-            v1:Restore()
-        end
-    end
-})
-
-v494:AddToggle({
-    Name = "Aimbot on Players",
-    Default = false,
-    Callback = function(v)
-        AimPlayers = v
-
-        if v then
-            AimMobs = false
-            v1:SetNPCSilentAim(false)
-        end
-
-        if AimbotEnabled then
-            v1:SetPlayerSilentAim(v)
-        else
-            v1:SetPlayerSilentAim(false)
-        end
-    end
-})
-
-v494:AddToggle({
-    Name = "Aimbot on Mobs",
-    Default = false,
-    Callback = function(v)
-        AimMobs = v
-
-        if v then
-            AimPlayers = false
-            v1:SetPlayerSilentAim(false)
-        end
-
-        if AimbotEnabled then
-            v1:SetNPCSilentAim(v)
-        else
-            v1:SetNPCSilentAim(false)
-        end
-    end
-})
-
 local _ = v494:AddSection({"Esp"})
 local ESP_SIZE_FILE = "esp_size_save.txt"
 
@@ -10359,6 +10185,178 @@ v494:AddToggle({
             end
         else
             UpdateBerriesESP()
+        end
+    end
+})
+
+local function findMyBoat()
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    local boats = game:GetService("Workspace"):FindFirstChild("Boats")
+    if not boats then return nil end
+    for _, boat in pairs(boats:GetChildren()) do
+        local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
+        local isOwner = false
+        local ownerVal = boat:FindFirstChild("Owner")
+        if ownerVal then
+            if ownerVal:IsA("ObjectValue") and ownerVal.Value == player then
+                isOwner = true
+            elseif ownerVal:IsA("StringValue") and ownerVal.Value == player.Name then
+                isOwner = true
+            elseif tostring(ownerVal.Value) == player.Name then
+                isOwner = true
+            end
+        end
+        if boat:GetAttribute("Owner") == player.Name or boat:GetAttribute("Owner") == player then
+            isOwner = true
+        end
+        if seat and char and char:FindFirstChild("Humanoid") and char.Humanoid.SeatPart == seat then
+            isOwner = true
+        end
+        if isOwner then
+            return boat
+        end
+    end
+    return nil
+end
+
+v494:AddToggle({
+    Title = "Esp Islands",
+    Value = false,
+    Callback = function(state)
+        _G.IslandESP = state
+        if _G.IslandESP then
+            task.spawn(function()
+                while _G.IslandESP do
+                    local player = game:GetService("Players").LocalPlayer
+                    local char = player.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        local rootPos = char.HumanoidRootPart.Position
+                        local locations = game:GetService("Workspace"):FindFirstChild("_WorldOrigin") 
+                            and game:GetService("Workspace")._WorldOrigin:FindFirstChild("Locations")
+                        if locations then
+                            for _, obj in pairs(locations:GetChildren()) do
+                                local objPos = nil
+                                local targetPart = nil
+                                if obj:IsA("BasePart") then
+                                    objPos = obj.Position
+                                    targetPart = obj
+                                elseif obj:IsA("Model") then
+                                    if obj.PrimaryPart then
+                                        objPos = obj.PrimaryPart.Position
+                                        targetPart = obj.PrimaryPart
+                                    else
+                                        local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChildWhichIsA("BasePart")
+                                        if hrp then
+                                            objPos = hrp.Position
+                                            targetPart = hrp
+                                        end
+                                    end
+                                end
+
+                                if objPos and targetPart and obj.Name ~= "Sea" then
+                                    if not targetPart:FindFirstChild("IslandESP") then
+                                        local gui = Instance.new("BillboardGui")
+                                        gui.Name = "IslandESP"
+                                        gui.Size = UDim2.new(0, 200, 0, 50)
+                                        gui.AlwaysOnTop = true
+                                        gui.Adornee = targetPart
+                                        gui.MaxDistance = 999999
+                                        gui.Parent = targetPart
+
+                                        local text = Instance.new("TextLabel")
+                                        text.Size = UDim2.new(1, 0, 1, 0)
+                                        text.BackgroundTransparency = 1
+                                        text.TextScaled = true
+                                        text.Font = Enum.Font.SourceSans
+                                        text.TextColor3 = Color3.fromRGB(0, 255, 255)
+                                        text.TextStrokeTransparency = 0
+                                        text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                                        text.Parent = gui
+                                    end
+
+                                    local dist = math.floor((rootPos - objPos).Magnitude)
+                                    targetPart.IslandESP.TextLabel.Text = obj.Name .. "\n[ " .. dist .. "m ]"
+                                end
+                            end
+                        end
+                        task.wait(1)
+                    else
+                        task.wait(1)
+                    end
+                end
+            end)
+        else
+            local locations = game:GetService("Workspace"):FindFirstChild("_WorldOrigin") 
+                and game:GetService("Workspace")._WorldOrigin:FindFirstChild("Locations")
+            if locations then
+                for _, obj in pairs(locations:GetChildren()) do
+                    for _, part in pairs(obj:GetDescendants()) do
+                        if part.Name == "IslandESP" then
+                            part:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
+})
+
+v494:AddToggle({
+    Title = "Esp My boat",
+    Value = false,
+    Callback = function(state)
+        _G.MyBoatESP = state
+        if _G.MyBoatESP then
+            task.spawn(function()
+                while _G.MyBoatESP do
+                    local player = game:GetService("Players").LocalPlayer
+                    local char = player.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        local rootPos = char.HumanoidRootPart.Position
+                        local myBoat = findMyBoat()
+                        if myBoat then
+                            local basePart = myBoat:FindFirstChild("VehicleSeat") or myBoat.PrimaryPart or myBoat:FindFirstChildWhichIsA("BasePart")
+                            if basePart then
+                                if not basePart:FindFirstChild("MyBoatESP") then
+                                    local gui = Instance.new("BillboardGui")
+                                    gui.Name = "MyBoatESP"
+                                    gui.Size = UDim2.new(0, 200, 0, 50)
+                                    gui.AlwaysOnTop = true
+                                    gui.Adornee = basePart
+                                    gui.MaxDistance = 999999
+                                    gui.Parent = basePart
+
+                                    local text = Instance.new("TextLabel")
+                                    text.Size = UDim2.new(1, 0, 1, 0)
+                                    text.BackgroundTransparency = 1
+                                    text.TextScaled = true
+                                    text.Font = Enum.Font.SourceSans
+                                    text.TextColor3 = Color3.fromRGB(0, 255, 0)
+                                    text.TextStrokeTransparency = 0
+                                    text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                                    text.Parent = gui
+                                end
+
+                                local dist = math.floor((rootPos - basePart.Position).Magnitude)
+                                basePart.MyBoatESP.TextLabel.Text = "My Boat\n[ " .. dist .. "m ]"
+                            end
+                        end
+                    end
+                    task.wait(1)
+                end
+            end)
+        else
+            local boats = game:GetService("Workspace"):FindFirstChild("Boats")
+            if boats then
+                for _, boat in pairs(boats:GetChildren()) do
+                    for _, part in pairs(boat:GetDescendants()) do
+                        if part.Name == "MyBoatESP" then
+                            part:Destroy()
+                        end
+                    end
+                end
+            end
         end
     end
 })
