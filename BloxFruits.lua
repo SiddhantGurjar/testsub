@@ -9996,7 +9996,7 @@ local function CreateESP(player)
 	nameLabel.RichText = true
     nameLabel.TextColor3 = Color3.fromRGB(210,210,210) 
 	nameLabel.TextStrokeTransparency = 0
-	nameLabel.TextSize = 24
+	nameLabel.TextSize = _G.ESPSize or 24
 	nameLabel.Font = Enum.Font.SourceSans
 	nameLabel.TextXAlignment = Enum.TextXAlignment.Center
 	nameLabel.TextYAlignment = Enum.TextYAlignment.Center
@@ -10008,7 +10008,7 @@ local function CreateESP(player)
 	hpLabel.Position = UDim2.new(0, 0, 0.5, 0)
 	hpLabel.TextColor3 = Color3.fromRGB(0,255,0)
 	hpLabel.TextStrokeTransparency = 0
-	hpLabel.TextSize = 24
+	hpLabel.TextSize = _G.ESPSize or 24
 	hpLabel.Font = Enum.Font.SourceSans
 	hpLabel.TextXAlignment = Enum.TextXAlignment.Center
 	hpLabel.TextYAlignment = Enum.TextYAlignment.Center
