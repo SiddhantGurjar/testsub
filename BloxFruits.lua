@@ -4025,6 +4025,9 @@ spawn(function()
                                         MonFarm = mob.Name
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                        if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
+                                            pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
+                                        end
                                     until not _G.AutoFarm or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
                                 end
                             end
@@ -4067,6 +4070,9 @@ spawn(function()
                                                     MonFarm = v512.Name
                                                     game:GetService("VirtualUser"):CaptureController()
                                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
+                                                        pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
+                                                    end
                                                 until not _G.AutoFarm or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             end
                                         end
@@ -4086,6 +4092,7 @@ spawn(function()
                                                 repeat
                                                     task.wait()
                                                     EquipWeapon(_G.SelectWeapon)
+                                                    AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
                                                     topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
                                                     v514.HumanoidRootPart.CanCollide = false
@@ -4096,6 +4103,9 @@ spawn(function()
                                                     MonFarm = v514.Name
                                                     game:GetService("VirtualUser"):CaptureController()
                                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
+                                                        pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
+                                                    end
                                                 until not _G.AutoFarm or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             else
                                                 StartBring = false
@@ -5357,7 +5367,7 @@ function getConfigMaterial(v665)
                                         elseif v665 ~= "Conjured Cocoa" or not World3 then
                                             if v665 == "Dragon Scale" and World3 then
                                                 MaterialMon = {"Dragon Crew Warrior"}
-                                                MaterialPos = CFrame.new(5824.06, 51.38, -1106.69)
+                                                MaterialPos = CFrame.new(6709.76, 82.34, -1139.02)
                                             elseif v665 == "Gunpowder" and World3 then
                                                 MaterialMon = {"Pistol Billionaire"}
                                                 MaterialPos = CFrame.new(-379.61, 73.84, 5928.52)
@@ -5461,7 +5471,13 @@ task.spawn(function()
                         if _G.SelectMaterial == "Ectoplasm" and (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 18000 then
                             game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.21, 126.97, 32852.83))
                         end
-                        topos(MaterialPos)
+                        if _G.SelectMaterial == "Dragon Scale" and (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 3000 then
+                            game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625))
+                            task.wait(0.5)
+                        end
+                        if (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 100 then
+                            topos(MaterialPos)
+                        end
                     end
                 end
             end)
@@ -9187,13 +9203,27 @@ v491:AddToggle({
     end
 })
 spawn(function()
-    while wait(0.1) do
-        if _G.TweenFruit then
-            for _, v1086 in pairs(game.Workspace:GetChildren()) do
-                if string.find(v1086.Name, "Fruit") then
-                    TP1(v1086.Handle.CFrame)
+    while wait(0.5) do
+        if _G.Tweenfruit and not _G.AutoFarm then
+            pcall(function()
+                for _, v1086 in pairs(game.Workspace:GetChildren()) do
+                    if _G.Tweenfruit and not _G.AutoFarm and v1086:FindFirstChild("Handle") and string.find(v1086.Name, "Fruit") then
+                        topos(v1086.Handle.CFrame * CFrame.new(0, -2, 0))
+                        task.wait(1)
+                        if v1086 and v1086.Parent and v1086:FindFirstChild("Handle") then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1086.Handle.CFrame * CFrame.new(0, -2, 0)
+                            task.wait(0.5)
+                            pcall(function()
+                                if firetouchinterest then
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 0)
+                                    task.wait(0.1)
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 1)
+                                end
+                            end)
+                        end
+                    end
                 end
-            end
+            end)
         end
     end
 end)
@@ -9206,13 +9236,23 @@ v491:AddToggle({
     end
 })
 spawn(function()
-    while wait(0.1) do
-        if _G.Grabfruit then
-            for _, v1089 in pairs(game.Workspace:GetChildren()) do
-                if string.find(v1089.Name, "Fruit") then
-                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1089.Handle.CFrame
+    while wait(0.5) do
+        if _G.Grabfruit and not _G.AutoFarm then
+            pcall(function()
+                for _, v1089 in pairs(game.Workspace:GetChildren()) do
+                    if _G.Grabfruit and not _G.AutoFarm and v1089:FindFirstChild("Handle") and string.find(v1089.Name, "Fruit") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1089.Handle.CFrame * CFrame.new(0, -2, 0)
+                        task.wait(0.5)
+                        pcall(function()
+                            if firetouchinterest then
+                                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 0)
+                                task.wait(0.1)
+                                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 1)
+                            end
+                        end)
+                    end
                 end
-            end
+            end)
         end
     end
 end)
