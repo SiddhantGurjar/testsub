@@ -4016,6 +4016,7 @@ spawn(function()
                                         task.wait()
                                         EquipWeapon(_G.SelectWeapon)
                                         AutoHaki()
+                                        PosMon = mob.HumanoidRootPart.CFrame
                                         topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
                                         mob.HumanoidRootPart.CanCollide = false
                                         mob.Humanoid.WalkSpeed = 0
@@ -4023,6 +4024,7 @@ spawn(function()
                                         mob.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                                         StartBring = true
                                         MonFarm = mob.Name
+                                        sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                         if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
@@ -4077,13 +4079,10 @@ spawn(function()
                                             end
                                         end
                                     end
-                                else
-                                    TP1(CFrameMon)
-                                    StartBring = false
-                                    if game:GetService("ReplicatedStorage"):FindFirstChild(Mon) then
-                                        TP1(game:GetService("ReplicatedStorage"):FindFirstChild(Mon).HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
-                                    end
-                                end
+                                 else
+                                     TP1(CFrameMon)
+                                     StartBring = false
+                                 end
                             else
                                 for _, v514 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                                     if string.find(v514.Name, "kissed Warrior") then
@@ -4115,9 +4114,6 @@ spawn(function()
                                     else
                                         TP1(CFrameMon)
                                         StartBring = false
-                                        if game:GetService("ReplicatedStorage"):FindFirstChild(Mon) then
-                                            TP1(game:GetService("ReplicatedStorage"):FindFirstChild(Mon).HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
-                                        end
                                     end
                                 end
                             end
@@ -8320,6 +8316,7 @@ spawn(function()
                 if characters then
                     for _, v1022 in pairs(characters:GetChildren()) do
                         if v1022.Name ~= game.Players.LocalPlayer.Name and v1022:FindFirstChild("Humanoid") and v1022:FindFirstChild("HumanoidRootPart") and v1022.Humanoid.Health > 0 and v1022.Parent and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v1022.HumanoidRootPart.Position).Magnitude <= 230 then
+                            _G.AttackRange = 120
                             repeat
                                 task.wait()
                                 AutoHaki()
@@ -8330,7 +8327,13 @@ spawn(function()
                                 v1022.Head.CanCollide = false
                                 v1022.Humanoid.WalkSpeed = 0
                                 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                if _G.XaiSkillZ then Skill("Z") end
+                                if _G.XaiSkillX then Skill("X") end
+                                if _G.XaiSkillC then Skill("C") end
                             until not _G.AutoKillV4 or v1022.Humanoid.Health <= 0 or not v1022.Parent or not v1022:FindFirstChild("HumanoidRootPart") or not v1022:FindFirstChild("Humanoid")
+                            _G.AttackRange = nil
                         end
                     end
                 end
@@ -11175,8 +11178,8 @@ task.spawn(function()
             end
 
             local _Tool = _Character:FindFirstChildOfClass('Tool')
-
-            if #u17 > 0 and (_Tool and (_Tool:GetAttribute('WeaponType') == 'Melee' or _Tool:GetAttribute('WeaponType') == 'Sword')) then
+            local weaponType = _Tool and (_Tool:GetAttribute('WeaponType') or _Tool.ToolTip)
+            if #u17 > 0 and (_Tool and (weaponType == 'Melee' or weaponType == 'Sword')) then
                 pcall(function()
                     require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
                     local multiplier = _G.FastAttackMultiplier or 1
