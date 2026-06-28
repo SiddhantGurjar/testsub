@@ -6657,8 +6657,8 @@ if World3 then
         end)
         local _ = v487:AddSection({"Auto CDK"})
         v487:AddToggle({
-            Name = "Auto Cdk [Beta]",
-            Description = "",
+            Name = "Auto Cdk",
+            Description = "Completes all 6 CDK trials + Boss automatically",
             Default = false,
             Callback = function(v797)
                 _G.AutoGetCDK = v797
@@ -6669,59 +6669,214 @@ if World3 then
             repeat
                 task.wait()
             until getgenv().AutoGetCDK
-            local v798 = false
+
             local l_LocalPlayer_12 = game.Players.LocalPlayer
             local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage")
             local l_Workspace_0 = game:GetService("Workspace")
             local l_Enemies_3 = l_Workspace_0.Enemies
-            while getgenv().AutoGetCDK do
-                task.wait(0.2)
+
+            -- Third Sea island CFrames for Haze of Misery island hopping
+            local MiseryIslands = {
+                {name = "Port Town", pos = CFrame.new(-226.751, 20.603, 5538.34)},
+                {name = "Hydra Island", pos = CFrame.new(5291.249, 1005.443, 393.762)},
+                {name = "Great Tree", pos = CFrame.new(2681.274, 1682.809, -7190.985)},
+                {name = "Floating Turtle", pos = CFrame.new(-13274.528, 531.821, -7579.223)},
+                {name = "Haunted Castle", pos = CFrame.new(-9515.372, 164.006, 5786.061)},
+                {name = "Castle on the Sea", pos = CFrame.new(-5020.773, 314.681, -2796.539)},
+                {name = "Ice Cream Island", pos = CFrame.new(-902.568, 79.932, -10988.848)},
+                {name = "Tiki Outpost", pos = CFrame.new(-16218.683, 9.086, 445.618)},
+            }
+
+            -- Boat Dealer positions for Dock Legend trial
+            local BoatDealers = {
+                CFrame.new(-226.751, 20.603, 5538.34),   -- Port Town
+                CFrame.new(-9515.372, 164.006, 5786.061), -- Haunted Castle
+                CFrame.new(-13274.528, 531.821, -7579.223), -- Floating Turtle
+            }
+
+            -- Helper: kill all marked/nearby enemies at current location
+            local function KillNearbyEnemies(duration)
+                local startTime = tick()
+                while getgenv().AutoGetCDK and (tick() - startTime) < duration do
+                    task.wait(0.1)
+                    local hrp = HRP()
+                    if hrp then
+                        for _, mob in pairs(l_Enemies_3:GetChildren()) do
+                            if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                                local dist = (mob.HumanoidRootPart.Position - hrp.Position).Magnitude
+                                if dist < 300 then
+                                    repeat
+                                        task.wait()
+                                        if not getgenv().AutoGetCDK then return end
+                                        AutoHaki()
+                                        mob.HumanoidRootPart.CanCollide = false
+                                        mob.Humanoid.WalkSpeed = 0
+                                        mob.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
+                                        topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                        sethiddenproperty(l_LocalPlayer_12, "SimulationRadius", math.huge)
+                                        game:GetService("VirtualUser"):CaptureController()
+                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                    until not getgenv().AutoGetCDK or not mob.Parent or mob.Humanoid.Health <= 0
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            -- Helper: tween to position and wait until arrived
+            local function TweenAndWait(cf, timeout)
+                timeout = timeout or 30
+                local startTime = tick()
+                repeat
+                    task.wait()
+                    local hrp = HRP()
+                    if hrp then
+                        topos(cf)
+                        if (hrp.Position - cf.Position).Magnitude <= 15 then break end
+                    end
+                until not getgenv().AutoGetCDK or (tick() - startTime) > timeout
+            end
+
+            local cdkDone = false
+            while getgenv().AutoGetCDK and not cdkDone do
+                task.wait(0.5)
                 pcall(function()
-                    l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Good")
-                    task.wait(0.2)
-                    l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Evil")
-                    task.wait(0.2)
-                    l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "StartTrial", "Boss")
-                    task.wait(0.2)
-                    if not l_Enemies_3:FindFirstChild("Cursed Skeleton Boss") then
-                        topos(CFrame.new(-12318.193, 601.951, -6538.662))
-                        task.wait(0.5)
-                        topos(l_Workspace_0.Map.Turtle.Cursed.BossDoor.CFrame)
-                    else
+                    -- Query current CDK quest state from server
+                    local progressGood = l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Good")
+                    task.wait(0.3)
+                    local progressEvil = l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Evil")
+                    task.wait(0.3)
+
+                    -- Check if Cursed Skeleton Boss needs to be fought (final step)
+                    if l_Enemies_3:FindFirstChild("Cursed Skeleton Boss") then
+                        -- === FINAL BOSS FIGHT ===
                         for _, v804 in pairs(l_Enemies_3:GetChildren()) do
                             if v804.Name == "Cursed Skeleton Boss" and v804:FindFirstChild("Humanoid") and v804:FindFirstChild("HumanoidRootPart") and v804.Humanoid.Health > 0 then
                                 local l_Character_7 = l_LocalPlayer_12.Character
                                 local l_Backpack_1 = l_LocalPlayer_12.Backpack
-                                if not l_Character_7:FindFirstChild("Yama") and not l_Backpack_1:FindFirstChild("Yama") then
-                                    if not l_Character_7:FindFirstChild("Tushita") and not l_Backpack_1:FindFirstChild("Tushita") then
-                                        if not v798 then
-                                            game.StarterGui:SetCore("SendNotification", {
-                                                Title = "Tu   n Anh IOS",
-                                                Text = "Use! - Yama or Tushita",
-                                                con = "rbxassetid://131185267344742",
-                                                Duration = 10
-                                            })
-                                            v798 = true
-                                        end
-                                    else
-                                        EquipWeapon("Tushita")
-                                    end
-                                else
+                                if l_Character_7:FindFirstChild("Yama") or l_Backpack_1:FindFirstChild("Yama") then
                                     EquipWeapon("Yama")
-                                end
-                                Buso()
-                                v804.HumanoidRootPart.CanCollide = false
-                                v804.Humanoid.WalkSpeed = 0
-                                topos(v804.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
-                                if syn and not getgenv().SimulationSet then
-                                    sethiddenproperty(l_LocalPlayer_12, "SimulationRadius", math.huge)
-                                    getgenv().SimulationSet = true
+                                elseif l_Character_7:FindFirstChild("Tushita") or l_Backpack_1:FindFirstChild("Tushita") then
+                                    EquipWeapon("Tushita")
+                                else
+                                    game.StarterGui:SetCore("SendNotification", {
+                                        Title = "Redz Hub",
+                                        Text = "Equip Yama or Tushita!",
+                                        Duration = 10
+                                    })
                                 end
                                 repeat
                                     task.wait()
+                                    if not getgenv().AutoGetCDK then return end
+                                    AutoHaki()
+                                    v804.HumanoidRootPart.CanCollide = false
+                                    v804.Humanoid.WalkSpeed = 0
+                                    v804.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
+                                    topos(v804.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                    sethiddenproperty(l_LocalPlayer_12, "SimulationRadius", math.huge)
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 until not getgenv().AutoGetCDK or not v804.Parent or v804.Humanoid.Health <= 0
                             end
                         end
+                        cdkDone = true
+                        return
+                    end
+
+                    -- Try to start the boss trial
+                    l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "StartTrial", "Boss")
+                    task.wait(0.3)
+
+                    -- Check for boss again after starting trial
+                    if l_Enemies_3:FindFirstChild("Cursed Skeleton Boss") then
+                        return -- loop back to handle boss
+                    end
+
+                    -- === YAMA TRIALS (Good path) ===
+
+                    -- Trial: Pain and Suffering (take 8-10k damage while holding Yama)
+                    -- Auto-equip Yama and stand near enemies to take damage
+                    local l_Character_7 = l_LocalPlayer_12.Character
+                    local l_Backpack_1 = l_LocalPlayer_12.Backpack
+                    local hasYama = (l_Character_7 and l_Character_7:FindFirstChild("Yama")) or (l_Backpack_1 and l_Backpack_1:FindFirstChild("Yama"))
+                    local hasTushita = (l_Character_7 and l_Character_7:FindFirstChild("Tushita")) or (l_Backpack_1 and l_Backpack_1:FindFirstChild("Tushita"))
+
+                    -- === HAZE OF MISERY (Yama trial - kill marked NPCs across islands) ===
+                    -- Island-hop through 3rd sea looking for and killing marked NPCs
+                    if hasYama then
+                        EquipWeapon("Yama")
+                        AutoHaki()
+                        for _, island in pairs(MiseryIslands) do
+                            if not getgenv().AutoGetCDK then return end
+                            TweenAndWait(island.pos, 45)
+                            if not getgenv().AutoGetCDK then return end
+                            -- Kill all enemies near this island for 15 seconds
+                            KillNearbyEnemies(15)
+                        end
+                    end
+
+                    -- === TUSHITA TRIALS (Evil path) ===
+
+                    -- Trial: Dock Legend (talk to 3 boat dealers)
+                    if hasTushita then
+                        EquipWeapon("Tushita")
+                        for _, dealerPos in pairs(BoatDealers) do
+                            if not getgenv().AutoGetCDK then return end
+                            TweenAndWait(dealerPos, 45)
+                            task.wait(1)
+                            -- Interact with nearby boat dealer NPC
+                            pcall(function()
+                                local hrp = HRP()
+                                if not hrp then return end
+                                for _, npc in pairs(l_Workspace_0:GetDescendants()) do
+                                    if npc:IsA("Model") and (npc.Name == "Boat Dealer" or npc.Name == "BoatDealer") and npc:FindFirstChild("HumanoidRootPart") then
+                                        if (npc.HumanoidRootPart.Position - hrp.Position).Magnitude < 80 then
+                                            pcall(function()
+                                                l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "TalkToDealer")
+                                            end)
+                                            pcall(function()
+                                                -- Try ProximityPrompt
+                                                for _, v in pairs(npc:GetDescendants()) do
+                                                    if v:IsA("ProximityPrompt") then
+                                                        fireproximityprompt(v)
+                                                    end
+                                                    if v:IsA("ClickDetector") then
+                                                        fireclickdetector(v)
+                                                    end
+                                                end
+                                            end)
+                                            pcall(function()
+                                                l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("BoatDealerOption", "PardonMe")
+                                            end)
+                                        end
+                                    end
+                                end
+                            end)
+                        end
+                    end
+
+                    -- Attempt progress again after doing trials
+                    task.wait(0.5)
+                    pcall(function()
+                        l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Good")
+                    end)
+                    task.wait(0.3)
+                    pcall(function()
+                        l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "Progress", "Evil")
+                    end)
+                    task.wait(0.3)
+                    pcall(function()
+                        l_ReplicatedStorage_0.Remotes.CommF_:InvokeServer("CDKQuest", "StartTrial", "Boss")
+                    end)
+
+                    -- If no boss spawned, go to the boss door area
+                    if not l_Enemies_3:FindFirstChild("Cursed Skeleton Boss") then
+                        TweenAndWait(CFrame.new(-12318.193, 601.951, -6538.662), 30)
+                        task.wait(0.5)
+                        pcall(function()
+                            topos(l_Workspace_0.Map.Turtle.Cursed.BossDoor.CFrame)
+                        end)
                     end
                 end)
             end
