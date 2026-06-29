@@ -4888,20 +4888,42 @@ spawn(function()
 end)
 local _ = v485:AddSection({"Katakuri"})
 local v606 = v485:AddParagraph({Title = "Check Cake Prince", Content = "Loading..."})
+local sentKatakuriNotif = false
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
             local v607 = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("CakePrinceSpawner")
-            if string.len(v607) == 88 then
-                v606:Set("Killed : " .. string.sub(v607, 39, 41) .. " / 500")
-            elseif string.len(v607) ~= 87 then
-                if string.len(v607) == 86 then
-                    v606:Set("Killed : " .. string.sub(v607, 39, 39) .. " / 500")
-                else
-                    v606:Set("Prince King Spawned    ")
+            if string.find(v607, "open the portal") or string.find(v607, "portal now") then
+                v606:Set("Killed : 500 / 500 (Ready!)")
+                if not sentKatakuriNotif then
+                    sentKatakuriNotif = true
+                    _G.Fullykatakuri = false
+                    _G.FarmCake = false
+                    task.spawn(function()
+                        for i = 1, 5 do
+                            topos(CFrame.new(-1820.0634765625, 210.74781799316406, -12297.49609375))
+                            task.wait(0.5)
+                        end
+                    end)
+                    game.StarterGui:SetCore("SendNotification", {
+                        Title = "Redz Hub",
+                        Text = "Killed 500/500 Npcs!",
+                        Duration = 10
+                    })
                 end
             else
-                v606:Set("Killed : " .. string.sub(v607, 39, 40) .. " / 500")
+                sentKatakuriNotif = false
+                if string.len(v607) == 88 then
+                    v606:Set("Killed : " .. string.sub(v607, 39, 41) .. " / 500")
+                elseif string.len(v607) ~= 87 then
+                    if string.len(v607) == 86 then
+                        v606:Set("Killed : " .. string.sub(v607, 39, 39) .. " / 500")
+                    else
+                        v606:Set("Prince King Spawned    ")
+                    end
+                else
+                    v606:Set("Killed : " .. string.sub(v607, 39, 40) .. " / 500")
+                end
             end
         end)
     end
@@ -5025,9 +5047,7 @@ spawn(function()
             pcall(function()
                 if not game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") and not game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice") then
                     if game.Players.LocalPlayer.Backpack:FindFirstChild("Sweet Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("Sweet Chalice") then
-                        if string.find(game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("CakePrinceSpawner"), "Do you want to open the portal now?") then
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("CakePrinceSpawner")
-                        elseif game.Workspace.Enemies:FindFirstChild("Baking Staff") or game.Workspace.Enemies:FindFirstChild("Head Baker") or game.Workspace.Enemies:FindFirstChild("Cake Guard") or game.Workspace.Enemies:FindFirstChild("Cookie Crafter") then
+                        if game.Workspace.Enemies:FindFirstChild("Baking Staff") or game.Workspace.Enemies:FindFirstChild("Head Baker") or game.Workspace.Enemies:FindFirstChild("Cake Guard") or game.Workspace.Enemies:FindFirstChild("Cookie Crafter") then
                             for _, v621 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                                 if (v621.Name == "Baking Staff" or v621.Name == "Head Baker" or v621.Name == "Cake Guard" or v621.Name == "Cookie Crafter") and v621.Humanoid.Health > 0 then
                                     repeat
