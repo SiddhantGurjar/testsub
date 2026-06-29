@@ -9414,7 +9414,23 @@ spawn(function()
         end
     end
 end)
-local _ = v491:AddSection({"Check Stock Fruits"})
+        v491:AddButton({
+            Name = "Open Fruit Shop",
+            Callback = function()
+                pcall(function()
+                    require(game:GetService("Players").LocalPlayer.PlayerGui.Main.UIController.FruitShop):Open("FruitDealer")
+                end)
+            end
+        })
+        v491:AddButton({
+            Name = "Open Mirage Shop",
+            Callback = function()
+                pcall(function()
+                    require(game:GetService("Players").LocalPlayer.PlayerGui.Main.UIController.FruitShop):Open("AdvancedFruitDealer")
+                end)
+            end
+        })
+        local _ = v491:AddSection({"Check Stock Fruits"})
 local function v1096(v1091)
     local v1092 = tostring(v1091)
     repeat
