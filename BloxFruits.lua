@@ -42,6 +42,31 @@ end
 
 JoinTeam()
 
+local Mouse = Plr:GetMouse()
+pcall(function()
+    local gmt = getrawmetatable(game)
+    if gmt then
+        setreadonly(gmt, false)
+        local oldIndex = gmt.__index
+
+        gmt.__index = newcclosure(function(self, key)
+            if self == Mouse and (key == "Hit" or key == "Target") then
+                if PosMon then
+                    if key == "Hit" then
+                        return PosMon
+                    elseif key == "Target" then
+                        local enemies = game:GetService("Workspace").Enemies
+                        local enemy = MonFarm and enemies:FindFirstChild(MonFarm) or nil
+                        return enemy and (enemy:FindFirstChild("HumanoidRootPart") or enemy:FindFirstChildWhichIsA("BasePart"))
+                    end
+                end
+            end
+            return oldIndex(self, key)
+        end)
+        setreadonly(gmt, true)
+    end
+end)
+
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function()
     -- empty block
 end)
@@ -3516,7 +3541,7 @@ end)
 spawn(function()
     while task.wait() do
         pcall(function()
-            if _G.FarmBone or _G.AutoFarm or _G.Pray or _G.Trylux or _G.Hallow or _G.FarmCake or _G.FarmDaiBan or _G.Greybeard or _G.CursedCaptain or _G.AutoDarkBoss or _G.ChiefWarden or _G.Trident or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodCanvande or _G.SwodsBuddy or _G.FarmBlazeEM or _G.AutoFindPrehistoric or _G.TweenVolcano or _G.DefendVolcano or _G.KillGolem or _G.SwodTwinHooks or _G.Fullykatakuri or _G.AutoBoss or _G.SwodCanvander or _G.AutoFarmMaterial or _G.AutoSecondSea or _G.Autosaw or _G.ChiefWarden or _G.Trident or _G.AutoSaber or _G.ThirdSea or _G.AutoBartilo or _G.AutoFactory or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodTwinHooks or _G.SwodCanvander or _G.AutoRaidPirate or _G.AutoQuestYama or _G.AutoYamaQuest or _G.AutoSaber or _G.DefendVolcano or _G.TPB or _G.SailBoat or _G.Autoterrorshark or _G.KillShark or _G.KillPiranha or _G.KillFishCrew or _G.AutoQuestRace or _G.Dungeon or _G.AutoLawRaid or _G.Tweenfruit or ProjectTrialPro or _G.TweenMGear or _G.AutoMysticIsland or AutoUpgradeRace or AutoRaceEvo1 or _G.AutoFarmFruits or _G.Autopole or _G.Autosaw or _G.AutoElitehunter or FarmMtrFruit or _G.AutoNear or _G.CollectBerry or _G.RipIndraKill or _G.FarmChocola or SoulGuitar or _G.AutoHolyTorch or _G.AutoGetTushita or _G.AutoYama or _G.AutoMobDragon or _G.AutoHydraTree or _G.TweenToKitsune or _G.AutoDooHee or _G.AutoAzuerEmber or _G.TweenVolcano or _G.Dungeon or _G.AutoLawRaid or _G.TweenFruit or _G.Grabfruit or _G.TeleportIsland or _G.TeleportNPC or _G.SafeMode or _G.AutoPlayerHunter or _G.AutoKillPlayer or _G.TeleportPly or _G.AutoQuestBoss or _G.AutoAllBoss or _G.AutoFarmLevelNew or _G.FarmSummer or _G.BossPain then
+            if _G.FarmBone or _G.AutoFarm or _G.AutoFarmMastery or _G.Pray or _G.Trylux or _G.Hallow or _G.FarmCake or _G.FarmDaiBan or _G.Greybeard or _G.CursedCaptain or _G.AutoDarkBoss or _G.ChiefWarden or _G.Trident or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodCanvande or _G.SwodsBuddy or _G.FarmBlazeEM or _G.AutoFindPrehistoric or _G.TweenVolcano or _G.DefendVolcano or _G.KillGolem or _G.SwodTwinHooks or _G.Fullykatakuri or _G.AutoBoss or _G.SwodCanvander or _G.AutoFarmMaterial or _G.AutoSecondSea or _G.Autosaw or _G.ChiefWarden or _G.Trident or _G.AutoSaber or _G.ThirdSea or _G.AutoBartilo or _G.AutoFactory or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodTwinHooks or _G.SwodCanvander or _G.AutoRaidPirate or _G.AutoQuestYama or _G.AutoYamaQuest or _G.AutoSaber or _G.DefendVolcano or _G.TPB or _G.SailBoat or _G.Autoterrorshark or _G.KillShark or _G.KillPiranha or _G.KillFishCrew or _G.AutoQuestRace or _G.Dungeon or _G.AutoLawRaid or _G.Tweenfruit or ProjectTrialPro or _G.TweenMGear or _G.AutoMysticIsland or AutoUpgradeRace or AutoRaceEvo1 or _G.AutoFarmFruits or _G.Autopole or _G.Autosaw or _G.AutoElitehunter or FarmMtrFruit or _G.AutoNear or _G.CollectBerry or _G.RipIndraKill or _G.FarmChocola or SoulGuitar or _G.AutoHolyTorch or _G.AutoGetTushita or _G.AutoYama or _G.AutoMobDragon or _G.AutoHydraTree or _G.TweenToKitsune or _G.AutoDooHee or _G.AutoAzuerEmber or _G.TweenVolcano or _G.Dungeon or _G.AutoLawRaid or _G.TweenFruit or _G.Grabfruit or _G.TeleportIsland or _G.TeleportNPC or _G.SafeMode or _G.AutoPlayerHunter or _G.AutoKillPlayer or _G.TeleportPly or _G.AutoQuestBoss or _G.AutoAllBoss or _G.AutoFarmLevelNew or _G.FarmSummer or _G.BossPain then
                 if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
                     local l_BodyVelocity_2 = Instance.new("BodyVelocity")
                     l_BodyVelocity_2.Name = "BodyClip"
@@ -3533,7 +3558,7 @@ end)
 spawn(function()
     pcall(function()
         game:GetService("RunService").Stepped:Connect(function()
-            if _G.FarmBone or _G.AutoFarm or _G.Pray or _G.Trylux or _G.Hallow or _G.FarmCake or _G.FarmDaiBan or _G.Fullykatakuri or _G.AutoBoss or _G.AutoMateria or _G.AutoSecondSea or _G.Autosaw or _G.ChiefWarden or _G.Trident or _G.AutoSaber or _G.Greybeard or _G.CursedCaptain or _G.AutoDarkBoss or _G.ChiefWarden or _G.Trident or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodCanvande or _G.SwodTwinHooks or _G.ThirdSea or _G.AutoBartilo or _G.AutoFactory or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodTwinHooks or _G.SwodCanvander or _G.SwodsBuddy or _G.FarmBlazeEM or _G.AutoFindPrehistoric or _G.TweenVolcano or _G.DefendVolcano or _G.KillGolem or _G.AutoRaidPirate or _G.AutoQuestYama or _G.AutoYamaQuest or _G.AutoElitehunter or FarmMtrFruit or AutoUpgradeRace or _G.AutoFarmMaterial or AutoRaceEvo1 or AutoSaber or _G.Autopole or _G.SwodCanvander or _G.DefendVolcano or _G.SailBoat or _G.Autoterrorshark or _G.KillShark or _G.KillPiranha or _G.KillFishCrew or _G.AutoQuestRace or _G.Dungeon or _G.AutoLawRaid or _G.Tweenfruit or ProjectTrialPro or _G.AutoMysticIsland or _G.TweenMGear or _G.Autosaw or _G.AutoNear or _G.AutoFarmFruits or _G.CollectBerry or _G.RipIndraKill or _G.FarmChocola or SoulGuitar or _G.AutoHolyTorch or _G.AutoGetTushita or _G.AutoYama or _G.AutoMobDragon or _G.AutoHydraTree or _G.TweenToKitsune or _G.AutoDooHee or _G.AutoAzuerEmber or _G.TweenVolcano or _G.Dungeon or _G.AutoLawRaid or _G.TweenFruit or _G.Grabfruit or _G.TeleportIsland or _G.TeleportNPC or _G.SafeMode or _G.AutoPlayerHunter or _G.AutoKillPlayer or _G.TeleportPly or _G.AutoQuestBoss or _G.AutoAllBoss or _G.AutoFarmLevelNew or _G.FarmSummer or _G.BossPain then
+            if _G.FarmBone or _G.AutoFarm or _G.AutoFarmMastery or _G.Pray or _G.Trylux or _G.Hallow or _G.FarmCake or _G.FarmDaiBan or _G.Fullykatakuri or _G.AutoBoss or _G.AutoMateria or _G.AutoSecondSea or _G.Autosaw or _G.ChiefWarden or _G.Trident or _G.AutoSaber or _G.Greybeard or _G.CursedCaptain or _G.AutoDarkBoss or _G.ChiefWarden or _G.Trident or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodCanvande or _G.SwodTwinHooks or _G.ThirdSea or _G.AutoBartilo or _G.AutoFactory or _G.Longsword or _G.GravityBlade or _G.SwodsFlail or _G.AutoRengoku or _G.SwodsDRTrident or _G.SwodTwinHooks or _G.SwodCanvander or _G.SwodsBuddy or _G.FarmBlazeEM or _G.AutoFindPrehistoric or _G.TweenVolcano or _G.DefendVolcano or _G.KillGolem or _G.AutoRaidPirate or _G.AutoQuestYama or _G.AutoYamaQuest or _G.AutoElitehunter or FarmMtrFruit or AutoUpgradeRace or _G.AutoFarmMaterial or AutoRaceEvo1 or AutoSaber or _G.Autopole or _G.SwodCanvander or _G.DefendVolcano or _G.SailBoat or _G.Autoterrorshark or _G.KillShark or _G.KillPiranha or _G.KillFishCrew or _G.AutoQuestRace or _G.Dungeon or _G.AutoLawRaid or _G.Tweenfruit or ProjectTrialPro or _G.AutoMysticIsland or _G.TweenMGear or _G.Autosaw or _G.AutoNear or _G.AutoFarmFruits or _G.CollectBerry or _G.RipIndraKill or _G.FarmChocola or SoulGuitar or _G.AutoHolyTorch or _G.AutoGetTushita or _G.AutoYama or _G.AutoMobDragon or _G.AutoHydraTree or _G.TweenToKitsune or _G.AutoDooHee or _G.AutoAzuerEmber or _G.TweenVolcano or _G.Dungeon or _G.AutoLawRaid or _G.TweenFruit or _G.Grabfruit or _G.TeleportIsland or _G.TeleportNPC or _G.SafeMode or _G.AutoPlayerHunter or _G.AutoKillPlayer or _G.TeleportPly or _G.AutoQuestBoss or _G.AutoAllBoss or _G.AutoFarmLevelNew or _G.FarmSummer or _G.BossPain then
                 for _, v421 in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
                     if v421:IsA("BasePart") then
                         v421.CanCollide = false
@@ -3876,7 +3901,7 @@ local function StopTween(state)
 end
 
 local function TweenTo(cf)
-    if not _G.AutoFarm then return end
+    if not (_G.AutoFarm or _G.AutoFarmMastery) then return end
     local hrp = HRP()
     if not hrp then return end
 
@@ -3891,7 +3916,7 @@ local function TweenTo(cf)
     CurrentTween = TweenService:Create(hrp, TweenInfo.new(t, Enum.EasingStyle.Linear), {CFrame = cf})
     CurrentTween:Play()
 
-    while _G.AutoFarm and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
+    while (_G.AutoFarm or _G.AutoFarmMastery) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
         task.wait()
     end
 
@@ -3902,20 +3927,20 @@ local function TweenTo(cf)
 end
 
 local function GoSubmerged()
-    if not _G.AutoFarm then return end
+    if not (_G.AutoFarm or _G.AutoFarmMastery) then return end
     if TravelingSubmerged or IsInSubmerged() or LocalPlayer.Data.Level.Value < 2600 then return end
 
     TravelingSubmerged = true
     TweenTo(SUB_NPC + Vector3.new(0, 60, 0))
-    if not _G.AutoFarm then TravelingSubmerged = false return end
+    if not (_G.AutoFarm or _G.AutoFarmMastery) then TravelingSubmerged = false return end
     TweenTo(SUB_NPC)
-    if not _G.AutoFarm then TravelingSubmerged = false return end
+    if not (_G.AutoFarm or _G.AutoFarmMastery) then TravelingSubmerged = false return end
 
     pcall(function()
         ReplicatedStorage.Modules.Net["RF/SubmarineWorkerSpeak"]:InvokeServer("TravelToSubmergedIsland")
     end)
 
-    while _G.AutoFarm and not IsInSubmerged() do
+    while (_G.AutoFarm or _G.AutoFarmMastery) and not IsInSubmerged() do
         task.wait(0.5)
     end
 
@@ -3983,9 +4008,18 @@ v485:AddToggle({
         StopTween(_G.AutoFarm)
     end
 })
+v485:AddToggle({
+    Name = "Auto Farm Mastery",
+    Description = "Farm Mastery",
+    Default = false,
+    Callback = function(state)
+        _G.AutoFarmMastery = state
+        StopTween(_G.AutoFarmMastery)
+    end
+})
 spawn(function()
     while task.wait() do
-        if _G.AutoFarm then
+        if _G.AutoFarm or _G.AutoFarmMastery then
             pcall(function()
                 local currentLevel = LocalPlayer.Data.Level.Value                
                 if currentLevel >= 2600 and World3 then
@@ -4028,9 +4062,20 @@ spawn(function()
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                         if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
-                                            pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
+                                            pcall(function()
+                                                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                                                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+                                                if _G.UseSkillC then Skill("C") task.wait(0.15) end
+                                                if _G.UseSkillV then Skill("V") task.wait(0.15) end
+                                                if _G.UseSkillF then Skill("F") task.wait(0.15) end
+                                            end)
+                                        elseif _G.SelectWeapon and FindWeapon("Gun") and _G.SelectWeapon == FindWeapon("Gun") then
+                                            pcall(function()
+                                                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                                                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+                                            end)
                                         end
-                                    until not _G.AutoFarm or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
+                                    until not (_G.AutoFarm or _G.AutoFarmMastery) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
                                 end
                             end
                             
@@ -4060,7 +4105,7 @@ spawn(function()
                                             else
                                                 repeat
                                                     task.wait()
-                                                    EquipWeapon(_G.SelectWeapon)
+                                                    EquipWeapon(getToolToEquip(v512))
                                                     AutoHaki()
                                                     PosMon = v512.HumanoidRootPart.CFrame
                                                     topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4072,10 +4117,8 @@ spawn(function()
                                                     MonFarm = v512.Name
                                                     game:GetService("VirtualUser"):CaptureController()
                                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
-                                                        pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
-                                                    end
-                                                until not _G.AutoFarm or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                    spamCombatSkills(v512)
+                                                until not (_G.AutoFarm or _G.AutoFarmMastery) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             end
                                         end
                                     end
@@ -4090,7 +4133,7 @@ spawn(function()
                                             if string.find(l_Text_0, NameMon) then
                                                 repeat
                                                     task.wait()
-                                                    EquipWeapon(_G.SelectWeapon)
+                                                    EquipWeapon(getToolToEquip(v514))
                                                     AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
                                                     topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4102,10 +4145,8 @@ spawn(function()
                                                     MonFarm = v514.Name
                                                     game:GetService("VirtualUser"):CaptureController()
                                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
-                                                        pcall(function() Skill("Z") task.wait(0.15) Skill("X") task.wait(0.15) Skill("C") task.wait(0.15) Skill("V") task.wait(0.15) Skill("F") end)
-                                                    end
-                                                until not _G.AutoFarm or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                    spamCombatSkills(v514)
+                                                 until not (_G.AutoFarm or _G.AutoFarmMastery) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             else
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4537,6 +4578,59 @@ function FindWeapon(v575)
         end
     end
     return nil
+end
+
+function getToolToEquip(mob)
+    if _G.AutoFarmMastery then
+        local weaponType = _G.MasterySelectWeapon or "Melee"
+        if weaponType == "Gun" or weaponType == "Blox Fruit" then
+            if mob and mob:FindFirstChild("Humanoid") then
+                local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
+                if hpPercent > (_G.UseSkillHP or 20) then
+                    return FindWeapon("Melee") or "Combat"
+                else
+                    return FindWeapon(weaponType == "Blox Fruit" and "Fruit" or "Gun")
+                end
+            end
+        end
+        return FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
+    else
+        return _G.SelectWeapon
+    end
+end
+
+function spamCombatSkills(mob)
+    local weaponType = _G.SelectWeapon
+    if _G.AutoFarmMastery then
+        local mType = _G.MasterySelectWeapon or "Melee"
+        if mType == "Gun" or mType == "Blox Fruit" then
+            if mob and mob:FindFirstChild("Humanoid") then
+                local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
+                if hpPercent <= (_G.UseSkillHP or 20) then
+                    weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
+                else
+                    return
+                end
+            end
+        else
+            return
+        end
+    end
+
+    if weaponType and FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+        pcall(function()
+            if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+            if _G.UseSkillX then Skill("X") task.wait(0.15) end
+            if _G.UseSkillC then Skill("C") task.wait(0.15) end
+            if _G.UseSkillV then Skill("V") task.wait(0.15) end
+            if _G.UseSkillF then Skill("F") task.wait(0.15) end
+        end)
+    elseif weaponType and FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+        pcall(function()
+            if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+            if _G.UseSkillX then Skill("X") task.wait(0.15) end
+        end)
+    end
 end
 function EquipWeapon(v579)
     if not v579 then
@@ -5433,6 +5527,85 @@ v485:AddToggle({
     Callback = function(v667)
         _G.AutoFarmMaterial = v667
         StopTween(_G.AutoFarmMaterial)
+    end
+})
+
+local _ = v485:AddSection({"Auto Farm Mastery"})
+
+_G.MasterySelectWeapon = "Melee"
+
+v485:AddDropdown({
+    Name = "Select Tool",
+    Description = "Choose tool to gain mastery on",
+    Options = {"Melee", "Sword", "Gun", "Blox Fruit"},
+    Default = "Melee",
+    Callback = function(value)
+        _G.MasterySelectWeapon = value
+    end
+})
+
+-- Farming Skills Selection moved here!
+_G.UseSkillZ = _G.UseSkillZ == nil and true or _G.UseSkillZ
+_G.UseSkillX = _G.UseSkillX == nil and true or _G.UseSkillX
+_G.UseSkillC = _G.UseSkillC == nil and true or _G.UseSkillC
+_G.UseSkillV = _G.UseSkillV == nil and true or _G.UseSkillV
+_G.UseSkillF = _G.UseSkillF == nil and true or _G.UseSkillF
+
+local function getActiveSkillsString()
+    local list = {}
+    if _G.UseSkillZ then table.insert(list, "Z") end
+    if _G.UseSkillX then table.insert(list, "X") end
+    if _G.UseSkillC then table.insert(list, "C") end
+    if _G.UseSkillV then table.insert(list, "V") end
+    if _G.UseSkillF then table.insert(list, "F") end
+    return #list > 0 and table.concat(list, ", ") or "None"
+end
+
+local activeSkillsText = v485:AddParagraph({
+    Title = "Farming Skills Active",
+    Content = getActiveSkillsString()
+})
+
+v485:AddDropdown({
+    Name = "Select Skills to Toggle",
+    Description = "Click any skill to toggle it on/off",
+    Options = {"Z", "X", "C", "V", "F"},
+    Default = "",
+    Callback = function(value)
+        if value == "Z" then
+            _G.UseSkillZ = not _G.UseSkillZ
+        elseif value == "X" then
+            _G.UseSkillX = not _G.UseSkillX
+        elseif value == "C" then
+            _G.UseSkillC = not _G.UseSkillC
+        elseif value == "V" then
+            _G.UseSkillV = not _G.UseSkillV
+        elseif value == "F" then
+            _G.UseSkillF = not _G.UseSkillF
+        end
+        activeSkillsText:Set(getActiveSkillsString())
+    end
+})
+
+_G.UseSkillHP = 20
+
+v485:AddSlider({
+    Name = "Use Skill HP",
+    Min = 5,
+    Max = 100,
+    Default = 20,
+    Callback = function(value)
+        _G.UseSkillHP = value
+    end
+})
+
+v485:AddToggle({
+    Name = "Auto Farm Mastery",
+    Description = "Lower NPC HP with Melee, finish with selected Mastery tool",
+    Default = false,
+    Callback = function(state)
+        _G.AutoFarmMastery = state
+        StopTween(_G.AutoFarmMastery)
     end
 })
 task.spawn(function()
@@ -9089,43 +9262,6 @@ task.spawn(function()
     end
 end)
 v498:AddToggle({
-    Name = "Auto Tween Kitsune island",
-    Description = "",
-    Default = false,
-    Callback = function(v940)
-        _G.TweenToKitsune = v940
-        StopTween(_G.TweenToKitsune)
-    end
-})
-spawn(function()
-    local v941 = nil
-    while not v941 do
-        v941 = game:GetService("Workspace").Map:FindFirstChild("KitsuneIsland")
-        wait(1)
-    end
-    while wait() do
-        if _G.TweenToKitsune then
-            local v942 = v941.FindFirstChild(v941, "ShrineActive")
-            if v942 then
-                for _, v944 in pairs(v942:GetDescendants()) do
-                    if v944:IsA("BasePart") and v944.Name:find("NeonShrinePart") then
-                        Tween(v944.CFrame)
-                    end
-                end
-            end
-        end
-    end
-end)
-spawn(function()
-    pcall(function()
-        while wait() do
-            if _G.TweenToKitsune then
-                topos(game.Workspace.Map.KitsuneIsland.ShrineActive.NeonShrinePart.CFrame * CFrame.new(0, 0, 10))
-            end
-        end
-    end)
-end)
-v498:AddToggle({
     Title = "Esp Kitsune Island",
     Value = false,
     Callback = function(v945)
@@ -9155,8 +9291,14 @@ spawn(function()
     while wait() do
         if _G.AutoAzuerEmber then
             pcall(function()
-                if game:GetService("Workspace"):FindFirstChild("AttachedAzureEmber") then
-                    TP1(game.Workspace.EmberTemplate.Part.CFrame)
+                for _, v in pairs(game:GetService("Workspace"):GetChildren()) do
+                    if v.Name == "AttachedAzureEmber" or v.Name == "AzureEmber" then
+                        local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
+                        if part then
+                            topos(part.CFrame)
+                            break
+                        end
+                    end
                 end
             end)
         end
@@ -9253,7 +9395,7 @@ spawn(function()
     pcall(function()
         while wait() do
             if _G.TweenMGear and game:GetService("Workspace").Map:FindFirstChild("MysticIsland") then
-                for _, v995 in pairs(game:GetService("Workspace").Map.MysticIsland:GetChildren()) do
+                for _, v995 in pairs(game:GetService("Workspace").Map.MysticIsland:GetDescendants()) do
                     if v995:IsA("MeshPart") and v995.Material == Enum.Material.Neon then
                         topos(v995.CFrame)
                     end
