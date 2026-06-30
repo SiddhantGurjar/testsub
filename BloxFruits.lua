@@ -43,29 +43,7 @@ end
 JoinTeam()
 
 local Mouse = Plr:GetMouse()
-pcall(function()
-    local gmt = getrawmetatable(game)
-    if gmt then
-        setreadonly(gmt, false)
-        local oldIndex = gmt.__index
 
-        gmt.__index = newcclosure(function(self, key)
-            if (self == Mouse or (typeof(self) == "Instance" and self.ClassName == "Mouse")) and (key == "Hit" or key == "Target") then
-                if PosMon then
-                    if key == "Hit" then
-                        return PosMon
-                    elseif key == "Target" then
-                        local enemies = game:GetService("Workspace").Enemies
-                        local enemy = MonFarm and enemies:FindFirstChild(MonFarm) or nil
-                        return enemy and (enemy:FindFirstChild("HumanoidRootPart") or enemy:FindFirstChildWhichIsA("BasePart"))
-                    end
-                end
-            end
-            return oldIndex(self, key)
-        end)
-        setreadonly(gmt, true)
-    end
-end)
 
 function Skill(v572)
     local l_VirtualInputManager_0 = game:GetService("VirtualInputManager")
