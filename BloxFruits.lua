@@ -7470,31 +7470,6 @@ do
         })
     end)
 
-    local function getCurrentDangerLevel()
-        local mainGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main")
-        local seaThreat = mainGui and mainGui:FindFirstChild("SeaThreat")
-        if seaThreat and seaThreat.Visible then
-            local textLabel = seaThreat:FindFirstChild("Container") and (
-                seaThreat.Container:FindFirstChild("Level") or 
-                seaThreat.Container:FindFirstChild("TextLabel") or
-                seaThreat.Container:FindFirstChildWhichIsA("TextLabel")
-            )
-            if textLabel then
-                local text = textLabel.Text
-                if text == "???" then
-                    return 6
-                end
-                local num = string.match(text, "%d+")
-                if num then
-                    return tonumber(num)
-                end
-            end
-        end
-        return 0
-    end
-
-    _G.SeaLevel = _G.SeaLevel or "Infinit"
-    local sailingOutbound = true
     local myBoat = nil
     local activeBoatTween = nil
     local activeBoatTarget = nil
@@ -8005,16 +7980,6 @@ do
         end
     })
 
-    v489:AddDropdown({
-        Name = "Sea Level",
-        Description = "Select the Sea Danger Level to roam in (Infinit to sail fully)",
-        Options = {"Infinit", "6", "5", "4", "3", "2", "1"},
-        Default = _G.SeaLevel or "Infinit",
-        Callback = function(Value)
-            _G.SeaLevel = Value
-        end
-    })
-
     v489:AddSlider({
         Name = "Tween Speed",
         Min = 50,
@@ -8247,29 +8212,12 @@ do
                                         end
 
                                         if myBoat then
-                                            local currentTarget
-                                            local targetLevel = tonumber(_G.SeaLevel)
-                                            if not targetLevel then
+                                            local currentTarget = targetPoints[currentTargetIndex]
+                                            local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
+                                            if distanceToTarget < 100 then
+                                                currentTargetIndex = currentTargetIndex == 1 and 2 or 1
                                                 currentTarget = targetPoints[currentTargetIndex]
-                                                local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
-                                                if distanceToTarget < 100 then
-                                                    currentTargetIndex = currentTargetIndex == 1 and 2 or 1
-                                                    currentTarget = targetPoints[currentTargetIndex]
-                                                    stopBoatTween()
-                                                end
-                                            else
-                                                local curLevel = getCurrentDangerLevel()
-                                                if curLevel < targetLevel then
-                                                    sailingOutbound = true
-                                                elseif curLevel > targetLevel then
-                                                    sailingOutbound = false
-                                                end
-                                                
-                                                if sailingOutbound then
-                                                    currentTarget = targetPoints[2]
-                                                else
-                                                    currentTarget = CFrame.new(-16218.683, seat.Position.Y, 445.618)
-                                                end
+                                                stopBoatTween()
                                             end
                                             
                                             local currentSpeed = _G.BoatTweenSpeed or 300
