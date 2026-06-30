@@ -50,7 +50,7 @@ pcall(function()
         local oldIndex = gmt.__index
 
         gmt.__index = newcclosure(function(self, key)
-            if self == Mouse and (key == "Hit" or key == "Target") then
+            if (self == Mouse or (typeof(self) == "Instance" and self.ClassName == "Mouse")) and (key == "Hit" or key == "Target") then
                 if PosMon then
                     if key == "Hit" then
                         return PosMon
@@ -136,30 +136,34 @@ function EquipWeapon(v579)
     end
 end
 
+function isFruitOrGun(toolName)
+    if not toolName then return false end
+    local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+    local char = game.Players.LocalPlayer.Character
+    local tool = (backpack and backpack:FindFirstChild(toolName)) or (char and char:FindFirstChild(toolName))
+    if tool and tool:IsA("Tool") and (tool.ToolTip == "Blox Fruit" or tool.ToolTip == "Gun") then
+        return true
+    end
+    return false
+end
+
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
-        print("[Mastery Debug] Mastery Select Weapon:", tostring(weaponType))
         if weaponType == "Gun" or weaponType == "Blox Fruit" then
             if mob and mob:FindFirstChild("Humanoid") then
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
-                print("[Mastery Debug] HP% calculated:", hpPercent, "vs Threshold:", tostring(_G.UseSkillHP))
                 if hpPercent > (_G.UseSkillHP or 20) then
                     local toolName = FindWeapon("Melee") or "Combat"
-                    print("[Mastery Debug] HP too high, returning Melee:", tostring(toolName))
                     return toolName
                 else
                     local targetType = (weaponType == "Blox Fruit" and "Fruit" or "Gun")
                     local toolName = FindWeapon(targetType)
-                    print("[Mastery Debug] HP below threshold! Returning target tool:", tostring(toolName))
                     return toolName
                 end
-            else
-                print("[Mastery Debug] Mob or Humanoid missing from calculation!")
             end
         end
         local defaultTool = FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
-        print("[Mastery Debug] Default Mastery tool returned:", tostring(defaultTool))
         return defaultTool
     else
         return _G.SelectWeapon
@@ -169,7 +173,6 @@ end
 local spammingSkills = false
 function spamCombatSkills(mob)
     if spammingSkills then 
-        print("[Skills Debug] Debounce active, ignoring overlapping call.")
         return 
     end
 
@@ -181,57 +184,71 @@ function spamCombatSkills(mob)
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
                 if hpPercent <= (_G.UseSkillHP or 20) then
                     weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
-                    print("[Skills Debug] Mastery below HP threshold. Using weapon:", tostring(weaponType))
                 else
-                    print("[Skills Debug] HP too high for skills:", hpPercent)
                     return
                 end
             end
         else
-            print("[Skills Debug] Melee/Sword mastery selected. M1 handles it.")
             return
         end
     end
 
     if not weaponType then 
-        print("[Skills Debug] No tool found for casting skills!")
         return 
     end
 
-    print("[Skills Debug] Triggering skill cast sequence for tool:", tostring(weaponType))
     spammingSkills = true
     task.spawn(function()
-        pcall(function()
-            local function aim()
-                if mob and mob:FindFirstChild("HumanoidRootPart") then
-                    PosMon = mob.HumanoidRootPart.CFrame
-                    MonFarm = mob.Name
-                    
-                    local character = game.Players.LocalPlayer.Character
-                    if character and character:FindFirstChild("HumanoidRootPart") then
-                        character.HumanoidRootPart.CFrame = CFrame.lookAt(character.HumanoidRootPart.Position, mob.HumanoidRootPart.Position)
+        local casting = true
+        task.spawn(function()
+            while casting do
+                pcall(function()
+                    if mob and mob:FindFirstChild("HumanoidRootPart") then
+                        PosMon = mob.HumanoidRootPart.CFrame
+                        MonFarm = mob.Name
+                        
+                        local character = game.Players.LocalPlayer.Character
+                        if character and character:FindFirstChild("HumanoidRootPart") then
+                            character.HumanoidRootPart.CFrame = CFrame.lookAt(
+                                character.HumanoidRootPart.Position,
+                                Vector3.new(mob.HumanoidRootPart.Position.X, character.HumanoidRootPart.Position.Y, mob.HumanoidRootPart.Position.Z)
+                            )
+                        end
+                        
+                        local camera = game.Workspace.CurrentCamera
+                        if camera then
+                            camera.CFrame = CFrame.lookAt(camera.CFrame.Position, mob.HumanoidRootPart.Position)
+                            
+                            -- Force real cursor to be visible and unlocked
+                            local uis = game:GetService("UserInputService")
+                            uis.MouseBehavior = Enum.MouseBehavior.Default
+                            uis.MouseIconEnabled = true
+                            
+                            -- Snap mouse position exactly to target screen coordinate (no inset offset)
+                            local screenPos, onScreen = camera:WorldToScreenPoint(mob.HumanoidRootPart.Position)
+                            if onScreen then
+                                game:GetService("VirtualInputManager"):SendMouseMoveEvent(screenPos.X, screenPos.Y, game)
+                            end
+                        end
                     end
-                    local camera = game.Workspace.CurrentCamera
-                    if camera then
-                        camera.CFrame = CFrame.lookAt(camera.CFrame.Position, mob.HumanoidRootPart.Position)
-                    end
-                end
-            end
-
-            if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
-                print("[Skills Debug] Casting Blox Fruit skills...")
-                if _G.UseSkillZ then aim() Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then aim() Skill("X") task.wait(0.15) end
-                if _G.UseSkillC then aim() Skill("C") task.wait(0.15) end
-                if _G.UseSkillV then aim() Skill("V") task.wait(0.15) end
-                if _G.UseSkillF then aim() Skill("F") task.wait(0.15) end
-            elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
-                print("[Skills Debug] Casting Gun skills...")
-                if _G.UseSkillZ then aim() Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then aim() Skill("X") task.wait(0.15) end
+                end)
+                task.wait()
             end
         end)
-        print("[Skills Debug] Skill cast sequence finished.")
+
+        pcall(function()
+            if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+                if _G.UseSkillC then Skill("C") task.wait(0.15) end
+                if _G.UseSkillV then Skill("V") task.wait(0.15) end
+                if _G.UseSkillF then Skill("F") task.wait(0.15) end
+            elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+            end
+        end)
+        casting = false
         spammingSkills = false
     end)
 end
@@ -3710,7 +3727,7 @@ spawn(function()
     local l_LocalPlayer_3 = game.Players.LocalPlayer
     while task.wait() do
         pcall(function()
-            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 100 then
+            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 2000 then
                 stopTeleport()
             end
         end)
@@ -4254,7 +4271,8 @@ spawn(function()
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                                     repeat
                                         task.wait()
-                                        EquipWeapon(getToolToEquip(mob))
+                                        local targetTool = getToolToEquip(mob)
+                                        EquipWeapon(targetTool)
                                         AutoHaki()
                                         PosMon = mob.HumanoidRootPart.CFrame
                                         topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4265,8 +4283,7 @@ spawn(function()
                                         StartBring = true
                                         MonFarm = mob.Name
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
-                                        local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                                        if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                        if not isFruitOrGun(targetTool) then
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                         end
@@ -4301,7 +4318,8 @@ spawn(function()
                                             else
                                                 repeat
                                                     task.wait()
-                                                    EquipWeapon(getToolToEquip(v512))
+                                                    local targetTool = getToolToEquip(v512)
+                                                    EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v512.HumanoidRootPart.CFrame
                                                     topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4311,8 +4329,7 @@ spawn(function()
                                                     v512.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                                                     StartBring = true
                                                     MonFarm = v512.Name
-                                                    local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                                                    if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                                    if not isFruitOrGun(targetTool) then
                                                         game:GetService("VirtualUser"):CaptureController()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                                     end
@@ -4332,7 +4349,8 @@ spawn(function()
                                             if string.find(l_Text_0, NameMon) then
                                                 repeat
                                                     task.wait()
-                                                    EquipWeapon(getToolToEquip(v514))
+                                                    local targetTool = getToolToEquip(v514)
+                                                    EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
                                                     topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4342,8 +4360,7 @@ spawn(function()
                                                     v514.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                                                     StartBring = true
                                                     MonFarm = v514.Name
-                                                    local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                                                    if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                                    if not isFruitOrGun(targetTool) then
                                                         game:GetService("VirtualUser"):CaptureController()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                                     end
@@ -5122,12 +5139,17 @@ task.spawn(function()
                             repeat
                                 task.wait()
                                 AutoHaki()
-                                EquipWeapon(getToolToEquip(v662))
+                                local targetTool = getToolToEquip(v662)
+                                EquipWeapon(targetTool)
                                 v662.HumanoidRootPart.CanCollide = false
                                 v662.Humanoid.WalkSpeed = 0
                                 v662.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
                                 topos(v662.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
                                 sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+                                if not isFruitOrGun(targetTool) then
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                end
                                 spamCombatSkills(v662)
                             until not _G.AutoBoss or not v662.Parent or v662.Humanoid.Health <= 0
                         end
@@ -7432,6 +7454,31 @@ do
         })
     end)
 
+    local function getCurrentDangerLevel()
+        local mainGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main")
+        local seaThreat = mainGui and mainGui:FindFirstChild("SeaThreat")
+        if seaThreat and seaThreat.Visible then
+            local textLabel = seaThreat:FindFirstChild("Container") and (
+                seaThreat.Container:FindFirstChild("Level") or 
+                seaThreat.Container:FindFirstChild("TextLabel") or
+                seaThreat.Container:FindFirstChildWhichIsA("TextLabel")
+            )
+            if textLabel then
+                local text = textLabel.Text
+                if text == "???" then
+                    return 6
+                end
+                local num = string.match(text, "%d+")
+                if num then
+                    return tonumber(num)
+                end
+            end
+        end
+        return 0
+    end
+
+    _G.SeaLevel = _G.SeaLevel or "Infinit"
+    local sailingOutbound = true
     local myBoat = nil
     local activeBoatTween = nil
     local activeBoatTarget = nil
@@ -7942,6 +7989,16 @@ do
         end
     })
 
+    v489:AddDropdown({
+        Name = "Sea Level",
+        Description = "Select the Sea Danger Level to roam in (Infinit to sail fully)",
+        Options = {"Infinit", "6", "5", "4", "3", "2", "1"},
+        Default = _G.SeaLevel or "Infinit",
+        Callback = function(Value)
+            _G.SeaLevel = Value
+        end
+    })
+
     v489:AddSlider({
         Name = "Tween Speed",
         Min = 50,
@@ -8174,12 +8231,29 @@ do
                                         end
 
                                         if myBoat then
-                                            local currentTarget = targetPoints[currentTargetIndex]
-                                            local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
-                                            if distanceToTarget < 100 then
-                                                currentTargetIndex = currentTargetIndex == 1 and 2 or 1
+                                            local currentTarget
+                                            local targetLevel = tonumber(_G.SeaLevel)
+                                            if not targetLevel then
                                                 currentTarget = targetPoints[currentTargetIndex]
-                                                stopBoatTween()
+                                                local distanceToTarget = (seat.Position - currentTarget.Position).Magnitude
+                                                if distanceToTarget < 100 then
+                                                    currentTargetIndex = currentTargetIndex == 1 and 2 or 1
+                                                    currentTarget = targetPoints[currentTargetIndex]
+                                                    stopBoatTween()
+                                                end
+                                            else
+                                                local curLevel = getCurrentDangerLevel()
+                                                if curLevel < targetLevel then
+                                                    sailingOutbound = true
+                                                elseif curLevel > targetLevel then
+                                                    sailingOutbound = false
+                                                end
+                                                
+                                                if sailingOutbound then
+                                                    currentTarget = targetPoints[2]
+                                                else
+                                                    currentTarget = CFrame.new(-16218.683, seat.Position.Y, 445.618)
+                                                end
                                             end
                                             
                                             local currentSpeed = _G.BoatTweenSpeed or 300
@@ -8569,14 +8643,14 @@ v490:AddButton({
     Title = "Teleport To Top GreatTree",
     Value = false,
     Callback = function()
-        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
+        topos(CFrame.new(3030.39453125, 2280.6171875, -7320.18359375))
     end
 })
 v490:AddButton({
     Title = "Teleport Temple Of Time",
     Value = false,
     Callback = function()
-        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
     end
 })
 v490:AddButton({
@@ -8598,14 +8672,12 @@ v490:AddButton({
     Title = "Auto Race Door",
     Value = false,
     Callback = function()
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.5)
+        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
+        local startWait = os.time()
+        repeat
+            task.wait(0.5)
+        until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875)).Magnitude <= 150 or (os.time() - startWait > 30)
+        
         if game:GetService("Players").LocalPlayer.Data.Race.Value == "Human" then
             topos(CFrame.new(29221.822265625, 14890.9755859375, -205.99114990234375))
         elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Skypiea" then
@@ -8629,6 +8701,11 @@ v490:AddButton({
     Title = "Buy Acient One Quest",
     Value = false,
     Callback = function()
+        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
+        local startWait = os.time()
+        repeat
+            task.wait(0.5)
+        until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875)).Magnitude <= 150 or (os.time() - startWait > 30)
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("UpgradeRace", "Buy")
     end
 })
