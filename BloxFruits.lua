@@ -139,17 +139,28 @@ end
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
+        print("[Mastery Debug] Mastery Select Weapon:", tostring(weaponType))
         if weaponType == "Gun" or weaponType == "Blox Fruit" then
             if mob and mob:FindFirstChild("Humanoid") then
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
+                print("[Mastery Debug] HP% calculated:", hpPercent, "vs Threshold:", tostring(_G.UseSkillHP))
                 if hpPercent > (_G.UseSkillHP or 20) then
-                    return FindWeapon("Melee") or "Combat"
+                    local toolName = FindWeapon("Melee") or "Combat"
+                    print("[Mastery Debug] HP too high, returning Melee:", tostring(toolName))
+                    return toolName
                 else
-                    return FindWeapon(weaponType == "Blox Fruit" and "Fruit" or "Gun")
+                    local targetType = (weaponType == "Blox Fruit" and "Fruit" or "Gun")
+                    local toolName = FindWeapon(targetType)
+                    print("[Mastery Debug] HP below threshold! Returning target tool:", tostring(toolName))
+                    return toolName
                 end
+            else
+                print("[Mastery Debug] Mob or Humanoid missing from calculation!")
             end
         end
-        return FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
+        local defaultTool = FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
+        print("[Mastery Debug] Default Mastery tool returned:", tostring(defaultTool))
+        return defaultTool
     else
         return _G.SelectWeapon
     end
@@ -157,7 +168,10 @@ end
 
 local spammingSkills = false
 function spamCombatSkills(mob)
-    if spammingSkills then return end
+    if spammingSkills then 
+        print("[Skills Debug] Debounce active, ignoring overlapping call.")
+        return 
+    end
 
     local weaponType = _G.SelectWeapon
     if _G.AutoFarmMastery then
@@ -167,31 +181,41 @@ function spamCombatSkills(mob)
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
                 if hpPercent <= (_G.UseSkillHP or 20) then
                     weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
+                    print("[Skills Debug] Mastery below HP threshold. Using weapon:", tostring(weaponType))
                 else
+                    print("[Skills Debug] HP too high for skills:", hpPercent)
                     return
                 end
             end
         else
+            print("[Skills Debug] Melee/Sword mastery selected. M1 handles it.")
             return
         end
     end
 
-    if not weaponType then return end
+    if not weaponType then 
+        print("[Skills Debug] No tool found for casting skills!")
+        return 
+    end
 
+    print("[Skills Debug] Triggering skill cast sequence for tool:", tostring(weaponType))
     spammingSkills = true
     task.spawn(function()
         pcall(function()
             if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+                print("[Skills Debug] Casting Blox Fruit skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
                 if _G.UseSkillC then Skill("C") task.wait(0.15) end
                 if _G.UseSkillV then Skill("V") task.wait(0.15) end
                 if _G.UseSkillF then Skill("F") task.wait(0.15) end
             elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+                print("[Skills Debug] Casting Gun skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
             end
         end)
+        print("[Skills Debug] Skill cast sequence finished.")
         spammingSkills = false
     end)
 end
@@ -4214,7 +4238,7 @@ spawn(function()
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                                     repeat
                                         task.wait()
-                                        EquipWeapon(_G.SelectWeapon)
+                                        EquipWeapon(getToolToEquip(mob))
                                         AutoHaki()
                                         PosMon = mob.HumanoidRootPart.CFrame
                                         topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
@@ -4227,20 +4251,7 @@ spawn(function()
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                        if _G.SelectWeapon and FindWeapon("Fruit") and _G.SelectWeapon == FindWeapon("Fruit") then
-                                            pcall(function()
-                                                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                                                if _G.UseSkillX then Skill("X") task.wait(0.15) end
-                                                if _G.UseSkillC then Skill("C") task.wait(0.15) end
-                                                if _G.UseSkillV then Skill("V") task.wait(0.15) end
-                                                if _G.UseSkillF then Skill("F") task.wait(0.15) end
-                                            end)
-                                        elseif _G.SelectWeapon and FindWeapon("Gun") and _G.SelectWeapon == FindWeapon("Gun") then
-                                            pcall(function()
-                                                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                                                if _G.UseSkillX then Skill("X") task.wait(0.15) end
-                                            end)
-                                        end
+                                        spamCombatSkills(mob)
                                     until not (_G.AutoFarm or _G.AutoFarmMastery) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
                                 end
                             end
