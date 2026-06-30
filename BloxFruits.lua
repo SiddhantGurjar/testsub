@@ -202,17 +202,33 @@ function spamCombatSkills(mob)
     spammingSkills = true
     task.spawn(function()
         pcall(function()
+            local function aim()
+                if mob and mob:FindFirstChild("HumanoidRootPart") then
+                    PosMon = mob.HumanoidRootPart.CFrame
+                    MonFarm = mob.Name
+                    
+                    local character = game.Players.LocalPlayer.Character
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        character.HumanoidRootPart.CFrame = CFrame.lookAt(character.HumanoidRootPart.Position, mob.HumanoidRootPart.Position)
+                    end
+                    local camera = game.Workspace.CurrentCamera
+                    if camera then
+                        camera.CFrame = CFrame.lookAt(camera.CFrame.Position, mob.HumanoidRootPart.Position)
+                    end
+                end
+            end
+
             if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
                 print("[Skills Debug] Casting Blox Fruit skills...")
-                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then Skill("X") task.wait(0.15) end
-                if _G.UseSkillC then Skill("C") task.wait(0.15) end
-                if _G.UseSkillV then Skill("V") task.wait(0.15) end
-                if _G.UseSkillF then Skill("F") task.wait(0.15) end
+                if _G.UseSkillZ then aim() Skill("Z") task.wait(0.15) end
+                if _G.UseSkillX then aim() Skill("X") task.wait(0.15) end
+                if _G.UseSkillC then aim() Skill("C") task.wait(0.15) end
+                if _G.UseSkillV then aim() Skill("V") task.wait(0.15) end
+                if _G.UseSkillF then aim() Skill("F") task.wait(0.15) end
             elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
                 print("[Skills Debug] Casting Gun skills...")
-                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+                if _G.UseSkillZ then aim() Skill("Z") task.wait(0.15) end
+                if _G.UseSkillX then aim() Skill("X") task.wait(0.15) end
             end
         end)
         print("[Skills Debug] Skill cast sequence finished.")
@@ -4249,8 +4265,11 @@ spawn(function()
                                         StartBring = true
                                         MonFarm = mob.Name
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
-                                        game:GetService("VirtualUser"):CaptureController()
-                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                        local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                                        if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                            game:GetService("VirtualUser"):CaptureController()
+                                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                        end
                                         spamCombatSkills(mob)
                                     until not (_G.AutoFarm or _G.AutoFarmMastery) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
                                 end
@@ -4292,8 +4311,11 @@ spawn(function()
                                                     v512.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                                                     StartBring = true
                                                     MonFarm = v512.Name
-                                                    game:GetService("VirtualUser"):CaptureController()
-                                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                                                    if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                                        game:GetService("VirtualUser"):CaptureController()
+                                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    end
                                                     spamCombatSkills(v512)
                                                 until not (_G.AutoFarm or _G.AutoFarmMastery) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             end
@@ -4320,8 +4342,11 @@ spawn(function()
                                                     v514.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                                                     StartBring = true
                                                     MonFarm = v514.Name
-                                                    game:GetService("VirtualUser"):CaptureController()
-                                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    local eqTool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                                                    if not eqTool or (eqTool.ToolTip ~= "Blox Fruit" and eqTool.ToolTip ~= "Gun") then
+                                                        game:GetService("VirtualUser"):CaptureController()
+                                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    end
                                                     spamCombatSkills(v514)
                                                  until not (_G.AutoFarm or _G.AutoFarmMastery) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             else
