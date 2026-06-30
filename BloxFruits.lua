@@ -150,20 +150,27 @@ end
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
+        print("[Mastery Debug] Mastery Select Weapon:", tostring(weaponType))
         if weaponType == "Gun" or weaponType == "Blox Fruit" then
             if mob and mob:FindFirstChild("Humanoid") then
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
+                print("[Mastery Debug] HP% calculated:", hpPercent, "vs Threshold:", tostring(_G.UseSkillHP))
                 if hpPercent > (_G.UseSkillHP or 20) then
                     local toolName = FindWeapon("Melee") or "Combat"
+                    print("[Mastery Debug] HP too high, returning Melee:", tostring(toolName))
                     return toolName
                 else
                     local targetType = (weaponType == "Blox Fruit" and "Fruit" or "Gun")
                     local toolName = FindWeapon(targetType)
+                    print("[Mastery Debug] HP below threshold! Returning target tool:", tostring(toolName))
                     return toolName
                 end
+            else
+                print("[Mastery Debug] Mob or Humanoid missing from calculation!")
             end
         end
         local defaultTool = FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
+        print("[Mastery Debug] Default Mastery tool returned:", tostring(defaultTool))
         return defaultTool
     else
         return _G.SelectWeapon
@@ -173,6 +180,7 @@ end
 local spammingSkills = false
 function spamCombatSkills(mob)
     if spammingSkills then 
+        print("[Skills Debug] Debounce active, ignoring overlapping call.")
         return 
     end
 
@@ -184,19 +192,24 @@ function spamCombatSkills(mob)
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
                 if hpPercent <= (_G.UseSkillHP or 20) then
                     weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
+                    print("[Skills Debug] Mastery below HP threshold. Using weapon:", tostring(weaponType))
                 else
+                    print("[Skills Debug] HP too high for skills:", hpPercent)
                     return
                 end
             end
         else
+            print("[Skills Debug] Melee/Sword mastery selected. M1 handles it.")
             return
         end
     end
 
     if not weaponType then 
+        print("[Skills Debug] No tool found for casting skills!")
         return 
     end
 
+    print("[Skills Debug] Triggering skill cast sequence for tool:", tostring(weaponType))
     spammingSkills = true
     task.spawn(function()
         local casting = true
@@ -238,17 +251,20 @@ function spamCombatSkills(mob)
 
         pcall(function()
             if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+                print("[Skills Debug] Casting Blox Fruit skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
                 if _G.UseSkillC then Skill("C") task.wait(0.15) end
                 if _G.UseSkillV then Skill("V") task.wait(0.15) end
                 if _G.UseSkillF then Skill("F") task.wait(0.15) end
             elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+                print("[Skills Debug] Casting Gun skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
             end
         end)
         casting = false
+        print("[Skills Debug] Skill cast sequence finished.")
         spammingSkills = false
     end)
 end
@@ -3727,7 +3743,7 @@ spawn(function()
     local l_LocalPlayer_3 = game.Players.LocalPlayer
     while task.wait() do
         pcall(function()
-            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 2000 then
+            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 100 then
                 stopTeleport()
             end
         end)
@@ -8152,29 +8168,29 @@ do
     -- Spawn threads
     spawn(function()
         while wait() do
-            if _G.SailBoat then
-                local isEventActive = isSeaEventSpawningOrActive() or getActiveSeaEvent()
-                
-                -- If any sea event is active, stand player up and stop boat tween (if any)
-                if isEventActive then
-                    pcall(function()
-                        stopBoatTween()
-                        lastBoatPos = nil
-                        lastPosTime = nil
-                        
-                        local char = game.Players.LocalPlayer.Character
-                        if char and char:FindFirstChild("Humanoid") then
-                            if char.Humanoid.Sit then
-                                char.Humanoid.Sit = false
-                                if char:FindFirstChild("HumanoidRootPart") then
-                                    char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
-                                end
+            local isEventActive = isSeaEventSpawningOrActive() or getActiveSeaEvent()
+            
+            -- If any sea event is active, stand player up and stop boat tween (if any)
+            if isEventActive then
+                pcall(function()
+                    stopBoatTween()
+                    lastBoatPos = nil
+                    lastPosTime = nil
+                    
+                    local char = game.Players.LocalPlayer.Character
+                    if char and char:FindFirstChild("Humanoid") then
+                        if char.Humanoid.Sit then
+                            char.Humanoid.Sit = false
+                            if char:FindFirstChild("HumanoidRootPart") then
+                                char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
                             end
                         end
-                    end)
-                end
+                    end
+                end)
+            end
 
-                -- Now, if auto sail boat is enabled, handle normal sailing/detection logic
+            -- Now, if auto sail boat is enabled, handle normal sailing/detection logic
+            if _G.SailBoat then
                 pcall(function()
                     if isEventActive then
                         local enemy = getActiveSeaEvent()
@@ -8643,14 +8659,14 @@ v490:AddButton({
     Title = "Teleport To Top GreatTree",
     Value = false,
     Callback = function()
-        topos(CFrame.new(3030.39453125, 2280.6171875, -7320.18359375))
+        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
     end
 })
 v490:AddButton({
     Title = "Teleport Temple Of Time",
     Value = false,
     Callback = function()
-        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
+        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
     end
 })
 v490:AddButton({
@@ -8672,12 +8688,14 @@ v490:AddButton({
     Title = "Auto Race Door",
     Value = false,
     Callback = function()
-        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
-        local startWait = os.time()
-        repeat
-            task.wait(0.5)
-        until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875)).Magnitude <= 150 or (os.time() - startWait > 30)
-        
+        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        wait(0.1)
+        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        wait(0.1)
+        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        wait(0.1)
+        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        wait(0.5)
         if game:GetService("Players").LocalPlayer.Data.Race.Value == "Human" then
             topos(CFrame.new(29221.822265625, 14890.9755859375, -205.99114990234375))
         elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Skypiea" then
@@ -8701,11 +8719,6 @@ v490:AddButton({
     Title = "Buy Acient One Quest",
     Value = false,
     Callback = function()
-        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
-        local startWait = os.time()
-        repeat
-            task.wait(0.5)
-        until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875)).Magnitude <= 150 or (os.time() - startWait > 30)
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("UpgradeRace", "Buy")
     end
 })
