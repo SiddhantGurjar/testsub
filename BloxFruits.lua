@@ -5279,40 +5279,37 @@ _G.UseSkillX = _G.UseSkillX == nil and true or _G.UseSkillX
 _G.UseSkillC = _G.UseSkillC == nil and true or _G.UseSkillC
 _G.UseSkillV = _G.UseSkillV == nil and true or _G.UseSkillV
 _G.UseSkillF = _G.UseSkillF == nil and true or _G.UseSkillF
-
-local function getActiveSkillsString()
-    local list = {}
-    if _G.UseSkillZ then table.insert(list, "Z") end
-    if _G.UseSkillX then table.insert(list, "X") end
-    if _G.UseSkillC then table.insert(list, "C") end
-    if _G.UseSkillV then table.insert(list, "V") end
-    if _G.UseSkillF then table.insert(list, "F") end
-    return #list > 0 and table.concat(list, ", ") or "None"
-end
-
-local activeSkillsText = v485:AddParagraph({
-    Title = "Farming Skills Active",
-    Content = getActiveSkillsString()
-})
+local defaultSkills = {}
+if _G.UseSkillZ then table.insert(defaultSkills, "Z") end
+if _G.UseSkillX then table.insert(defaultSkills, "X") end
+if _G.UseSkillC then table.insert(defaultSkills, "C") end
+if _G.UseSkillV then table.insert(defaultSkills, "V") end
+if _G.UseSkillF then table.insert(defaultSkills, "F") end
 
 v485:AddDropdown({
-    Name = "Select Skills to Toggle",
-    Description = "Click any skill to toggle it on/off",
+    Name = "Select Skills",
+    Title = "Select Skills",
+    Description = "Select skills to use for farming",
+    Flag = "M-SelectSkills",
     Options = {"Z", "X", "C", "V", "F"},
-    Default = "",
-    Callback = function(value)
-        if value == "Z" then
-            _G.UseSkillZ = not _G.UseSkillZ
-        elseif value == "X" then
-            _G.UseSkillX = not _G.UseSkillX
-        elseif value == "C" then
-            _G.UseSkillC = not _G.UseSkillC
-        elseif value == "V" then
-            _G.UseSkillV = not _G.UseSkillV
-        elseif value == "F" then
-            _G.UseSkillF = not _G.UseSkillF
+    Default = defaultSkills,
+    MultiSelect = true,
+    Callback = function(Table)
+        local selected = {}
+        for k, v in pairs(Table) do
+            if type(k) == "string" then
+                if v == true then
+                    selected[k] = true
+                end
+            elseif type(v) == "string" then
+                selected[v] = true
+            end
         end
-        activeSkillsText:Set(getActiveSkillsString())
+        _G.UseSkillZ = not not selected["Z"]
+        _G.UseSkillX = not not selected["X"]
+        _G.UseSkillC = not not selected["C"]
+        _G.UseSkillV = not not selected["V"]
+        _G.UseSkillF = not not selected["F"]
     end
 })
 
