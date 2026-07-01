@@ -8000,7 +8000,7 @@ do
     v489:AddSlider({
         Name = "Tween Speed",
         Min = 50,
-        Max = 300,
+        Max = 500,
         Default = _G.BoatTweenSpeed,
         Callback = function(Value)
             _G.BoatTweenSpeed = Value
@@ -8078,35 +8078,13 @@ do
 
     local _ = v489:AddSection({"Auto Use Skills"})
 
-    local defaultTools = {}
-    if _G.UseMeleeSkills then table.insert(defaultTools, "Melee") end
-    if _G.UseFruitSkills then table.insert(defaultTools, "Blox Fruit") end
-    if _G.UseSwordSkills then table.insert(defaultTools, "Sword") end
-    if _G.UseGunSkills then table.insert(defaultTools, "Gun") end
-
-    local defaultMelee = {}
-    if _G.MeleeMoveZ then table.insert(defaultMelee, "Z") end
-    if _G.MeleeMoveX then table.insert(defaultMelee, "X") end
-    if _G.MeleeMoveC then table.insert(defaultMelee, "C") end
-
-    local defaultFruit = {}
-    if _G.FruitMoveZ then table.insert(defaultFruit, "Z") end
-    if _G.FruitMoveX then table.insert(defaultFruit, "X") end
-    if _G.FruitMoveC then table.insert(defaultFruit, "C") end
-    if _G.FruitMoveV then table.insert(defaultFruit, "V") end
-    if _G.FruitMoveF then table.insert(defaultFruit, "F") end
-
-    local defaultGun = {}
-    if _G.GunMoveZ then table.insert(defaultGun, "Z") end
-    if _G.GunMoveX then table.insert(defaultGun, "X") end
-
     v489:AddDropdown({
         Name = "Select Tool",
         Title = "Select Tool",
         Description = "Choose tools to use during Sea Events",
         Flag = "M-SeaSelectTool",
         Options = {"Melee", "Blox Fruit", "Sword", "Gun"},
-        Default = defaultTools,
+        Default = {"Melee", "Blox Fruit", "Sword", "Gun"},
         MultiSelect = true,
         Callback = function(Table)
             local selected = {}
@@ -8130,7 +8108,7 @@ do
         Description = "Choose Melee skills to use",
         Flag = "M-SeaSelectMeleeSkills",
         Options = {"Z", "X", "C"},
-        Default = defaultMelee,
+        Default = {"Z", "X", "C"},
         MultiSelect = true,
         Callback = function(Table)
             local selected = {}
@@ -8153,7 +8131,7 @@ do
         Description = "Choose Blox Fruit skills to use",
         Flag = "M-SeaSelectFruitSkills",
         Options = {"Z", "X", "C", "V", "F"},
-        Default = defaultFruit,
+        Default = {"Z", "X", "C", "V", "F"},
         MultiSelect = true,
         Callback = function(Table)
             local selected = {}
@@ -8178,7 +8156,7 @@ do
         Description = "Choose Gun and Sword skills to use",
         Flag = "M-SeaSelectGunSkills",
         Options = {"Z", "X"},
-        Default = defaultGun,
+        Default = {"Z", "X"},
         MultiSelect = true,
         Callback = function(Table)
             local selected = {}
@@ -11653,6 +11631,27 @@ v496:AddToggle({
     end
 })
 
+_G.FastFruitM1 = false
+v496:AddToggle({
+    Name = "Fast Fruit M1",
+    Description = "",
+    Default = false,
+    Callback = function(value)
+        _G.FastFruitM1 = value
+    end
+})
+
+_G.FastAttackSpeed = 200
+v496:AddSlider({
+    Name = "Fast Attack Speed",
+    Min = 50,
+    Max = 300,
+    Default = 200,
+    Callback = function(value)
+        _G.FastAttackSpeed = value
+    end
+})
+
 local v1 = next
 local v2 = {
     game.ReplicatedStorage.Util,
@@ -11700,9 +11699,24 @@ while true do
 end
 
 task.spawn(function()
-    while task.wait(0.0001) do
+    while true do
+        local speed = _G.FastAttackSpeed or 200
+        local delayVal = 0.0001
+        local multiplierVal = 1
+        
+        if speed <= 200 then
+            delayVal = (200 - speed) / 1000 + 0.0001
+            multiplierVal = 1
+        else
+            delayVal = 0.0001
+            multiplierVal = math.floor((speed - 200) / 50) + 1
+        end
+        
+        task.wait(delayVal)
+        
         -- Só executa se o toggle estiver ativado
-        if _G.AutoAttack then
+        if _G.AutoAttack or _G.FastFruitM1 then
+            _G.FastAttackMultiplier = multiplierVal
             local _Character = game.Players.LocalPlayer.Character
             local v13
 
@@ -11762,7 +11776,8 @@ task.spawn(function()
 
             local _Tool = _Character:FindFirstChildOfClass('Tool')
             local weaponType = _Tool and (_Tool:GetAttribute('WeaponType') or _Tool.ToolTip)
-            if #u17 > 0 and (_Tool and (weaponType == 'Melee' or weaponType == 'Sword')) then
+            local isAllowedWeapon = (_G.AutoAttack and (weaponType == 'Melee' or weaponType == 'Sword')) or (_G.FastFruitM1 and weaponType == 'Blox Fruit')
+            if #u17 > 0 and (_Tool and isAllowedWeapon) then
                 pcall(function()
                     require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
                     local multiplier = _G.FastAttackMultiplier or 1
