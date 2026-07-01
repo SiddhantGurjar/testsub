@@ -128,27 +128,20 @@ end
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
-        print("[Mastery Debug] Mastery Select Weapon:", tostring(weaponType))
         if weaponType == "Gun" or weaponType == "Blox Fruit" then
             if mob and mob:FindFirstChild("Humanoid") then
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
-                print("[Mastery Debug] HP% calculated:", hpPercent, "vs Threshold:", tostring(_G.UseSkillHP))
                 if hpPercent > (_G.UseSkillHP or 20) then
                     local toolName = FindWeapon("Melee") or "Combat"
-                    print("[Mastery Debug] HP too high, returning Melee:", tostring(toolName))
                     return toolName
                 else
                     local targetType = (weaponType == "Blox Fruit" and "Fruit" or "Gun")
                     local toolName = FindWeapon(targetType)
-                    print("[Mastery Debug] HP below threshold! Returning target tool:", tostring(toolName))
                     return toolName
                 end
-            else
-                print("[Mastery Debug] Mob or Humanoid missing from calculation!")
             end
         end
         local defaultTool = FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
-        print("[Mastery Debug] Default Mastery tool returned:", tostring(defaultTool))
         return defaultTool
     else
         return _G.SelectWeapon
@@ -158,7 +151,6 @@ end
 local spammingSkills = false
 function spamCombatSkills(mob)
     if spammingSkills then 
-        print("[Skills Debug] Debounce active, ignoring overlapping call.")
         return 
     end
 
@@ -170,24 +162,19 @@ function spamCombatSkills(mob)
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
                 if hpPercent <= (_G.UseSkillHP or 20) then
                     weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
-                    print("[Skills Debug] Mastery below HP threshold. Using weapon:", tostring(weaponType))
                 else
-                    print("[Skills Debug] HP too high for skills:", hpPercent)
                     return
                 end
             end
         else
-            print("[Skills Debug] Melee/Sword mastery selected. M1 handles it.")
             return
         end
     end
 
     if not weaponType then 
-        print("[Skills Debug] No tool found for casting skills!")
         return 
     end
 
-    print("[Skills Debug] Triggering skill cast sequence for tool:", tostring(weaponType))
     spammingSkills = true
     task.spawn(function()
         local casting = true
@@ -229,20 +216,17 @@ function spamCombatSkills(mob)
 
         pcall(function()
             if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
-                print("[Skills Debug] Casting Blox Fruit skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
                 if _G.UseSkillC then Skill("C") task.wait(0.15) end
                 if _G.UseSkillV then Skill("V") task.wait(0.15) end
                 if _G.UseSkillF then Skill("F") task.wait(0.15) end
             elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
-                print("[Skills Debug] Casting Gun skills...")
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
             end
         end)
         casting = false
-        print("[Skills Debug] Skill cast sequence finished.")
         spammingSkills = false
     end)
 end
@@ -4787,8 +4771,9 @@ spawn(function()
         end
     end)
 end)
-local _ = v485:AddSection({"Auto Farm Chest And Berry"})
+local _ = v485:AddSection({"Auto Farm Chest"})
 
+--[[
 v485:AddToggle({
     Name = "Auto Collect Berry",
     Description = "",
@@ -4798,6 +4783,7 @@ v485:AddToggle({
         StopTween(_G.CollectBerry)
     end
 })
+]]
 spawn(function()
     while wait() do
         if _G.CollectBerry then
@@ -4819,11 +4805,10 @@ spawn(function()
             end
             if v633 and v634 then
                 local l_Parent_0 = v633.Parent
-                local l_Position_3 = l_Parent_0:GetPivot().Position
-                TP1(l_l_Parent_0_FirstChild_0.CFrame * CFrame.new(0, 0, 2))
-                task.wait(0.5)
                 local l_l_Parent_0_FirstChild_0 = l_Parent_0:FindFirstChild(v634)
                 if l_l_Parent_0_FirstChild_0 and l_l_Parent_0_FirstChild_0:IsA("BasePart") then
+                    TP1(l_l_Parent_0_FirstChild_0.CFrame * CFrame.new(0, 0, 2))
+                    task.wait(0.5)
                     TP1(l_l_Parent_0_FirstChild_0.CFrame + Vector3.new(0, 1, 0))
                     task.wait(0.3)
                     local l_VirtualInputManager_2 = game:GetService("VirtualInputManager")
@@ -10857,6 +10842,7 @@ v494:AddToggle({
     end
 })
 
+--[[
 v494:AddToggle({
     Title = "Esp Berry",
     Value = false,
@@ -10873,6 +10859,7 @@ v494:AddToggle({
         end
     end
 })
+]]
 
 local function findMyBoat()
     local player = game.Players.LocalPlayer
