@@ -7860,6 +7860,9 @@ do
         elseif toolType == "Sword" and _G.UseSwordSkills then
             if _G.SwordMoveZ then pressKey(122) end
             if _G.SwordMoveX then pressKey(120) end
+        elseif toolType == "Gun" and _G.UseGunSkills then
+            if _G.GunMoveZ then pressKey(122) end
+            if _G.GunMoveX then pressKey(120) end
         end
     end
 
@@ -7937,6 +7940,10 @@ do
 
     _G.SwordMoveZ = _G.SwordMoveZ == nil and true or _G.SwordMoveZ
     _G.SwordMoveX = _G.SwordMoveX == nil and true or _G.SwordMoveX
+
+    _G.UseGunSkills = _G.UseGunSkills == nil and true or _G.UseGunSkills
+    _G.GunMoveZ = _G.GunMoveZ == nil and true or _G.GunMoveZ
+    _G.GunMoveX = _G.GunMoveX == nil and true or _G.GunMoveX
 
     _G.KillShark = _G.KillShark == nil and false or _G.KillShark
     _G.KillPiranha = _G.KillPiranha == nil and false or _G.KillPiranha
@@ -8071,73 +8078,122 @@ do
 
     local _ = v489:AddSection({"Auto Use Skills"})
 
-    v489:AddToggle({
-        Name = "Use Melee",
-        Default = _G.UseMeleeSkills,
-        Callback = function(v) _G.UseMeleeSkills = v end
-    })
-    v489:AddToggle({
-        Name = "Use Fruit",
-        Default = _G.UseFruitSkills,
-        Callback = function(v) _G.UseFruitSkills = v end
-    })
-    v489:AddToggle({
-        Name = "Use Sword",
-        Default = _G.UseSwordSkills,
-        Callback = function(v) _G.UseSwordSkills = v end
+    local defaultTools = {}
+    if _G.UseMeleeSkills then table.insert(defaultTools, "Melee") end
+    if _G.UseFruitSkills then table.insert(defaultTools, "Blox Fruit") end
+    if _G.UseSwordSkills then table.insert(defaultTools, "Sword") end
+    if _G.UseGunSkills then table.insert(defaultTools, "Gun") end
+
+    local defaultMelee = {}
+    if _G.MeleeMoveZ then table.insert(defaultMelee, "Z") end
+    if _G.MeleeMoveX then table.insert(defaultMelee, "X") end
+    if _G.MeleeMoveC then table.insert(defaultMelee, "C") end
+
+    local defaultFruit = {}
+    if _G.FruitMoveZ then table.insert(defaultFruit, "Z") end
+    if _G.FruitMoveX then table.insert(defaultFruit, "X") end
+    if _G.FruitMoveC then table.insert(defaultFruit, "C") end
+    if _G.FruitMoveV then table.insert(defaultFruit, "V") end
+    if _G.FruitMoveF then table.insert(defaultFruit, "F") end
+
+    local defaultGun = {}
+    if _G.GunMoveZ then table.insert(defaultGun, "Z") end
+    if _G.GunMoveX then table.insert(defaultGun, "X") end
+
+    v489:AddDropdown({
+        Name = "Select Tool",
+        Title = "Select Tool",
+        Description = "Choose tools to use during Sea Events",
+        Flag = "M-SeaSelectTool",
+        Options = {"Melee", "Blox Fruit", "Sword", "Gun"},
+        Default = defaultTools,
+        MultiSelect = true,
+        Callback = function(Table)
+            local selected = {}
+            for k, v in pairs(Table) do
+                if type(k) == "string" then
+                    if v == true then selected[k] = true end
+                elseif type(v) == "string" then
+                    selected[v] = true
+                end
+            end
+            _G.UseMeleeSkills = not not selected["Melee"]
+            _G.UseFruitSkills = not not selected["Blox Fruit"]
+            _G.UseSwordSkills = not not selected["Sword"]
+            _G.UseGunSkills = not not selected["Gun"]
+        end
     })
 
-    v489:AddToggle({
-        Name = "Melee Z",
-        Default = _G.MeleeMoveZ,
-        Callback = function(v) _G.MeleeMoveZ = v end
-    })
-    v489:AddToggle({
-        Name = "Melee X",
-        Default = _G.MeleeMoveX,
-        Callback = function(v) _G.MeleeMoveX = v end
-    })
-    v489:AddToggle({
-        Name = "Melee C",
-        Default = _G.MeleeMoveC,
-        Callback = function(v) _G.MeleeMoveC = v end
-    })
-
-    v489:AddToggle({
-        Name = "Fruit Z",
-        Default = _G.FruitMoveZ,
-        Callback = function(v) _G.FruitMoveZ = v end
-    })
-    v489:AddToggle({
-        Name = "Fruit X",
-        Default = _G.FruitMoveX,
-        Callback = function(v) _G.FruitMoveX = v end
-    })
-    v489:AddToggle({
-        Name = "Fruit C",
-        Default = _G.FruitMoveC,
-        Callback = function(v) _G.FruitMoveC = v end
-    })
-    v489:AddToggle({
-        Name = "Fruit V",
-        Default = _G.FruitMoveV,
-        Callback = function(v) _G.FruitMoveV = v end
-    })
-    v489:AddToggle({
-        Name = "Fruit F",
-        Default = _G.FruitMoveF,
-        Callback = function(v) _G.FruitMoveF = v end
+    v489:AddDropdown({
+        Name = "Select Melee Skills",
+        Title = "Select Melee Skills",
+        Description = "Choose Melee skills to use",
+        Flag = "M-SeaSelectMeleeSkills",
+        Options = {"Z", "X", "C"},
+        Default = defaultMelee,
+        MultiSelect = true,
+        Callback = function(Table)
+            local selected = {}
+            for k, v in pairs(Table) do
+                if type(k) == "string" then
+                    if v == true then selected[k] = true end
+                elseif type(v) == "string" then
+                    selected[v] = true
+                end
+            end
+            _G.MeleeMoveZ = not not selected["Z"]
+            _G.MeleeMoveX = not not selected["X"]
+            _G.MeleeMoveC = not not selected["C"]
+        end
     })
 
-    v489:AddToggle({
-        Name = "Sword Z",
-        Default = _G.SwordMoveZ,
-        Callback = function(v) _G.SwordMoveZ = v end
+    v489:AddDropdown({
+        Name = "Select Fruit Skills",
+        Title = "Select Fruit Skills",
+        Description = "Choose Blox Fruit skills to use",
+        Flag = "M-SeaSelectFruitSkills",
+        Options = {"Z", "X", "C", "V", "F"},
+        Default = defaultFruit,
+        MultiSelect = true,
+        Callback = function(Table)
+            local selected = {}
+            for k, v in pairs(Table) do
+                if type(k) == "string" then
+                    if v == true then selected[k] = true end
+                elseif type(v) == "string" then
+                    selected[v] = true
+                end
+            end
+            _G.FruitMoveZ = not not selected["Z"]
+            _G.FruitMoveX = not not selected["X"]
+            _G.FruitMoveC = not not selected["C"]
+            _G.FruitMoveV = not not selected["V"]
+            _G.FruitMoveF = not not selected["F"]
+        end
     })
-    v489:AddToggle({
-        Name = "Sword X",
-        Default = _G.SwordMoveX,
-        Callback = function(v) _G.SwordMoveX = v end
+
+    v489:AddDropdown({
+        Name = "Select Gun Skills",
+        Title = "Select Gun Skills",
+        Description = "Choose Gun and Sword skills to use",
+        Flag = "M-SeaSelectGunSkills",
+        Options = {"Z", "X"},
+        Default = defaultGun,
+        MultiSelect = true,
+        Callback = function(Table)
+            local selected = {}
+            for k, v in pairs(Table) do
+                if type(k) == "string" then
+                    if v == true then selected[k] = true end
+                elseif type(v) == "string" then
+                    selected[v] = true
+                end
+            end
+            _G.GunMoveZ = not not selected["Z"]
+            _G.GunMoveX = not not selected["X"]
+            _G.SwordMoveZ = not not selected["Z"]
+            _G.SwordMoveX = not not selected["X"]
+        end
     })
 
     -- Spawn threads
@@ -8328,6 +8384,7 @@ do
                                     if _G.UseMeleeSkills then useSkills("Melee") end
                                     if _G.UseFruitSkills then useSkills("Blox Fruit") end
                                     if _G.UseSwordSkills then useSkills("Sword") end
+                                    if _G.UseGunSkills then useSkills("Gun") end
                                 end
                             until not _G.AutoFarmSeaBeast or not sb.Parent or hum.Health <= 0
                         end)
@@ -8610,6 +8667,7 @@ do
                                             if _G.UseMeleeSkills then useSkills("Melee") end
                                             if _G.UseFruitSkills then useSkills("Blox Fruit") end
                                             if _G.UseSwordSkills then useSkills("Sword") end
+                                            if _G.UseGunSkills then useSkills("Gun") end
                                             spamM1()
                                         end
                                         
