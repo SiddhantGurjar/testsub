@@ -185,13 +185,19 @@ function spamCombatSkills(mob)
                         PosMon = mob.HumanoidRootPart.CFrame
                         MonFarm = mob.Name
                         
-                        -- Face the character toward the mob (visual only, namecall hook handles actual aim)
+                        -- Hold the character near the mob during skill casting
+                        -- This counters fruit skill dashes/teleports that fling the player away
                         local character = game.Players.LocalPlayer.Character
                         if character and character:FindFirstChild("HumanoidRootPart") then
+                            local mobPos = mob.HumanoidRootPart.Position
+                            local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
                             character.HumanoidRootPart.CFrame = CFrame.lookAt(
-                                character.HumanoidRootPart.Position,
-                                Vector3.new(mob.HumanoidRootPart.Position.X, character.HumanoidRootPart.Position.Y, mob.HumanoidRootPart.Position.Z)
+                                holdPos,
+                                Vector3.new(mobPos.X, holdPos.Y, mobPos.Z)
                             )
+                            -- Kill any velocity from skill dash animations
+                            character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                            character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
                         end
                     end
                 end)
@@ -3378,13 +3384,19 @@ spawn(function()
     v359.__namecall = newcclosure(function(...)
         local v361 = getnamecallmethod()
         local v362 = {...}
-        if tostring(v361) == "FireServer" and tostring(v362[1]) == "RemoteEvent" and tostring(v362[2]) ~= "true" and tostring(v362[2]) ~= "false" and _G.UseSkill then
-            local targetPos = PosMon and PosMon.Position or nil
-            if targetPos then
-                if type(v362[2]) ~= "vector" then
-                    v362[2] = CFrame.new(targetPos)
-                else
-                    v362[2] = targetPos
+        if tostring(v361) == "FireServer" and tostring(v362[1]) == "RemoteEvent" and _G.UseSkill then
+            -- Only intercept calls where arg2 is a position type (CFrame or Vector3)
+            -- This avoids breaking non-skill remotes (strings, booleans, numbers, etc.)
+            local arg2 = v362[2]
+            local arg2Type = typeof(arg2)
+            if arg2Type == "CFrame" or arg2Type == "Vector3" then
+                local targetPos = PosMon and PosMon.Position or nil
+                if targetPos then
+                    if arg2Type == "CFrame" then
+                        v362[2] = CFrame.new(targetPos)
+                    else
+                        v362[2] = targetPos
+                    end
                 end
             end
             return l___namecall_0(unpack(v362))
