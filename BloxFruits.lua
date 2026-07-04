@@ -185,6 +185,7 @@ function spamCombatSkills(mob)
                         PosMon = mob.HumanoidRootPart.CFrame
                         MonFarm = mob.Name
                         
+                        -- Face the character toward the mob (visual only, namecall hook handles actual aim)
                         local character = game.Players.LocalPlayer.Character
                         if character and character:FindFirstChild("HumanoidRootPart") then
                             character.HumanoidRootPart.CFrame = CFrame.lookAt(
@@ -192,28 +193,14 @@ function spamCombatSkills(mob)
                                 Vector3.new(mob.HumanoidRootPart.Position.X, character.HumanoidRootPart.Position.Y, mob.HumanoidRootPart.Position.Z)
                             )
                         end
-                        
-                        local camera = game.Workspace.CurrentCamera
-                        if camera then
-                            camera.CFrame = CFrame.lookAt(camera.CFrame.Position, mob.HumanoidRootPart.Position)
-                            
-                            -- Force real cursor to be visible and unlocked
-                            local uis = game:GetService("UserInputService")
-                            uis.MouseBehavior = Enum.MouseBehavior.Default
-                            uis.MouseIconEnabled = true
-                            
-                            -- Snap mouse position exactly to target screen coordinate (no inset offset)
-                            local screenPos, onScreen = camera:WorldToScreenPoint(mob.HumanoidRootPart.Position)
-                            if onScreen then
-                                game:GetService("VirtualInputManager"):SendMouseMoveEvent(screenPos.X, screenPos.Y, game)
-                            end
-                        end
                     end
                 end)
                 task.wait()
             end
         end)
 
+        -- Enable the namecall hook to redirect skill FireServer positions to mob
+        _G.UseSkill = true
         pcall(function()
             if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
                 if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
@@ -226,6 +213,7 @@ function spamCombatSkills(mob)
                 if _G.UseSkillX then Skill("X") task.wait(0.15) end
             end
         end)
+        _G.UseSkill = false
         casting = false
         spammingSkills = false
     end)
@@ -3391,10 +3379,13 @@ spawn(function()
         local v361 = getnamecallmethod()
         local v362 = {...}
         if tostring(v361) == "FireServer" and tostring(v362[1]) == "RemoteEvent" and tostring(v362[2]) ~= "true" and tostring(v362[2]) ~= "false" and _G.UseSkill then
-            if type(v362[2]) ~= "vector" then
-                v362[2] = CFrame.new(PositionSkillMasteryDevilFruit)
-            else
-                v362[2] = PositionSkillMasteryDevilFruit
+            local targetPos = PosMon and PosMon.Position or nil
+            if targetPos then
+                if type(v362[2]) ~= "vector" then
+                    v362[2] = CFrame.new(targetPos)
+                else
+                    v362[2] = targetPos
+                end
             end
             return l___namecall_0(unpack(v362))
         else
@@ -11614,16 +11605,6 @@ v496:AddToggle({
     end
 })
 
-_G.FastFruitM1 = false
-v496:AddToggle({
-    Name = "Fast Fruit M1",
-    Description = "",
-    Default = false,
-    Callback = function(value)
-        _G.FastFruitM1 = value
-    end
-})
-
 _G.FastAttackSpeed = 200
 v496:AddSlider({
     Name = "Fast Attack Speed",
@@ -11700,7 +11681,7 @@ task.spawn(function()
         task.wait(0.0001)
         
         -- Só executa se o toggle estiver ativado e tivermos hits a fazer
-        if hitsToRun > 0 and (_G.AutoAttack or _G.FastFruitM1) then
+        if hitsToRun > 0 and _G.AutoAttack then
             _G.FastAttackMultiplier = hitsToRun
             local _Character = game.Players.LocalPlayer.Character
             local v13
@@ -11761,12 +11742,10 @@ task.spawn(function()
 
             local _Tool = _Character:FindFirstChildOfClass('Tool')
             local isAllowedWeapon = false
-            local toolTip = _Tool and _Tool.ToolTip
-            local weaponType = _Tool and _Tool:GetAttribute('WeaponType')
             if _Tool then
+                local toolTip = _Tool.ToolTip
+                local weaponType = _Tool:GetAttribute('WeaponType')
                 if _G.AutoAttack and (toolTip == 'Melee' or toolTip == 'Sword' or weaponType == 'Melee' or weaponType == 'Sword') then
-                    isAllowedWeapon = true
-                elseif _G.FastFruitM1 and (toolTip == 'Blox Fruit' or weaponType == 'Blox Fruit') then
                     isAllowedWeapon = true
                 end
             end
@@ -11775,9 +11754,7 @@ task.spawn(function()
                     require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
                     local multiplier = _G.FastAttackMultiplier or 1
                     for i = 1, multiplier do
-                        if toolTip == 'Melee' or toolTip == 'Sword' or weaponType == 'Melee' or weaponType == 'Sword' then
-                            game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
-                        end
+                        game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
 
                         local _Head = u17[1][1]:FindFirstChild('Head')
 
