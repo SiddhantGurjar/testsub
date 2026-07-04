@@ -4771,9 +4771,8 @@ spawn(function()
         end
     end)
 end)
-local _ = v485:AddSection({"Auto Farm Chest"})
+local _ = v485:AddSection({"Auto Farm Chest And Berry"})
 
---[[
 v485:AddToggle({
     Name = "Auto Collect Berry",
     Description = "",
@@ -4783,7 +4782,6 @@ v485:AddToggle({
         StopTween(_G.CollectBerry)
     end
 })
-]]
 spawn(function()
     while wait() do
         if _G.CollectBerry then
@@ -10842,7 +10840,6 @@ v494:AddToggle({
     end
 })
 
---[[
 v494:AddToggle({
     Title = "Esp Berry",
     Value = false,
@@ -10859,7 +10856,6 @@ v494:AddToggle({
         end
     end
 })
-]]
 
 local function findMyBoat()
     local player = game.Players.LocalPlayer
@@ -11765,9 +11761,9 @@ task.spawn(function()
 
             local _Tool = _Character:FindFirstChildOfClass('Tool')
             local isAllowedWeapon = false
+            local toolTip = _Tool and _Tool.ToolTip
+            local weaponType = _Tool and _Tool:GetAttribute('WeaponType')
             if _Tool then
-                local toolTip = _Tool.ToolTip
-                local weaponType = _Tool:GetAttribute('WeaponType')
                 if _G.AutoAttack and (toolTip == 'Melee' or toolTip == 'Sword' or weaponType == 'Melee' or weaponType == 'Sword') then
                     isAllowedWeapon = true
                 elseif _G.FastFruitM1 and (toolTip == 'Blox Fruit' or weaponType == 'Blox Fruit') then
@@ -11779,7 +11775,9 @@ task.spawn(function()
                     require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
                     local multiplier = _G.FastAttackMultiplier or 1
                     for i = 1, multiplier do
-                        game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
+                        if toolTip == 'Melee' or toolTip == 'Sword' or weaponType == 'Melee' or weaponType == 'Sword' then
+                            game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
+                        end
 
                         local _Head = u17[1][1]:FindFirstChild('Head')
 
