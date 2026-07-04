@@ -154,17 +154,23 @@ function spamCombatSkills(mob)
         return 
     end
 
+    -- Bail out immediately if mob is nil, dead, or despawned
+    if not mob or not mob.Parent or not mob:FindFirstChild("Humanoid") or mob.Humanoid.Health <= 0 then
+        return
+    end
+    if not mob:FindFirstChild("HumanoidRootPart") then
+        return
+    end
+
     local weaponType = _G.SelectWeapon
     if _G.AutoFarmMastery then
         local mType = _G.MasterySelectWeapon or "Melee"
         if mType == "Gun" or mType == "Blox Fruit" then
-            if mob and mob:FindFirstChild("Humanoid") then
-                local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
-                if hpPercent <= (_G.UseSkillHP or 20) then
-                    weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
-                else
-                    return
-                end
+            local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
+            if hpPercent <= (_G.UseSkillHP or 20) then
+                weaponType = FindWeapon(mType == "Blox Fruit" and "Fruit" or "Gun")
+            else
+                return
             end
         else
             return
@@ -178,47 +184,68 @@ function spamCombatSkills(mob)
     spammingSkills = true
     task.spawn(function()
         local casting = true
+
+        -- Helper to check if mob is still valid and alive
+        local function isMobAlive()
+            return mob and mob.Parent and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart")
+        end
+
+        -- Position anchoring loop: keeps running until mob dies or casting ends
         task.spawn(function()
             while casting do
+                if not isMobAlive() then
+                    casting = false
+                    break
+                end
                 pcall(function()
-                    if mob and mob:FindFirstChild("HumanoidRootPart") then
-                        PosMon = mob.HumanoidRootPart.CFrame
-                        MonFarm = mob.Name
-                        
-                        -- Hold the character near the mob during skill casting
-                        -- This counters fruit skill dashes/teleports that fling the player away
-                        local character = game.Players.LocalPlayer.Character
-                        if character and character:FindFirstChild("HumanoidRootPart") then
-                            local mobPos = mob.HumanoidRootPart.Position
-                            local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
-                            character.HumanoidRootPart.CFrame = CFrame.lookAt(
-                                holdPos,
-                                Vector3.new(mobPos.X, holdPos.Y, mobPos.Z)
-                            )
-                            -- Kill any velocity from skill dash animations
-                            character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
-                            character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
-                        end
+                    PosMon = mob.HumanoidRootPart.CFrame
+                    MonFarm = mob.Name
+                    
+                    -- Hold the character near the mob during skill casting
+                    local character = game.Players.LocalPlayer.Character
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        local mobPos = mob.HumanoidRootPart.Position
+                        local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
+                        character.HumanoidRootPart.CFrame = CFrame.lookAt(
+                            holdPos,
+                            Vector3.new(mobPos.X, holdPos.Y, mobPos.Z)
+                        )
+                        character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                        character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
                     end
                 end)
                 task.wait()
             end
         end)
 
-        -- Enable the namecall hook to redirect skill FireServer positions to mob
-        _G.UseSkill = true
-        pcall(function()
-            if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
-                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then Skill("X") task.wait(0.15) end
-                if _G.UseSkillC then Skill("C") task.wait(0.15) end
-                if _G.UseSkillV then Skill("V") task.wait(0.15) end
-                if _G.UseSkillF then Skill("F") task.wait(0.15) end
-            elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
-                if _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                if _G.UseSkillX then Skill("X") task.wait(0.15) end
+        -- Skill loop: fire all skills → wait for cooldown → repeat until mob dies
+        while isMobAlive() and casting do
+            _G.UseSkill = true
+            pcall(function()
+                if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+                    if isMobAlive() and _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillX then Skill("X") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillC then Skill("C") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillV then Skill("V") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillF then Skill("F") task.wait(0.15) end
+                elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+                    if isMobAlive() and _G.UseSkillZ then Skill("Z") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillX then Skill("X") task.wait(0.15) end
+                end
+            end)
+            _G.UseSkill = false
+
+            -- Wait for skill cooldowns before next round (check mob alive each tick)
+            if isMobAlive() then
+                local cooldownWait = _G.SkillCooldown or 4
+                local waited = 0
+                while waited < cooldownWait and isMobAlive() do
+                    task.wait(0.1)
+                    waited = waited + 0.1
+                end
             end
-        end)
+        end
+
         _G.UseSkill = false
         casting = false
         spammingSkills = false
