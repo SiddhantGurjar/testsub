@@ -187,6 +187,11 @@ function spamCombatSkills(mob)
 
         -- Helper to check if mob is still valid and alive
         local function isMobAlive()
+            -- Also check player is alive to prevent acting at respawn
+            local myChar = game.Players.LocalPlayer.Character
+            if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 then
+                return false
+            end
             return mob and mob.Parent and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart")
         end
 
@@ -4138,14 +4143,46 @@ local function TweenTo(cf)
 
     if CurrentTween then
         pcall(function() CurrentTween:Cancel() end)
+        CurrentTween = nil
     end
 
-    local dist = (hrp.Position - cf.Position).Magnitude
-    local speed = 300
-    local t = dist / speed
+    -- Use PartTele proxy (same as topos) to avoid anti-cheat kicks
+    local character = LocalPlayer.Character
+    if not character then return end
 
-    CurrentTween = TweenService:Create(hrp, TweenInfo.new(t, Enum.EasingStyle.Linear), {CFrame = cf})
+    if not character:FindFirstChild("PartTele") then
+        local part = Instance.new("Part", character)
+        part.Size = Vector3.new(10, 1, 10)
+        part.Name = "PartTele"
+        part.Anchored = true
+        part.Transparency = 1
+        part.CanCollide = true
+        part.CFrame = hrp.CFrame
+        part:GetPropertyChangedSignal("CFrame"):Connect(function()
+            if not v391 then return end
+            task.wait()
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character.HumanoidRootPart.CFrame = part.CFrame
+            end
+        end)
+    end
+
+    v391 = true
+    local dist = (hrp.Position - cf.Position).Magnitude
+    local speed = 200
+    local t = math.max(dist / speed, 0.1)
+
+    CurrentTween = TweenService:Create(character.PartTele, TweenInfo.new(t, Enum.EasingStyle.Linear), {CFrame = cf})
     CurrentTween:Play()
+
+    CurrentTween.Completed:Connect(function(state)
+        if state == Enum.PlaybackState.Completed then
+            if character and character:FindFirstChild("PartTele") then
+                character.PartTele:Destroy()
+            end
+            v391 = false
+        end
+    end)
 
     while (_G.AutoFarm or _G.AutoFarmMastery) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
         task.wait()
@@ -4155,6 +4192,10 @@ local function TweenTo(cf)
         pcall(function() CurrentTween:Cancel() end)
     end
     CurrentTween = nil
+    v391 = false
+    if character and character:FindFirstChild("PartTele") then
+        pcall(function() character.PartTele:Destroy() end)
+    end
 end
 
 local function GoSubmerged()
@@ -4279,6 +4320,12 @@ spawn(function()
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                                     repeat
                                         task.wait()
+                                        -- Break if player is dead (prevents acting at respawn)
+                                        local myChar = game.Players.LocalPlayer.Character
+                                        if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
+                                            StartBring = false
+                                            break
+                                        end
                                         local targetTool = getToolToEquip(mob)
                                         EquipWeapon(targetTool)
                                         AutoHaki()
@@ -4326,6 +4373,12 @@ spawn(function()
                                             else
                                                 repeat
                                                     task.wait()
+                                                    -- Break if player is dead (prevents acting at respawn)
+                                                    local myChar = game.Players.LocalPlayer.Character
+                                                    if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
+                                                        StartBring = false
+                                                        break
+                                                    end
                                                     local targetTool = getToolToEquip(v512)
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
@@ -4357,6 +4410,12 @@ spawn(function()
                                             if string.find(l_Text_0, NameMon) then
                                                 repeat
                                                     task.wait()
+                                                    -- Break if player is dead (prevents acting at respawn)
+                                                    local myChar = game.Players.LocalPlayer.Character
+                                                    if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
+                                                        StartBring = false
+                                                        break
+                                                    end
                                                     local targetTool = getToolToEquip(v514)
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
