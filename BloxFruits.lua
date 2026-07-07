@@ -184,6 +184,7 @@ function spamCombatSkills(mob)
     spammingSkills = true
     task.spawn(function()
         local casting = true
+        local skillFiring = false -- When true, position anchoring pauses so dash skills can travel
 
         -- Helper to check if mob is still valid and alive
         local function isMobAlive()
@@ -195,7 +196,7 @@ function spamCombatSkills(mob)
             return mob and mob.Parent and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart")
         end
 
-        -- Position anchoring loop: keeps running until mob dies or casting ends
+        -- Position anchoring loop: hovers player 30 studs above mob, pauses during skill dashes
         task.spawn(function()
             while casting do
                 if not isMobAlive() then
@@ -206,43 +207,81 @@ function spamCombatSkills(mob)
                     PosMon = mob.HumanoidRootPart.CFrame
                     MonFarm = mob.Name
                     
-                    -- Hold the character near the mob during skill casting
-                    local character = game.Players.LocalPlayer.Character
-                    if character and character:FindFirstChild("HumanoidRootPart") then
-                        local mobPos = mob.HumanoidRootPart.Position
-                        local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
-                        character.HumanoidRootPart.CFrame = CFrame.lookAt(
-                            holdPos,
-                            mobPos
-                        )
-                        character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
-                        character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
+                    -- Only anchor when NOT firing a dash skill
+                    if not skillFiring then
+                        local character = game.Players.LocalPlayer.Character
+                        if character and character:FindFirstChild("HumanoidRootPart") then
+                            local mobPos = mob.HumanoidRootPart.Position
+                            local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
+                            character.HumanoidRootPart.CFrame = CFrame.lookAt(
+                                holdPos,
+                                mobPos
+                            )
+                            character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                            character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
+                        end
                     end
                 end)
                 task.wait()
             end
         end)
 
+        -- Helper: drop near mob, fire skill, let dash connect, then re-engage hover
+        local function fireSkill(key)
+            if not isMobAlive() or not casting then return end
+            -- Drop to mob level offset, facing the mob so dashes travel toward it
+            pcall(function()
+                local character = game.Players.LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("HumanoidRootPart") then
+                    local mobPos = mob.HumanoidRootPart.Position
+                    local charPos = character.HumanoidRootPart.Position
+                    -- Calculate horizontal direction away from mob for offset
+                    local dx = charPos.X - mobPos.X
+                    local dz = charPos.Z - mobPos.Z
+                    local hDist = math.sqrt(dx * dx + dz * dz)
+                    local offX, offZ
+                    if hDist > 1 then
+                        offX = (dx / hDist) * 12
+                        offZ = (dz / hDist) * 12
+                    else
+                        offX = 12
+                        offZ = 0
+                    end
+                    local dropPos = Vector3.new(mobPos.X + offX, mobPos.Y + 5, mobPos.Z + offZ)
+                    character.HumanoidRootPart.CFrame = CFrame.lookAt(
+                        dropPos,
+                        Vector3.new(mobPos.X, dropPos.Y, mobPos.Z)
+                    )
+                    character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                    character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
+                end
+            end)
+            skillFiring = true   -- Release position lock for dash travel
+            Skill(key)
+            task.wait(0.35)      -- Let dash animation connect with mob
+            skillFiring = false  -- Re-engage hover (anchoring loop snaps back to 30 above)
+        end
+
         -- Skill loop: fire all skills → wait for cooldown → repeat until mob dies
         while isMobAlive() and casting do
             _G.UseSkill = true
             pcall(function()
                 if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
-                    if isMobAlive() and _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                    if isMobAlive() and _G.UseSkillX then Skill("X") task.wait(0.15) end
-                    if isMobAlive() and _G.UseSkillC then Skill("C") task.wait(0.15) end
-                    if isMobAlive() and _G.UseSkillV then Skill("V") task.wait(0.15) end
-                    if isMobAlive() and _G.UseSkillF then Skill("F") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillZ then fireSkill("Z") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillX then fireSkill("X") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillC then fireSkill("C") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillV then fireSkill("V") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillF then fireSkill("F") task.wait(0.05) end
                 elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
-                    if isMobAlive() and _G.UseSkillZ then Skill("Z") task.wait(0.15) end
-                    if isMobAlive() and _G.UseSkillX then Skill("X") task.wait(0.15) end
+                    if isMobAlive() and _G.UseSkillZ then fireSkill("Z") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillX then fireSkill("X") task.wait(0.05) end
                 end
             end)
             _G.UseSkill = false
 
             -- Wait for skill cooldowns before next round (check mob alive each tick)
             if isMobAlive() then
-                local cooldownWait = _G.SkillCooldown or 4
+                local cooldownWait = _G.SkillCooldown or 3
                 local waited = 0
                 while waited < cooldownWait and isMobAlive() do
                     task.wait(0.1)
