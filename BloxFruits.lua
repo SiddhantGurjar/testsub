@@ -213,7 +213,7 @@ function spamCombatSkills(mob)
                         local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
                         character.HumanoidRootPart.CFrame = CFrame.lookAt(
                             holdPos,
-                            Vector3.new(mobPos.X, holdPos.Y, mobPos.Z)
+                            mobPos
                         )
                         character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
                         character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
