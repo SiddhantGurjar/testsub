@@ -148,6 +148,27 @@ function getToolToEquip(mob)
     end
 end
 
+local function isSkillReady(key)
+    local ready = true
+    pcall(function()
+        local skills = game:GetService("Players").LocalPlayer.PlayerGui.Main.Skills
+        local skillFrame = skills:FindFirstChild(key)
+        if skillFrame then
+            local cooldown = skillFrame:FindFirstChild("Cooldown")
+            if cooldown then
+                if cooldown.Visible and cooldown.AbsoluteSize.X > 0 and cooldown.AbsoluteSize.Y > 0 then
+                    ready = false
+                end
+                local textLabel = cooldown:FindFirstChildOfClass("TextLabel")
+                if textLabel and textLabel.Text ~= "" and textLabel.Text:match("%d") then
+                    ready = false
+                end
+            end
+        end
+    end)
+    return ready
+end
+
 local spammingSkills = false
 function spamCombatSkills(mob)
     if spammingSkills then 
@@ -247,10 +268,10 @@ function spamCombatSkills(mob)
                         offX = 12
                         offZ = 0
                     end
-                    local dropPos = Vector3.new(mobPos.X + offX, mobPos.Y + 5, mobPos.Z + offZ)
+                    local dropPos = Vector3.new(mobPos.X + offX, mobPos.Y + 12, mobPos.Z + offZ)
                     character.HumanoidRootPart.CFrame = CFrame.lookAt(
                         dropPos,
-                        Vector3.new(mobPos.X, dropPos.Y, mobPos.Z)
+                        mobPos
                     )
                     character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
                     character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
@@ -267,27 +288,20 @@ function spamCombatSkills(mob)
             _G.UseSkill = true
             pcall(function()
                 if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
-                    if isMobAlive() and _G.UseSkillZ then fireSkill("Z") task.wait(0.05) end
-                    if isMobAlive() and _G.UseSkillX then fireSkill("X") task.wait(0.05) end
-                    if isMobAlive() and _G.UseSkillC then fireSkill("C") task.wait(0.05) end
-                    if isMobAlive() and _G.UseSkillV then fireSkill("V") task.wait(0.05) end
-                    if isMobAlive() and _G.UseSkillF then fireSkill("F") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillZ and isSkillReady("Z") then fireSkill("Z") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillX and isSkillReady("X") then fireSkill("X") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillC and isSkillReady("C") then fireSkill("C") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillV and isSkillReady("V") then fireSkill("V") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillF and isSkillReady("F") then fireSkill("F") task.wait(0.05) end
                 elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
-                    if isMobAlive() and _G.UseSkillZ then fireSkill("Z") task.wait(0.05) end
-                    if isMobAlive() and _G.UseSkillX then fireSkill("X") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillZ and isSkillReady("Z") then fireSkill("Z") task.wait(0.05) end
+                    if isMobAlive() and _G.UseSkillX and isSkillReady("X") then fireSkill("X") task.wait(0.05) end
                 end
             end)
             _G.UseSkill = false
 
-            -- Wait for skill cooldowns before next round (check mob alive each tick)
-            if isMobAlive() then
-                local cooldownWait = _G.SkillCooldown or 3
-                local waited = 0
-                while waited < cooldownWait and isMobAlive() do
-                    task.wait(0.1)
-                    waited = waited + 0.1
-                end
-            end
+            -- Check skills again in real-time as fast as possible without freezing
+            task.wait(0.01)
         end
 
         _G.UseSkill = false
