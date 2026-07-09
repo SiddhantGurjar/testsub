@@ -9234,8 +9234,8 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v851)
-        _G.Nocliprock = v851
-        StopTween(_G.Nocliprock)
+        _G.AutoFindPrehistoric = v851
+        StopTween(_G.AutoFindPrehistoric)
     end
 })
 local v852 = {}
@@ -9652,6 +9652,41 @@ v498:AddToggle({
     end
 })
 v498:AddToggle({
+    Name = "Fly To Kitsune Island",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.TweenToKitsune = Value
+        StopTween(_G.TweenToKitsune)
+    end
+})
+spawn(function()
+    while wait() do
+        if _G.TweenToKitsune and not v391 then
+            pcall(function()
+                local character = game.Players.LocalPlayer.Character
+                if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+                
+                local kitsuneIsland = game:GetService("Workspace").Map:FindFirstChild("KitsuneIsland")
+                if kitsuneIsland then
+                    local shrineActive = kitsuneIsland:FindFirstChild("ShrineActive")
+                    if shrineActive then
+                        for _, neonPart in pairs(shrineActive:GetDescendants()) do
+                            if neonPart:IsA("BasePart") and neonPart.Name:find("NeonShrinePart") then
+                                local distance = (neonPart.Position - character.HumanoidRootPart.Position).Magnitude
+                                if distance > 10 then
+                                    topos(neonPart.CFrame)
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+v498:AddToggle({
     Name = "Auto Azuer Ember",
     Description = "",
     Default = false,
@@ -9777,6 +9812,152 @@ spawn(function()
         end
     end)
 end)
+
+local _ = v498:AddSection({"Auto Leviathan"})
+
+-- 1st: Status Leviathan Island
+local vLiviStatus = v498:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
+                vLiviStatus:Set("Spawning    ")
+            else
+                vLiviStatus:Set("Not Spawn    ")
+            end
+        end)
+    end
+end)
+
+-- 2nd: Find Leviathan Island
+v498:AddToggle({
+    Name = "Find Leviathan Island",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoFindFrozen = Value
+        StopTween(_G.AutoFindFrozen)
+    end
+})
+local frozenSeats = {}
+local frozenSailing = false
+l_RunService_0.RenderStepped:Connect(function()
+    if _G.AutoFindFrozen then
+        local character = l_Players_0.LocalPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local function seatCheck()
+                if not frozenSailing then
+                    frozenSailing = true
+                    for _, seat in pairs(frozenSeats) do
+                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
+                            topos(seat.CFrame)
+                            break
+                        end
+                    end
+                    frozenSailing = false
+                end
+            end
+            local humanoid = character.Humanoid
+            local onSeat = false
+            local activeSeat = nil
+            for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
+                local seat = boat:FindFirstChild("VehicleSeat")
+                if seat and seat.Occupant == humanoid then
+                    onSeat = true
+                    activeSeat = seat
+                    frozenSeats[boat.Name] = seat
+                elseif seat and seat.Occupant == "Name" then
+                    seatCheck()
+                end
+            end
+            if onSeat then
+                activeSeat.MaxSpeed = 350
+                activeSeat.CFrame = CFrame.new(Vector3.new(activeSeat.Position.X, activeSeat.Position.Y, activeSeat.Position.Z)) * activeSeat.CFrame.Rotation
+                l_VirtualInputManager_3:SendKeyEvent(true, "W", false, game)
+                for _, part in pairs(l_Workspace_1.Boats:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+                for _, island in ipairs({
+                    "ShipwreckIsland",
+                    "SandIsland",
+                    "TreeIsland",
+                    "TinyIsland",
+                    "MysticIsland",
+                    "KitsuneIsland",
+                    "PrehistoricIsland"
+                }) do
+                    local model = l_Workspace_1.Map:FindFirstChild(island)
+                    if model and model:IsA("Model") then
+                        model:Destroy()
+                    end
+                end
+                if l_Workspace_1.Map:FindFirstChild("FrozenDimension") then
+                    l_VirtualInputManager_3:SendKeyEvent(false, "W", false, game)
+                    _G.AutoFindFrozen = false
+                end
+            end
+        end
+    end
+end)
+
+-- 3rd: Tween Leviathan Island
+v498:AddToggle({
+    Name = "Tween Leviathan Island",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.TweenToFrozenDimension = Value
+        StopTween(_G.TweenToFrozenDimension)
+    end
+})
+spawn(function()
+    while wait() do
+        if _G.TweenToFrozenDimension and not v391 then
+            pcall(function()
+                local frozenDim = game:GetService("Workspace").Map:FindFirstChild("FrozenDimension")
+                if frozenDim then
+                    local cf = frozenDim:IsA("BasePart") and frozenDim.CFrame or frozenDim:GetPivot()
+                    local distance = (cf.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if distance > 10 then
+                        topos(cf)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- 4th: Leviathan Chip Status
+local vChipStatus = v498:AddParagraph({Title = "Leviathan Chip Status", Content = "Loading..."})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local v1103 = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
+            if v1103 == 5 then
+                vChipStatus:Set("Leviathan Is Out There    ")
+            elseif v1103 == 0 then
+                vChipStatus:Set("I Don't Know / Reset    ")
+            else
+                vChipStatus:Set("Cooldown: " .. tostring(v1103))
+            end
+        end)
+    end
+end)
+
+-- 5th: Buy Leviathan Chip
+v498:AddButton({
+    Title = "Buy Leviathan Chip",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "2")
+    end
+})
 end
 
 local _ = v491:AddSection({"Fruits"})
