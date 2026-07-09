@@ -8803,10 +8803,10 @@ do
             end
         end
     end)
-local _ = v489:AddSection({"Auto Leviathan"})
+v489:AddSection({"Auto Leviathan"})
 
 -- 1st: Status Leviathan Island
-local vLiviStatus = v489:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
+vLiviStatus = v489:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -8829,16 +8829,12 @@ v489:AddToggle({
         StopTween(_G.AutoFindFrozen)
     end
 })
-local frozenSeats = {}
-local frozenSailing = false
-local l_Players_0 = game:GetService("Players")
-local l_RunService_0 = game:GetService("RunService")
-local l_VirtualInputManager_3 = game:GetService("VirtualInputManager")
-local l_Workspace_1 = game:GetService("Workspace")
+frozenSeats = {}
+frozenSailing = false
 
-l_RunService_0.RenderStepped:Connect(function()
+game:GetService("RunService").RenderStepped:Connect(function()
     if _G.AutoFindFrozen then
-        local character = l_Players_0.LocalPlayer.Character
+        local character = game:GetService("Players").LocalPlayer.Character
         if character and character:FindFirstChild("Humanoid") then
             local function seatCheck()
                 if not frozenSailing then
@@ -8855,7 +8851,7 @@ l_RunService_0.RenderStepped:Connect(function()
             local humanoid = character.Humanoid
             local onSeat = false
             local activeSeat = nil
-            for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
+            for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
                 local seat = boat:FindFirstChild("VehicleSeat")
                 if seat and seat.Occupant == humanoid then
                     onSeat = true
@@ -8868,8 +8864,8 @@ l_RunService_0.RenderStepped:Connect(function()
             if onSeat then
                 activeSeat.MaxSpeed = 350
                 activeSeat.CFrame = CFrame.new(Vector3.new(activeSeat.Position.X, activeSeat.Position.Y, activeSeat.Position.Z)) * activeSeat.CFrame.Rotation
-                l_VirtualInputManager_3:SendKeyEvent(true, "W", false, game)
-                for _, part in pairs(l_Workspace_1.Boats:GetDescendants()) do
+                game:GetService("VirtualInputManager"):SendKeyEvent(true, "W", false, game)
+                for _, part in pairs(game:GetService("Workspace").Boats:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = false
                     end
@@ -8888,13 +8884,13 @@ l_RunService_0.RenderStepped:Connect(function()
                     "KitsuneIsland",
                     "PrehistoricIsland"
                 }) do
-                    local model = l_Workspace_1.Map:FindFirstChild(island)
+                    local model = game:GetService("Workspace").Map:FindFirstChild(island)
                     if model and model:IsA("Model") then
                         model:Destroy()
                     end
                 end
-                if l_Workspace_1.Map:FindFirstChild("FrozenDimension") then
-                    l_VirtualInputManager_3:SendKeyEvent(false, "W", false, game)
+                if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
                     _G.AutoFindFrozen = false
                 end
             end
@@ -8930,7 +8926,7 @@ spawn(function()
 end)
 
 -- 4th: Leviathan Chip Status
-local vChipStatus = v489:AddParagraph({Title = "Leviathan Chip Status", Content = "Loading..."})
+vChipStatus = v489:AddParagraph({Title = "Leviathan Chip Status", Content = "Loading..."})
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
