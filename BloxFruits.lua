@@ -8811,10 +8811,10 @@ vLiviStatus = v489:AddParagraph({Title = "Status Leviathan Island", Content = "L
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
-            if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
-                vLiviStatus:Set("Spawning    ")
+            if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
+                vLiviStatus:SetDesc("Spawning")
             else
-                vLiviStatus:Set("Not Spawn    ")
+                vLiviStatus:SetDesc("Not Spawn")
             end
         end)
     end
@@ -8837,18 +8837,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
     if _G.AutoFindFrozen then
         local character = game:GetService("Players").LocalPlayer.Character
         if character and character:FindFirstChild("Humanoid") then
-            local function seatCheck()
-                if not frozenSailing then
-                    frozenSailing = true
-                    for _, seat in pairs(frozenSeats) do
-                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
-                            topos(seat.CFrame)
-                            break
-                        end
-                    end
-                    frozenSailing = false
-                end
-            end
             local humanoid = character.Humanoid
             local onSeat = false
             local activeSeat = nil
@@ -8858,11 +8846,38 @@ game:GetService("RunService").RenderStepped:Connect(function()
                     onSeat = true
                     activeSeat = seat
                     frozenSeats[boat.Name] = seat
-                elseif seat and seat.Occupant == "Name" then
-                    seatCheck()
                 end
             end
-            if onSeat then
+            if not onSeat then
+                local teleported = false
+                for _, seat in pairs(frozenSeats) do
+                    if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
+                        topos(seat.CFrame)
+                        teleported = true
+                        break
+                    end
+                end
+                if not teleported then
+                    local nearestSeat = nil
+                    local shortestDistance = math.huge
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                            local seat = boat:FindFirstChild("VehicleSeat")
+                            if seat and not seat.Occupant then
+                                local dist = (seat.Position - hrp.Position).Magnitude
+                                if dist < shortestDistance then
+                                    shortestDistance = dist
+                                    nearestSeat = seat
+                                end
+                            end
+                        end
+                    end
+                    if nearestSeat then
+                        topos(nearestSeat.CFrame)
+                    end
+                end
+            else
                 activeSeat.MaxSpeed = 350
                 activeSeat.CFrame = CFrame.new(Vector3.new(activeSeat.Position.X, activeSeat.Position.Y, activeSeat.Position.Z)) * activeSeat.CFrame.Rotation
                 game:GetService("VirtualInputManager"):SendKeyEvent(true, "W", false, game)
@@ -8890,7 +8905,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
                         model:Destroy()
                     end
                 end
-                if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
+                if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
                     game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
                     _G.AutoFindFrozen = false
                 end
@@ -8913,12 +8928,16 @@ spawn(function()
     while wait() do
         if _G.TweenToFrozenDimension and not v391 then
             pcall(function()
-                local frozenDim = game:GetService("Workspace").Map:FindFirstChild("FrozenDimension")
-                if frozenDim then
-                    local cf = frozenDim:IsA("BasePart") and frozenDim.CFrame or frozenDim:GetPivot()
-                    local distance = (cf.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                    if distance > 10 then
-                        topos(cf)
+                local character = game.Players.LocalPlayer.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local marker = workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension")
+                    if marker then
+                        local cf = marker:GetPivot()
+                        local distance = (cf.Position - hrp.Position).Magnitude
+                        if distance > 10 then
+                            topos(cf)
+                        end
                     end
                 end
             end)
@@ -8932,12 +8951,18 @@ task.spawn(function()
     while task.wait(1) do
         pcall(function()
             local v1103 = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
-            if v1103 == 5 then
-                vChipStatus:Set("Leviathan Is Out There    ")
-            elseif v1103 == 0 then
-                vChipStatus:Set("I Don't Know / Reset    ")
+            local spycheck = string.match(tostring(v1103), "%d+")
+            if spycheck then
+                local num = tonumber(spycheck)
+                if num == 5 then
+                    vChipStatus:SetDesc("Leviathan Is Out There")
+                elseif num == 0 then
+                    vChipStatus:SetDesc("I Don't Know / Reset")
+                else
+                    vChipStatus:SetDesc("Cooldown: " .. tostring(num) .. "s")
+                end
             else
-                vChipStatus:Set("Cooldown: " .. tostring(v1103))
+                vChipStatus:SetDesc("I Don't Know / Reset")
             end
         end)
     end
@@ -9425,21 +9450,6 @@ l_RunService_0.RenderStepped:Connect(function()
     if _G.AutoFindPrehistoric then
         local l_Character_8 = l_Players_0.LocalPlayer.Character
         if l_Character_8 and l_Character_8:FindFirstChild("Humanoid") then
-            local function v868()
-                if not v863 then
-                    v863 = true
-                    for _, v867 in pairs(v852) do
-                        if v867 and v867.Parent and v867.Name == "VehicleSeat" and not v867.Occupant then
-                            topos(v867.CFrame)
-                            break
-                        end
-                    end
-                    v863 = false
-                    return 
-                else
-                    return 
-                end
-            end
             local l_Humanoid_1 = l_Character_8.Humanoid
             local v870 = false
             local v871 = nil
@@ -9449,11 +9459,38 @@ l_RunService_0.RenderStepped:Connect(function()
                     v870 = true
                     v871 = l_VehicleSeat_0
                     v852[v873.Name] = l_VehicleSeat_0
-                elseif l_VehicleSeat_0 and l_VehicleSeat_0.Occupant == "Name" then
-                    v868()
                 end
             end
-            if v870 then
+            if not v870 then
+                local teleported = false
+                for _, seat in pairs(v852) do
+                    if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
+                        topos(seat.CFrame)
+                        teleported = true
+                        break
+                    end
+                end
+                if not teleported then
+                    local nearestSeat = nil
+                    local shortestDistance = math.huge
+                    local hrp = l_Character_8:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
+                            local seat = boat:FindFirstChild("VehicleSeat")
+                            if seat and not seat.Occupant then
+                                local dist = (seat.Position - hrp.Position).Magnitude
+                                if dist < shortestDistance then
+                                    shortestDistance = dist
+                                    nearestSeat = seat
+                                end
+                            end
+                        end
+                    end
+                    if nearestSeat then
+                        topos(nearestSeat.CFrame)
+                    end
+                end
+            else
                 v871.MaxSpeed = v857
                 v871.CFrame = CFrame.new(Vector3.new(v871.Position.X, v871.Position.Y, v871.Position.Z)) * v871.CFrame.Rotation
                 l_VirtualInputManager_3:SendKeyEvent(true, "W", false, game)
@@ -9484,22 +9521,9 @@ l_RunService_0.RenderStepped:Connect(function()
                 if l_Workspace_1.Map:FindFirstChild("PrehistoricIsland") then
                     l_VirtualInputManager_3:SendKeyEvent(false, "W", false, game)
                     _G.AutoFindPrehistoric = false
-                    if not v864 then
-                        v864 = true
-                    end
-                    return 
-                else
-                    return 
                 end
-            else
-                return 
             end
-        else
-            return 
         end
-    else
-        v864 = false
-        return 
     end
 end)
 v498:AddToggle({
