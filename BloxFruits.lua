@@ -8812,9 +8812,9 @@ task.spawn(function()
     while task.wait(1) do
         pcall(function()
             if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
-                vLiviStatus:SetDesc("Spawning")
+                vLiviStatus:Set("Spawning    ")
             else
-                vLiviStatus:SetDesc("Not Spawn")
+                vLiviStatus:Set("Not Spawn    ")
             end
         end)
     end
@@ -8828,6 +8828,9 @@ v489:AddToggle({
     Callback = function(Value)
         _G.AutoFindFrozen = Value
         StopTween(_G.AutoFindFrozen)
+        if not Value then
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
+        end
     end
 })
 frozenSeats = {}
@@ -8937,6 +8940,8 @@ spawn(function()
                         local distance = (cf.Position - hrp.Position).Magnitude
                         if distance > 10 then
                             topos(cf)
+                        else
+                            _G.TweenToFrozenDimension = false
                         end
                     end
                 end
@@ -8955,14 +8960,14 @@ task.spawn(function()
             if spycheck then
                 local num = tonumber(spycheck)
                 if num == 5 then
-                    vChipStatus:SetDesc("Leviathan Is Out There")
+                    vChipStatus:Set("Leviathan Is Out There    ")
                 elseif num == 0 then
-                    vChipStatus:SetDesc("I Don't Know / Reset")
+                    vChipStatus:Set("I Don't Know / Reset    ")
                 else
-                    vChipStatus:SetDesc("Cooldown: " .. tostring(num) .. "s")
+                    vChipStatus:Set("Cooldown: " .. tostring(num) .. "s    ")
                 end
             else
-                vChipStatus:SetDesc("I Don't Know / Reset")
+                vChipStatus:Set("I Don't Know / Reset    ")
             end
         end)
     end
@@ -9422,6 +9427,9 @@ v498:AddToggle({
     Callback = function(v851)
         _G.AutoFindPrehistoric = v851
         StopTween(_G.AutoFindPrehistoric)
+        if not v851 then
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
+        end
     end
 })
 v852 = {}
