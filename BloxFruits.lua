@@ -8835,6 +8835,7 @@ v489:AddToggle({
 })
 frozenSeats = {}
 frozenSailing = false
+lastSeatTeleport = 0
 
 game:GetService("RunService").RenderStepped:Connect(function()
     if _G.AutoFindFrozen then
@@ -8852,32 +8853,36 @@ game:GetService("RunService").RenderStepped:Connect(function()
                 end
             end
             if not onSeat then
-                local teleported = false
-                for _, seat in pairs(frozenSeats) do
-                    if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
-                        topos(seat.CFrame)
-                        teleported = true
-                        break
+                local now = tick()
+                if not v391 and (now - lastSeatTeleport > 3) then
+                    lastSeatTeleport = now
+                    local teleported = false
+                    for _, seat in pairs(frozenSeats) do
+                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
+                            topos(seat.CFrame)
+                            teleported = true
+                            break
+                        end
                     end
-                end
-                if not teleported then
-                    local nearestSeat = nil
-                    local shortestDistance = math.huge
-                    local hrp = character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-                            local seat = boat:FindFirstChild("VehicleSeat")
-                            if seat and not seat.Occupant then
-                                local dist = (seat.Position - hrp.Position).Magnitude
-                                if dist < shortestDistance then
-                                    shortestDistance = dist
-                                    nearestSeat = seat
+                    if not teleported then
+                        local nearestSeat = nil
+                        local shortestDistance = math.huge
+                        local hrp = character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                                local seat = boat:FindFirstChild("VehicleSeat")
+                                if seat and not seat.Occupant then
+                                    local dist = (seat.Position - hrp.Position).Magnitude
+                                    if dist < shortestDistance then
+                                        shortestDistance = dist
+                                        nearestSeat = seat
+                                    end
                                 end
                             end
                         end
-                    end
-                    if nearestSeat then
-                        topos(nearestSeat.CFrame)
+                        if nearestSeat then
+                            topos(nearestSeat.CFrame)
+                        end
                     end
                 end
             else
@@ -9454,6 +9459,8 @@ _ = function()
 end
 v863 = false
 v864 = false
+lastPrehistoricSeatTeleport = 0
+
 l_RunService_0.RenderStepped:Connect(function()
     if _G.AutoFindPrehistoric then
         local l_Character_8 = l_Players_0.LocalPlayer.Character
@@ -9470,32 +9477,36 @@ l_RunService_0.RenderStepped:Connect(function()
                 end
             end
             if not v870 then
-                local teleported = false
-                for _, seat in pairs(v852) do
-                    if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
-                        topos(seat.CFrame)
-                        teleported = true
-                        break
+                local now = tick()
+                if not v391 and (now - lastPrehistoricSeatTeleport > 3) then
+                    lastPrehistoricSeatTeleport = now
+                    local teleported = false
+                    for _, seat in pairs(v852) do
+                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
+                            topos(seat.CFrame)
+                            teleported = true
+                            break
+                        end
                     end
-                end
-                if not teleported then
-                    local nearestSeat = nil
-                    local shortestDistance = math.huge
-                    local hrp = l_Character_8:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
-                            local seat = boat:FindFirstChild("VehicleSeat")
-                            if seat and not seat.Occupant then
-                                local dist = (seat.Position - hrp.Position).Magnitude
-                                if dist < shortestDistance then
-                                    shortestDistance = dist
-                                    nearestSeat = seat
+                    if not teleported then
+                        local nearestSeat = nil
+                        local shortestDistance = math.huge
+                        local hrp = l_Character_8:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
+                                local seat = boat:FindFirstChild("VehicleSeat")
+                                if seat and not seat.Occupant then
+                                    local dist = (seat.Position - hrp.Position).Magnitude
+                                    if dist < shortestDistance then
+                                        shortestDistance = dist
+                                        nearestSeat = seat
+                                    end
                                 end
                             end
                         end
-                    end
-                    if nearestSeat then
-                        topos(nearestSeat.CFrame)
+                        if nearestSeat then
+                            topos(nearestSeat.CFrame)
+                        end
                     end
                 end
             else
