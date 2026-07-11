@@ -8989,20 +8989,44 @@ v490:AddButton({
     Title = "Teleport To Top GreatTree",
     Value = false,
     Callback = function()
-        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
+        _G.AutoFarm = false
+        _G.AutoFarmLevelNew = false
+        _G.AutoFarmMastery = false
+        _G.AutoFarmChest = false
+        _G.FarmBone = false
+        _G.AutoUpgradeRace = false
+        StopTween(false)
+        task.wait(0.05)
+        topos(CFrame.new(3030.39453125, 2280.6171875, -7320.18359375))
     end
 })
 v490:AddButton({
     Title = "Teleport Temple Of Time",
     Value = false,
     Callback = function()
-        Game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+        _G.AutoFarm = false
+        _G.AutoFarmLevelNew = false
+        _G.AutoFarmMastery = false
+        _G.AutoFarmChest = false
+        _G.FarmBone = false
+        _G.AutoUpgradeRace = false
+        StopTween(false)
+        task.wait(0.05)
+        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
     end
 })
 v490:AddButton({
     Title = "Teleport Lever Pull",
     Value = false,
     Callback = function()
+        _G.AutoFarm = false
+        _G.AutoFarmLevelNew = false
+        _G.AutoFarmMastery = false
+        _G.AutoFarmChest = false
+        _G.FarmBone = false
+        _G.AutoUpgradeRace = false
+        StopTween(false)
+        task.wait(0.05)
         topos(CFrame.new(28575.181640625, 14936.6279296875, 72.31636810302734))
     end
 })
@@ -9010,6 +9034,14 @@ v490:AddButton({
     Title = "Teleport To The Clock",
     Value = false,
     Callback = function()
+        _G.AutoFarm = false
+        _G.AutoFarmLevelNew = false
+        _G.AutoFarmMastery = false
+        _G.AutoFarmChest = false
+        _G.FarmBone = false
+        _G.AutoUpgradeRace = false
+        StopTween(false)
+        task.wait(0.05)
         topos(CFrame.new(29553.7812, 15066.6133, -88.2750015, 1, 0, 0, 0, 1, 0, 0, 0, 1))
     end
 })
