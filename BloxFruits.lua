@@ -3636,8 +3636,8 @@ _, _ = pcall(function()
 end)
 spawn(function()
     pcall(function()
-        while task.wait(0.2) do
-            if getgenv().Module or _G.DefendVolcano or getgenv().AutoFarm then
+        while task.wait(0.1) do
+            if getgenv().Module or _G.DefendVolcano or getgenv().AutoFarm or v391 then
                 enableNoclip()
                 disableCollisions()
             else
@@ -3753,9 +3753,11 @@ function topos(v405)
                     if not v391 then
                         return 
                     else
-                        task.wait()
                         if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
-                            WaitHRP(l_LocalPlayer_1).CFrame = l_v409_0.CFrame
+                            local hrp = WaitHRP(l_LocalPlayer_1)
+                            hrp.CFrame = l_v409_0.CFrame
+                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                         end
                         return 
                     end
@@ -6626,15 +6628,27 @@ if World3 then
                 end
             end
         end)
+        local _ = v487:AddSection({"Elite Quests & Upgrades"})
         v487:AddToggle({
-            Name = "Kill Elite Hunter",
-            Description = "",
+            Name = "Auto Farm Elite",
+            Description = "Takes quest and kills Elite Bosses (Diablo, Deandre, Urban)",
             Default = false,
             Callback = function(v793)
                 _G.AutoElitehunter = v793
                 StopTween(_G.AutoElitehunter)
             end
         })
+        v487:AddToggle({
+            Name = "Auto Farm Elite + Hop Server",
+            Description = "Hops server automatically if Elite quest is on cooldown",
+            Default = false,
+            Callback = function(Value)
+                _G.AutoEliteHunterHop = Value
+                _G.AutoElitehunter = Value
+                StopTween(_G.AutoElitehunter)
+            end
+        })
+
         spawn(function()
             while wait() do
                 if _G.AutoElitehunter and World3 then
@@ -8804,187 +8818,171 @@ do
         end
     end)
 end
-v489:AddSection({"Auto Leviathan"})
-
--- 1st: Status Leviathan Island
-vLiviStatus = v489:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
-                vLiviStatus:Set("Spawning    ")
-            else
-                vLiviStatus:Set("Not Spawn    ")
-            end
-        end)
-    end
-end)
-
--- 2nd: Find Leviathan Island
-v489:AddToggle({
-    Name = "Find Leviathan Island",
-    Description = "",
+_ = v490:AddSection({"Race Upgrade V2 / V3"})
+v490:AddToggle({
+    Name = "Auto Upgrade Race V2 / V3",
+    Description = "Automates Flower quest (V2) and Arrow NPC quest (V3)",
     Default = false,
     Callback = function(Value)
-        _G.AutoFindFrozen = Value
-        StopTween(_G.AutoFindFrozen)
-        if not Value then
-            game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
-        end
-    end
-})
-frozenSeats = {}
-frozenSailing = false
-lastSeatTeleport = 0
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    if _G.AutoFindFrozen then
-        local character = game:GetService("Players").LocalPlayer.Character
-        if character and character:FindFirstChild("Humanoid") then
-            local humanoid = character.Humanoid
-            local onSeat = false
-            local activeSeat = nil
-            for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-                local seat = boat:FindFirstChild("VehicleSeat")
-                if seat and seat.Occupant == humanoid then
-                    onSeat = true
-                    activeSeat = seat
-                    frozenSeats[boat.Name] = seat
-                end
-            end
-            if not onSeat then
-                local now = tick()
-                if not v391 and (now - lastSeatTeleport > 3) then
-                    lastSeatTeleport = now
-                    local teleported = false
-                    for _, seat in pairs(frozenSeats) do
-                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
-                            topos(seat.CFrame)
-                            teleported = true
-                            break
-                        end
-                    end
-                    if not teleported then
-                        local nearestSeat = nil
-                        local shortestDistance = math.huge
-                        local hrp = character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
-                                local seat = boat:FindFirstChild("VehicleSeat")
-                                if seat and not seat.Occupant then
-                                    local dist = (seat.Position - hrp.Position).Magnitude
-                                    if dist < shortestDistance then
-                                        shortestDistance = dist
-                                        nearestSeat = seat
-                                    end
-                                end
-                            end
-                        end
-                        if nearestSeat then
-                            topos(nearestSeat.CFrame)
-                        end
-                    end
-                end
-            else
-                activeSeat.MaxSpeed = 350
-                activeSeat.CFrame = CFrame.new(Vector3.new(activeSeat.Position.X, activeSeat.Position.Y, activeSeat.Position.Z)) * activeSeat.CFrame.Rotation
-                game:GetService("VirtualInputManager"):SendKeyEvent(true, "W", false, game)
-                for _, part in pairs(game:GetService("Workspace").Boats:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-                for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-                for _, island in ipairs({
-                    "ShipwreckIsland",
-                    "SandIsland",
-                    "TreeIsland",
-                    "TinyIsland",
-                    "MysticIsland",
-                    "KitsuneIsland",
-                    "PrehistoricIsland"
-                }) do
-                    local model = game:GetService("Workspace").Map:FindFirstChild(island)
-                    if model and model:IsA("Model") then
-                        model:Destroy()
-                    end
-                end
-                if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
-                    game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
-                    _G.AutoFindFrozen = false
-                end
-            end
-        end
-    end
-end)
-
--- 3rd: Tween Leviathan Island
-v489:AddToggle({
-    Name = "Tween Leviathan Island",
-    Description = "",
-    Default = false,
-    Callback = function(Value)
-        _G.TweenToFrozenDimension = Value
-        StopTween(_G.TweenToFrozenDimension)
+        _G.AutoUpgradeRace = Value
+        StopTween(_G.AutoUpgradeRace)
     end
 })
 spawn(function()
-    while wait() do
-        if _G.TweenToFrozenDimension and not v391 then
+    while task.wait(1) do
+        if _G.AutoUpgradeRace then
             pcall(function()
-                local character = game.Players.LocalPlayer.Character
-                local hrp = character and character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    local marker = workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension")
-                    if marker then
-                        local cf = marker:GetPivot()
-                        local distance = (cf.Position - hrp.Position).Magnitude
-                        if distance > 10 then
-                            topos(cf)
+                local race = game:GetService("Players").LocalPlayer.Data.Race.Value
+                local alchemistState = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Alchemist", "1")
+                
+                if alchemistState == 0 then
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Alchemist", "2")
+                elseif alchemistState == 1 then
+                    local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+                    local character = game.Players.LocalPlayer.Character
+                    local hasFlower1 = backpack:FindFirstChild("Flower 1") or character:FindFirstChild("Flower 1")
+                    local hasFlower2 = backpack:FindFirstChild("Flower 2") or character:FindFirstChild("Flower 2")
+                    local hasFlower3 = backpack:FindFirstChild("Flower 3") or character:FindFirstChild("Flower 3")
+                    
+                    if not hasFlower1 then
+                        local f1 = workspace:FindFirstChild("Flower1")
+                        if f1 then
+                            topos(f1.CFrame)
                         else
-                            _G.TweenToFrozenDimension = false
+                            topos(CFrame.new(28960.158203125, 14919.6240234375, 235.03948974609375))
                         end
+                    elseif not hasFlower2 then
+                        local f2 = workspace:FindFirstChild("Flower2")
+                        if f2 then
+                            topos(f2.CFrame)
+                        else
+                            topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
+                        end
+                    elseif not hasFlower3 then
+                        local enemyName = "Swan Pirate"
+                        if game:GetService("Workspace").Enemies:FindFirstChild(enemyName) then
+                            for _, enemy in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                if enemy.Name == enemyName and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") and enemy.Humanoid.Health > 0 then
+                                    repeat
+                                        task.wait()
+                                        AutoHaki()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        enemy.HumanoidRootPart.CanCollide = false
+                                        StartBring = true
+                                        enemy.Humanoid.WalkSpeed = 0
+                                        topos(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                        game:GetService("VirtualUser"):CaptureController()
+                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                    until not _G.AutoUpgradeRace or not enemy.Parent or enemy.Humanoid.Health <= 0
+                                    break
+                                end
+                            end
+                        else
+                            topos(CFrame.new(980.0985107421875, 121.331298828125, 1287.2093505859375))
+                        end
+                    end
+                elseif alchemistState == 2 then
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Alchemist", "3")
+                else
+                    local wenlockState = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Wenlocktoad", "1")
+                    if wenlockState == 0 then
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Wenlocktoad", "2")
+                    elseif wenlockState == 1 then
+                        if race == "Mink" then
+                            local chestFound = false
+                            for _, chest in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if chest.Name:find("Chest") and chest:IsA("Part") then
+                                    topos(chest.CFrame)
+                                    chestFound = true
+                                    task.wait(0.5)
+                                    break
+                                end
+                            end
+                            if not chestFound then
+                                topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
+                            end
+                        elseif race == "Human" then
+                            local humanTarget = nil
+                            for _, bossName in ipairs({"Fajita", "Diamond", "Jeremy"}) do
+                                local boss = game:GetService("Workspace").Enemies:FindFirstChild(bossName)
+                                if boss and boss:FindFirstChild("Humanoid") and boss.Humanoid.Health > 0 then
+                                    humanTarget = boss
+                                    break
+                                end
+                            end
+                            if humanTarget then
+                                repeat
+                                    task.wait()
+                                    AutoHaki()
+                                    EquipWeapon(_G.SelectWeapon)
+                                    humanTarget.HumanoidRootPart.CanCollide = false
+                                    StartBring = true
+                                    humanTarget.Humanoid.WalkSpeed = 0
+                                    topos(humanTarget.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                until not _G.AutoUpgradeRace or not humanTarget.Parent or humanTarget.Humanoid.Health <= 0
+                            else
+                                topos(CFrame.new(2006.92615, 448.956665, 853.98285))
+                            end
+                        elseif race == "Skypiea" or race == "Angel" then
+                            local skyTarget = nil
+                            for _, player in pairs(game.Players:GetChildren()) do
+                                if player ~= game.Players.LocalPlayer and tostring(player.Data.Race.Value):find("Sky") then
+                                    local char = player.Character
+                                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                                    local hum = char and char:FindFirstChild("Humanoid")
+                                    if hrp and hum and hum.Health > 0 then
+                                        skyTarget = player
+                                        break
+                                    end
+                                end
+                            end
+                            if skyTarget then
+                                local char = skyTarget.Character
+                                repeat
+                                    task.wait()
+                                    topos(char.HumanoidRootPart.CFrame * CFrame.new(0, 8, 0))
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                until not _G.AutoUpgradeRace or not char.Parent or char.Humanoid.Health <= 0
+                            else
+                                topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
+                            end
+                        elseif race == "Fishman" or race == "Fish" then
+                            local seabeasts = game:GetService("Workspace"):FindFirstChild("SeaBeasts")
+                            local sbTarget = nil
+                            if seabeasts then
+                                for _, sb in pairs(seabeasts:GetChildren()) do
+                                    local hum = sb:FindFirstChild("Humanoid")
+                                    local hrp = sb:FindFirstChild("HumanoidRootPart")
+                                    if hum and hrp and hum.Health > 0 then
+                                        sbTarget = sb
+                                        break
+                                    end
+                                end
+                            end
+                            if sbTarget then
+                                local hum = sbTarget.Humanoid
+                                local hrp = sbTarget.HumanoidRootPart
+                                repeat
+                                    task.wait()
+                                    topos(hrp.CFrame * CFrame.new(0, 30, 0))
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                until not _G.AutoUpgradeRace or not sbTarget.Parent or hum.Health <= 0
+                            else
+                                topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
+                            end
+                        end
+                    elseif wenlockState == 2 then
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Wenlocktoad", "3")
                     end
                 end
             end)
         end
     end
 end)
-
--- 4th: Leviathan Chip Status
-vChipStatus = v489:AddParagraph({Title = "Leviathan Chip Status", Content = "Loading..."})
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            local v1103 = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
-            local spycheck = string.match(tostring(v1103), "%d+")
-            if spycheck then
-                local num = tonumber(spycheck)
-                if num == 5 then
-                    vChipStatus:Set("Leviathan Is Out There    ")
-                elseif num == 0 then
-                    vChipStatus:Set("I Don't Know / Reset    ")
-                else
-                    vChipStatus:Set("Cooldown: " .. tostring(num) .. "s    ")
-                end
-            else
-                vChipStatus:Set("I Don't Know / Reset    ")
-            end
-        end)
-    end
-end)
-
--- 5th: Buy Leviathan Chip
-v489:AddButton({
-    Title = "Buy Leviathan Chip",
-    Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "2")
-    end
-})
 
 _ = v490:AddSection({"Teleport V4"})
 v490:AddButton({
@@ -9404,6 +9402,156 @@ spawn(function()
         end
     end
 end)
+_ = v498:AddSection({"Leviathan Island"})
+
+-- 1st: Status Leviathan Island
+vLiviStatus = v498:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
+                vLiviStatus:Set("Spawning    ")
+            else
+                vLiviStatus:Set("Not Spawn    ")
+            end
+        end)
+    end
+end)
+
+-- 2nd: Find Leviathan Island
+v498:AddToggle({
+    Name = "Find Leviathan Island",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoFindFrozen = Value
+        _G.SailBoat = Value
+        StopTween(_G.AutoFindFrozen)
+        if not Value then
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
+        end
+    end
+})
+frozenSeats = {}
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if _G.AutoFindFrozen then
+        local character = game:GetService("Players").LocalPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            local onSeat = false
+            local activeSeat = nil
+            for _, boat in pairs(game:GetService("Workspace").Boats:GetChildren()) do
+                local seat = boat:FindFirstChild("VehicleSeat")
+                if seat and seat.Occupant == humanoid then
+                    onSeat = true
+                    activeSeat = seat
+                    frozenSeats[boat.Name] = seat
+                end
+            end
+            if onSeat then
+                activeSeat.MaxSpeed = 350
+                activeSeat.CFrame = CFrame.new(Vector3.new(activeSeat.Position.X, activeSeat.Position.Y, activeSeat.Position.Z)) * activeSeat.CFrame.Rotation
+                game:GetService("VirtualInputManager"):SendKeyEvent(true, "W", false, game)
+                for _, part in pairs(game:GetService("Workspace").Boats:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+                for _, island in ipairs({
+                    "ShipwreckIsland",
+                    "SandIsland",
+                    "TreeIsland",
+                    "TinyIsland",
+                    "MysticIsland",
+                    "KitsuneIsland",
+                    "PrehistoricIsland"
+                }) do
+                    local model = game:GetService("Workspace").Map:FindFirstChild(island)
+                    if model and model:IsA("Model") then
+                        model:Destroy()
+                    end
+                end
+                if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
+                    _G.AutoFindFrozen = false
+                    _G.SailBoat = false
+                    stopBoatTween()
+                end
+            end
+        end
+    end
+end)
+
+-- 3rd: Tween Leviathan Island
+v498:AddToggle({
+    Name = "Tween Leviathan Island",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.TweenToFrozenDimension = Value
+        StopTween(_G.TweenToFrozenDimension)
+    end
+})
+spawn(function()
+    while wait() do
+        if _G.TweenToFrozenDimension and not v391 then
+            pcall(function()
+                local character = game.Players.LocalPlayer.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local marker = workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension")
+                    if marker then
+                        local cf = marker:GetPivot()
+                        local distance = (cf.Position - hrp.Position).Magnitude
+                        if distance > 10 then
+                            topos(cf)
+                        else
+                            _G.TweenToFrozenDimension = false
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- 4th: Leviathan Chip Status
+vChipStatus = v498:AddParagraph({Title = "Leviathan Chip Status", Content = "Loading..."})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local v1103 = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "1")
+            local spycheck = string.match(tostring(v1103), "%d+")
+            if spycheck then
+                local num = tonumber(spycheck)
+                if num == 5 then
+                    vChipStatus:Set("Leviathan Is Out There    ")
+                elseif num == 0 then
+                    vChipStatus:Set("I Don't Know / Reset    ")
+                else
+                    vChipStatus:Set("Cooldown: " .. tostring(num) .. "s    ")
+                end
+            else
+                vChipStatus:Set("I Don't Know / Reset    ")
+            end
+        end)
+    end
+end)
+
+-- 5th: Buy Leviathan Chip
+v498:AddButton({
+    Title = "Buy Leviathan Chip",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "2")
+    end
+})
+
 _ = v498:AddSection({"Volcanic Island"})
 v498:AddButton({
     Title = "Craft Volcanic Magnet",
@@ -9431,6 +9579,7 @@ v498:AddToggle({
     Default = false,
     Callback = function(v851)
         _G.AutoFindPrehistoric = v851
+        _G.SailBoat = v851
         StopTween(_G.AutoFindPrehistoric)
         if not v851 then
             game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
@@ -9459,7 +9608,6 @@ _ = function()
 end
 v863 = false
 v864 = false
-lastPrehistoricSeatTeleport = 0
 
 l_RunService_0.RenderStepped:Connect(function()
     if _G.AutoFindPrehistoric then
@@ -9476,40 +9624,7 @@ l_RunService_0.RenderStepped:Connect(function()
                     v852[v873.Name] = l_VehicleSeat_0
                 end
             end
-            if not v870 then
-                local now = tick()
-                if not v391 and (now - lastPrehistoricSeatTeleport > 3) then
-                    lastPrehistoricSeatTeleport = now
-                    local teleported = false
-                    for _, seat in pairs(v852) do
-                        if seat and seat.Parent and seat.Name == "VehicleSeat" and not seat.Occupant then
-                            topos(seat.CFrame)
-                            teleported = true
-                            break
-                        end
-                    end
-                    if not teleported then
-                        local nearestSeat = nil
-                        local shortestDistance = math.huge
-                        local hrp = l_Character_8:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            for _, boat in pairs(l_Workspace_1.Boats:GetChildren()) do
-                                local seat = boat:FindFirstChild("VehicleSeat")
-                                if seat and not seat.Occupant then
-                                    local dist = (seat.Position - hrp.Position).Magnitude
-                                    if dist < shortestDistance then
-                                        shortestDistance = dist
-                                        nearestSeat = seat
-                                    end
-                                end
-                            end
-                        end
-                        if nearestSeat then
-                            topos(nearestSeat.CFrame)
-                        end
-                    end
-                end
-            else
+            if v870 then
                 v871.MaxSpeed = v857
                 v871.CFrame = CFrame.new(Vector3.new(v871.Position.X, v871.Position.Y, v871.Position.Z)) * v871.CFrame.Rotation
                 l_VirtualInputManager_3:SendKeyEvent(true, "W", false, game)
@@ -9540,6 +9655,8 @@ l_RunService_0.RenderStepped:Connect(function()
                 if l_Workspace_1.Map:FindFirstChild("PrehistoricIsland") then
                     l_VirtualInputManager_3:SendKeyEvent(false, "W", false, game)
                     _G.AutoFindPrehistoric = false
+                    _G.SailBoat = false
+                    stopBoatTween()
                 end
             end
         end
