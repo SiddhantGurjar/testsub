@@ -8996,8 +8996,19 @@ v490:AddButton({
         _G.FarmBone = false
         _G.AutoUpgradeRace = false
         StopTween(false)
-        task.wait(0.05)
-        topos(CFrame.new(3030.39453125, 2280.6171875, -7320.18359375))
+        
+        local character = game.Players.LocalPlayer.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            hrp.Anchored = true
+            task.spawn(function()
+                task.wait(3)
+                hrp.Anchored = false
+            end)
+        end
     end
 })
 v490:AddButton({
@@ -9011,8 +9022,19 @@ v490:AddButton({
         _G.FarmBone = false
         _G.AutoUpgradeRace = false
         StopTween(false)
-        task.wait(0.05)
-        topos(CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875))
+        
+        local character = game.Players.LocalPlayer.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            hrp.Anchored = true
+            task.spawn(function()
+                task.wait(3)
+                hrp.Anchored = false
+            end)
+        end
     end
 })
 v490:AddButton({
@@ -9026,8 +9048,19 @@ v490:AddButton({
         _G.FarmBone = false
         _G.AutoUpgradeRace = false
         StopTween(false)
-        task.wait(0.05)
-        topos(CFrame.new(28575.181640625, 14936.6279296875, 72.31636810302734))
+        
+        local character = game.Players.LocalPlayer.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(28575.181640625, 14936.6279296875, 72.31636810302734)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            hrp.Anchored = true
+            task.spawn(function()
+                task.wait(3)
+                hrp.Anchored = false
+            end)
+        end
     end
 })
 v490:AddButton({
@@ -9041,8 +9074,19 @@ v490:AddButton({
         _G.FarmBone = false
         _G.AutoUpgradeRace = false
         StopTween(false)
-        task.wait(0.05)
-        topos(CFrame.new(29553.7812, 15066.6133, -88.2750015, 1, 0, 0, 0, 1, 0, 0, 0, 1))
+        
+        local character = game.Players.LocalPlayer.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(29553.7812, 15066.6133, -88.2750015, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            hrp.Anchored = true
+            task.spawn(function()
+                task.wait(3)
+                hrp.Anchored = false
+            end)
+        end
     end
 })
 _ = v490:AddSection({"Trial V4"})
@@ -9460,6 +9504,13 @@ v498:AddToggle({
         _G.SailBoat = Value
         StopTween(_G.AutoFindFrozen)
         if not Value then
+            stopBoatTween()
+            stopTeleport()
+            pcall(function()
+                if tween then
+                    tween:Cancel()
+                end
+            end)
             game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
         end
     end
@@ -9614,6 +9665,13 @@ v498:AddToggle({
         _G.SailBoat = v851
         StopTween(_G.AutoFindPrehistoric)
         if not v851 then
+            stopBoatTween()
+            stopTeleport()
+            pcall(function()
+                if tween then
+                    tween:Cancel()
+                end
+            end)
             game:GetService("VirtualInputManager"):SendKeyEvent(false, "W", false, game)
         end
     end
@@ -9723,6 +9781,26 @@ spawn(function()
         end
     end
 end)
+v498:AddDropdown({
+    Name = "Select Skills to Use",
+    Description = "Select weapons to use during defend",
+    Options = {"Melee", "Sword", "Gun"},
+    Default = {["Melee"] = true, ["Sword"] = true, ["Gun"] = true},
+    MultiSelect = true,
+    Callback = function(Table)
+        local selected = {}
+        for k, v in pairs(Table) do
+            if type(k) == "string" then
+                if v == true then selected[k] = true end
+            elseif type(v) == "string" then
+                selected[v] = true
+            end
+        end
+        _G.UseMelee = not not selected["Melee"]
+        _G.UseSword = not not selected["Sword"]
+        _G.UseGun = not not selected["Gun"]
+    end
+})
 v498:AddToggle({
     Name = "Auto Defend Prehistoric",
     Description = "",
@@ -9828,34 +9906,7 @@ spawn(function()
         end
     end
 end)
-_ = v498:AddSection({"Auto Skill"})
-v498:AddToggle({
-    Name = "Auto Use Melee",
-    Description = "",
-    Default = false,
-    Callback = function(v918)
-        _G.UseMelee = v918
-        StopTween(_G.UseMelee)
-    end
-})
-v498:AddToggle({
-    Name = "Auto Use Sword",
-    Description = "",
-    Default = false,
-    Callback = function(v919)
-        _G.UseSword = v919
-        StopTween(_G.UseSword)
-    end
-})
-v498:AddToggle({
-    Name = "Auto Use Gun",
-    Description = "",
-    Default = false,
-    Callback = function(v920)
-        _G.UseGun = v920
-        StopTween(_G.UseGun)
-    end
-})
+
 _ = v498:AddSection({"Auto Kill Golem"})
 v498:AddToggle({
     Name = "Auto Kill Golem",
@@ -10187,9 +10238,9 @@ spawn(function()
     end)
 end)
 v491:AddToggle({
-    Title = "Auto Store Fruits",
+    Name = "Auto Store Fruits",
     Description = "",
-    Value = false,
+    Default = false,
     Callback = function(v1075)
         getgenv().AutoStoreFruit = v1075
     end
@@ -10445,13 +10496,17 @@ v491:AddToggle({
 task.spawn(function()
     while task.wait(1) do
         if _G.AutoBuyChip and _G.SelectChip then
-            pcall(function()
-                game.ReplicatedStorage.Remotes.CommF_:InvokeServer(
-                    "RaidsNpc",
-                    "Select",
-                    _G.SelectChip
-                )
-            end)
+            local lp = game.Players.LocalPlayer
+            local hasChip = lp.Backpack:FindFirstChild("Special Microchip") or lp.Character:FindFirstChild("Special Microchip")
+            if not hasChip then
+                pcall(function()
+                    game.ReplicatedStorage.Remotes.CommF_:InvokeServer(
+                        "RaidsNpc",
+                        "Select",
+                        _G.SelectChip
+                    )
+                end)
+            end
         end
     end
 end)
@@ -10559,6 +10614,28 @@ task.spawn(function()
         end
     end
 end)
+
+_ = v491:AddSection({"Fruit Awakening"})
+v491:AddToggle({
+    Name = "Auto Awakening",
+    Default = false,
+    Callback = function(v)
+        _G.Auto_Awakener = v
+        StopTween(_G.Auto_Awakener)
+    end
+})
+
+task.spawn(function()
+    while task.wait(1) do
+        if _G.Auto_Awakener then
+            pcall(function()
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Awakener", "Check")
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Awakener", "Awaken")
+            end)
+        end
+    end
+end)
+
 end
 
 if not World2 then
@@ -10570,17 +10647,18 @@ else
 
 _ = v491:AddSection({"Raid Law Sea 2"})
 v491:AddButton({
-    Title = "Auto Buy Chip Law",
-    Description = "",
-    Value = false,
+    Name = "Auto Buy Chip Law",
     Callback = function()
-        local v1069 = {[1] = "BlackbeardReward", [2] = "Microchip", [3] = "2"}
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v1069))
+        local lp = game.Players.LocalPlayer
+        local hasChip = lp.Backpack:FindFirstChild("Microchip") or lp.Character:FindFirstChild("Microchip") or lp.Backpack:FindFirstChild("Special Microchip") or lp.Character:FindFirstChild("Special Microchip")
+        if not hasChip then
+            local v1069 = {[1] = "BlackbeardReward", [2] = "Microchip", [3] = "2"}
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v1069))
+        end
     end
 })
 v491:AddButton({
-    Title = "Auto Start Raid Law",
-    Value = false,
+    Name = "Auto Start Raid Law",
     Callback = function()
         fireclickdetector(game:GetService("Workspace").Map.CircleIsland.RaidSummon.Button.Main.ClickDetector)
     end
