@@ -172,9 +172,9 @@ local function isSkillReady(key)
     return ready
 end
 
-spammingSkills = false
+local currentFarmedMob = nil
 function spamCombatSkills(mob)
-    if spammingSkills then 
+    if currentFarmedMob == mob then 
         return 
     end
 
@@ -205,7 +205,7 @@ function spamCombatSkills(mob)
         return 
     end
 
-    spammingSkills = true
+    currentFarmedMob = mob
     task.spawn(function()
         local casting = true
         local skillFiring = false -- When true, position anchoring pauses so dash skills can travel
@@ -215,6 +215,10 @@ function spamCombatSkills(mob)
             -- Also check player is alive to prevent acting at respawn
             local myChar = game.Players.LocalPlayer.Character
             if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 then
+                return false
+            end
+            -- Check if farm toggles are active
+            if not (_G.AutoFarm or _G.AutoFarmMastery or _G.AutoNear or _G.FarmBone or _G.AutoBoss or _G.AutoAllBoss) then
                 return false
             end
             return mob and mob.Parent and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart")
@@ -310,7 +314,9 @@ function spamCombatSkills(mob)
 
         _G.UseSkill = false
         casting = false
-        spammingSkills = false
+        if currentFarmedMob == mob then
+            currentFarmedMob = nil
+        end
     end)
 end
 
@@ -4091,7 +4097,143 @@ v499 = v466:MakeTab({"Status", "Scroll"})
 v494 = v466:MakeTab({"Visual", "user"})
 v495 = v466:MakeTab({"Shop", "shoppingCart"})
 v496 = v466:MakeTab({"Misc", "settings"})
-v484:AddDiscordInvite({
+local function createCustomDiscordInvite(Configs)
+    local container = Configs.Tab.Cont
+    if not container then return end
+
+    local inviteHolder = Instance.new("Frame")
+    inviteHolder.Name = "InviteHolder"
+    inviteHolder.Size = UDim2.new(1, -10, 0, 160)
+    inviteHolder.BackgroundTransparency = 1
+    inviteHolder.Parent = container
+
+    local inviteLabel = Instance.new("TextLabel")
+    inviteLabel.Name = "InviteLabel"
+    inviteLabel.Size = UDim2.new(1, 0, 0, 15)
+    inviteLabel.Position = UDim2.new(0, 5, 0, 0)
+    inviteLabel.BackgroundTransparency = 1
+    inviteLabel.Font = Enum.Font.GothamBold
+    inviteLabel.Text = Configs.Invite or ""
+    inviteLabel.TextColor3 = Color3.fromRGB(40, 150, 255)
+    inviteLabel.TextSize = 9
+    inviteLabel.TextXAlignment = Enum.TextXAlignment.Left
+    inviteLabel.Parent = inviteHolder
+
+    local card = Instance.new("Frame")
+    card.Name = "Card"
+    card.Size = UDim2.new(1, 0, 0, 145)
+    card.Position = UDim2.new(0, 0, 0, 15)
+    card.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
+    card.BorderSizePixel = 0
+    card.Parent = inviteHolder
+
+    local cardCorner = Instance.new("UICorner")
+    cardCorner.CornerRadius = UDim.new(0, 8)
+    cardCorner.Parent = card
+
+    local cardStroke = Instance.new("UIStroke")
+    cardStroke.Color = Color3.fromRGB(47, 49, 54)
+    cardStroke.Thickness = 1
+    cardStroke.Parent = card
+
+    -- Banner (Solid red/pink header frame)
+    local banner = Instance.new("Frame")
+    banner.Name = "Banner"
+    banner.Size = UDim2.new(1, 0, 0, 50)
+    banner.BackgroundColor3 = Color3.fromRGB(243, 80, 100)
+    banner.BorderSizePixel = 0
+    banner.Parent = card
+
+    local bannerCorner = Instance.new("UICorner")
+    bannerCorner.CornerRadius = UDim.new(0, 8)
+    bannerCorner.Parent = banner
+
+    local bannerCover = Instance.new("Frame")
+    bannerCover.Size = UDim2.new(1, 0, 0, 10)
+    bannerCover.Position = UDim2.new(0, 0, 0, 40)
+    bannerCover.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
+    bannerCover.BorderSizePixel = 0
+    bannerCover.ZIndex = 1
+    bannerCover.Parent = card
+
+    -- Logo
+    local logo = Instance.new("ImageLabel")
+    logo.Name = "Logo"
+    logo.Size = UDim2.new(0, 38, 0, 38)
+    logo.Position = UDim2.new(0, 15, 0, 30)
+    logo.Image = Configs.Logo or ""
+    logo.BackgroundTransparency = 1
+    logo.ZIndex = 2
+    logo.Parent = card
+
+    local logoCorner = Instance.new("UICorner")
+    logoCorner.CornerRadius = UDim.new(0, 10)
+    logoCorner.Parent = logo
+
+    local logoStroke = Instance.new("UIStroke")
+    logoStroke.Color = Color3.fromRGB(24, 25, 28)
+    logoStroke.Thickness = 3
+    logoStroke.Parent = logo
+
+    -- Server Name
+    local serverName = Instance.new("TextLabel")
+    serverName.Name = "ServerName"
+    serverName.Size = UDim2.new(1, -30, 0, 20)
+    serverName.Position = UDim2.new(0, 15, 0, 75)
+    serverName.BackgroundTransparency = 1
+    serverName.Font = Enum.Font.GothamBold
+    serverName.Text = Configs.Name or "Community"
+    serverName.TextColor3 = Color3.fromRGB(255, 255, 255)
+    serverName.TextSize = 12
+    serverName.TextXAlignment = Enum.TextXAlignment.Left
+    serverName.Parent = card
+
+    -- Description
+    local desc = Instance.new("TextLabel")
+    desc.Name = "Description"
+    desc.Size = UDim2.new(1, -30, 0, 15)
+    desc.Position = UDim2.new(0, 15, 0, 93)
+    desc.BackgroundTransparency = 1
+    desc.Font = Enum.Font.Gotham
+    desc.Text = Configs.Description or "Join our community!"
+    desc.TextColor3 = Color3.fromRGB(185, 187, 190)
+    desc.TextSize = 9
+    desc.TextXAlignment = Enum.TextXAlignment.Left
+    desc.Parent = card
+
+    -- Join Button
+    local btn = Instance.new("TextButton")
+    btn.Name = "JoinButton"
+    btn.Size = UDim2.new(1, -30, 0, 24)
+    btn.Position = UDim2.new(0, 15, 0, 112)
+    btn.BackgroundColor3 = Color3.fromRGB(36, 128, 70)
+    btn.BorderSizePixel = 0
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = "Go to Server"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 10
+    btn.Parent = card
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.Parent = btn
+
+    local clickDelay = false
+    btn.Activated:Connect(function()
+        setclipboard(Configs.Invite or "")
+        if clickDelay then return end
+        clickDelay = true
+        btn.Text = "Copied to Clipboard!"
+        btn.BackgroundColor3 = Color3.fromRGB(47, 49, 54)
+        task.wait(3)
+        btn.Text = "Go to Server"
+        btn.BackgroundColor3 = Color3.fromRGB(36, 128, 70)
+        clickDelay = false
+    end)
+end
+
+createCustomDiscordInvite({
+    Tab = v484,
     Name = "RedzHub | Community",
     Description = "Join The Server To Recieve Updates!",
     Logo = "rbxthumb://type=Asset&id=93070017822513&w=420&h=420",
