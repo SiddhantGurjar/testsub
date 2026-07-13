@@ -233,7 +233,8 @@ function spamCombatSkills(mob)
                         local character = game.Players.LocalPlayer.Character
                         if character and character:FindFirstChild("HumanoidRootPart") then
                             local mobPos = mob.HumanoidRootPart.Position
-                            local holdPos = Vector3.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
+                            local farmHeight = _G.AutoFarmMastery and 20 or 30
+                            local holdPos = Vector3.new(mobPos.X, mobPos.Y + farmHeight, mobPos.Z)
                             character.HumanoidRootPart.CFrame = CFrame.lookAt(
                                 holdPos,
                                 mobPos
@@ -4192,7 +4193,7 @@ local function StopTween(state)
 end
 
 local function TweenTo(cf)
-    if not (_G.AutoFarm or _G.AutoFarmMastery) then return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
     local hrp = HRP()
     if not hrp then return end
 
@@ -4239,7 +4240,7 @@ local function TweenTo(cf)
         end
     end)
 
-    while (_G.AutoFarm or _G.AutoFarmMastery) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
+    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
         task.wait()
     end
 
@@ -4254,20 +4255,20 @@ local function TweenTo(cf)
 end
 
 local function GoSubmerged()
-    if not (_G.AutoFarm or _G.AutoFarmMastery) then return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
     if TravelingSubmerged or IsInSubmerged() or LocalPlayer.Data.Level.Value < 2600 then return end
 
     TravelingSubmerged = true
     TweenTo(SUB_NPC + Vector3.new(0, 60, 0))
-    if not (_G.AutoFarm or _G.AutoFarmMastery) then TravelingSubmerged = false return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then TravelingSubmerged = false return end
     TweenTo(SUB_NPC)
-    if not (_G.AutoFarm or _G.AutoFarmMastery) then TravelingSubmerged = false return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then TravelingSubmerged = false return end
 
     pcall(function()
         ReplicatedStorage.Modules.Net["RF/SubmarineWorkerSpeak"]:InvokeServer("TravelToSubmergedIsland")
     end)
 
-    while (_G.AutoFarm or _G.AutoFarmMastery) and not IsInSubmerged() do
+    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and not IsInSubmerged() do
         task.wait(0.5)
     end
 
@@ -4346,7 +4347,7 @@ v485:AddToggle({
 })
 spawn(function()
     while task.wait() do
-        if _G.AutoFarm or _G.AutoFarmMastery then
+        if _G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") then
             pcall(function()
                 local currentLevel = LocalPlayer.Data.Level.Value                
                 if currentLevel >= 2600 and World3 then
@@ -4385,7 +4386,7 @@ spawn(function()
                                         EquipWeapon(targetTool)
                                         AutoHaki()
                                         PosMon = mob.HumanoidRootPart.CFrame
-                                        topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                        topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
                                         mob.HumanoidRootPart.CanCollide = false
                                         mob.Humanoid.WalkSpeed = 0
                                         mob.Head.CanCollide = false
@@ -4398,7 +4399,7 @@ spawn(function()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                         end
                                         spamCombatSkills(mob)
-                                    until not (_G.AutoFarm or _G.AutoFarmMastery) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
+                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
                                 end
                             end
                             
@@ -4438,7 +4439,7 @@ spawn(function()
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v512.HumanoidRootPart.CFrame
-                                                    topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                                    topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
                                                     v512.HumanoidRootPart.CanCollide = false
                                                     v512.Humanoid.WalkSpeed = 0
                                                     v512.Head.CanCollide = false
@@ -4450,7 +4451,7 @@ spawn(function()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v512)
-                                                until not (_G.AutoFarm or _G.AutoFarmMastery) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             end
                                         end
                                     end
@@ -4475,7 +4476,7 @@ spawn(function()
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
-                                                    topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                                    topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
                                                     v514.HumanoidRootPart.CanCollide = false
                                                     v514.Humanoid.WalkSpeed = 0
                                                     v514.Head.CanCollide = false
@@ -4487,7 +4488,7 @@ spawn(function()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v514)
-                                                 until not (_G.AutoFarm or _G.AutoFarmMastery) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             else
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4608,7 +4609,7 @@ v485:AddToggle({
 })
 spawn(function()
     while wait() do
-        if _G.AutoNear then
+        if _G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest") then
             pcall(function()
                 for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
                     if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
@@ -4616,8 +4617,9 @@ spawn(function()
                             wait(_G.Fast_Delay)
                             StartBring = true
                             AutoHaki()
-                            EquipWeapon(_G.SelectWeapon)
-                            topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                            local targetTool = getToolToEquip(v522)
+                            EquipWeapon(targetTool)
+                            topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
                             v522.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                             v522.HumanoidRootPart.Transparency = 1
                             v522.Humanoid.JumpPower = 0
@@ -4625,9 +4627,12 @@ spawn(function()
                             v522.HumanoidRootPart.CanCollide = false
                             FarmPos = v522.HumanoidRootPart.CFrame
                             MonFarm = v522.Name
-                            game:GetService("VirtualUser"):CaptureController()
-                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                        until not _G.AutoNear or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
+                            if not isFruitOrGun(targetTool) then
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                            end
+                            spamCombatSkills(v522)
+                        until not (_G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest")) or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
                         StartBring = false
                     end
                 end
@@ -4748,7 +4753,7 @@ spawn(function()
         local v592 = CFrame.new(-9508.5673828125, 142.1398468017578, 5737.3603515625)
         do
             local l_v592_0 = v592
-            if _G.FarmBone and World3 then
+            if (_G.FarmBone or (_G.AutoFarmMastery and _G.MasteryFarmType == "Bone")) and World3 then
                 pcall(function()
                     local character = game.Players.LocalPlayer.Character
                     if not character or not character:FindFirstChild("HumanoidRootPart") then return end
@@ -4793,7 +4798,8 @@ spawn(function()
                                     AutoHaki()
                                     NoAttackAnimation = true
                                     NeedAttacking = true
-                                    EquipWeapon(_G.SelectWeapon)
+                                    local targetTool = getToolToEquip(v598)
+                                    EquipWeapon(targetTool)
                                     v598.HumanoidRootPart.CanCollide = false
                                     v598.Humanoid.WalkSpeed = 0
                                     v598.Head.CanCollide = false
@@ -4801,13 +4807,19 @@ spawn(function()
                                     MonFarm = v598.Name
                                     PosMon = v598.HumanoidRootPart.CFrame
 
-                                    local targetPos = v598.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
+                                    local farmHeight = _G.AutoFarmMastery and 20 or 30
+                                    local targetPos = v598.HumanoidRootPart.CFrame * CFrame.new(0, farmHeight, 0)
                                     if (character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 5 then
                                         topos(targetPos)
                                     end
 
                                     sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
-                                until not _G.FarmBone or not v598.Parent or v598.Humanoid.Health <= 0
+                                    if not isFruitOrGun(targetTool) then
+                                        game:GetService("VirtualUser"):CaptureController()
+                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                    end
+                                    spamCombatSkills(v598)
+                                until not (_G.FarmBone or (_G.AutoFarmMastery and _G.MasteryFarmType == "Bone")) or not v598.Parent or v598.Humanoid.Health <= 0
                             end
                         end
                     end
@@ -5387,6 +5399,17 @@ v485:AddToggle({
 })
 
 _ = v485:AddSection({"Auto Farm Mastery"})
+
+_G.MasteryFarmType = "Level"
+v485:AddDropdown({
+    Name = "Select Farm Type",
+    Description = "Select farm mode for Mastery",
+    Options = {"Level", "Bone", "Nearest"},
+    Default = "Level",
+    Callback = function(value)
+        _G.MasteryFarmType = value
+    end
+})
 
 _G.MasterySelectWeapon = "Melee"
 
