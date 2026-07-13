@@ -1,5 +1,8 @@
 Settings = Settings or {}
 
+_G.GlitchedMobs = _G.GlitchedMobs or {}
+_G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
+
 Players = game:GetService("Players")
 ReplicatedStorage = game:GetService("ReplicatedStorage")
 HttpService = game:GetService("HttpService")
@@ -4373,7 +4376,10 @@ spawn(function()
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
                         else
                             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
+                                    local startTime = os.time()
+                                    local lastHealth = mob.Humanoid.Health
+                                    local lastHealthTime = os.time()
                                     repeat
                                         task.wait()
                                         -- Break if player is dead (prevents acting at respawn)
@@ -4382,6 +4388,24 @@ spawn(function()
                                             StartBring = false
                                             break
                                         end
+
+                                        local now = os.time()
+                                        if mob.Humanoid.Health < lastHealth then
+                                            lastHealth = mob.Humanoid.Health
+                                            lastHealthTime = now
+                                        elseif now - lastHealthTime > 8 then
+                                            _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                            _G.GlitchedMobs[mob] = true
+                                            StartBring = false
+                                            break
+                                        end
+                                        if now - startTime > 25 then
+                                            _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                            _G.GlitchedMobs[mob] = true
+                                            StartBring = false
+                                            break
+                                        end
+
                                         local targetTool = getToolToEquip(mob)
                                         EquipWeapon(targetTool)
                                         AutoHaki()
@@ -4422,11 +4446,14 @@ spawn(function()
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
                                     for _, v512 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon then
+                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
                                             if not string.find(l_Text_0, NameMon) then
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                                             else
+                                                local startTime = os.time()
+                                                local lastHealth = v512.Humanoid.Health
+                                                local lastHealthTime = os.time()
                                                 repeat
                                                     task.wait()
                                                     -- Break if player is dead (prevents acting at respawn)
@@ -4435,6 +4462,24 @@ spawn(function()
                                                         StartBring = false
                                                         break
                                                     end
+
+                                                    local now = os.time()
+                                                    if v512.Humanoid.Health < lastHealth then
+                                                        lastHealth = v512.Humanoid.Health
+                                                        lastHealthTime = now
+                                                    elseif now - lastHealthTime > 8 then
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs[v512] = true
+                                                        StartBring = false
+                                                        break
+                                                    end
+                                                    if now - startTime > 25 then
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs[v512] = true
+                                                        StartBring = false
+                                                        break
+                                                    end
+
                                                     local targetTool = getToolToEquip(v512)
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
@@ -4461,9 +4506,12 @@ spawn(function()
                                  end
                             else
                                 for _, v514 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                    if string.find(v514.Name, "kissed Warrior") then
+                                    if string.find(v514.Name, "kissed Warrior") and not (_G.GlitchedMobs and _G.GlitchedMobs[v514]) then
                                         if v514:FindFirstChild("HumanoidRootPart") and v514:FindFirstChild("Humanoid") and v514.Humanoid.Health > 0 then
                                             if string.find(l_Text_0, NameMon) then
+                                                local startTime = os.time()
+                                                local lastHealth = v514.Humanoid.Health
+                                                local lastHealthTime = os.time()
                                                 repeat
                                                     task.wait()
                                                     -- Break if player is dead (prevents acting at respawn)
@@ -4472,6 +4520,24 @@ spawn(function()
                                                         StartBring = false
                                                         break
                                                     end
+
+                                                    local now = os.time()
+                                                    if v514.Humanoid.Health < lastHealth then
+                                                        lastHealth = v514.Humanoid.Health
+                                                        lastHealthTime = now
+                                                    elseif now - lastHealthTime > 8 then
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs[v514] = true
+                                                        StartBring = false
+                                                        break
+                                                    end
+                                                    if now - startTime > 25 then
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs[v514] = true
+                                                        StartBring = false
+                                                        break
+                                                    end
+
                                                     local targetTool = getToolToEquip(v514)
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
@@ -4574,27 +4640,37 @@ if World2 then
         end
     })
     spawn(function()
-        while wait() do
-            spawn(function()
-                if _G.AutoFactory then
-                    if game:GetService("Workspace").Enemies:FindFirstChild("Core") then
-                        for _, v734 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                            if v734.Name == "Core" and v734.Humanoid.Health > 0 then
-                                repeat
-                                    task.wait()
-                                    AutoHaki()
-                                    EquipWeapon(_G.SelectWeapon)
-                                    topos(CFrame.new(448.46756, 199.356781, -441.389252))
-                                    game:GetService("VirtualUser"):CaptureController()
-                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                until v734.Humanoid.Health <= 0 or _G.AutoFactory == false
+        while task.wait() do
+            if _G.AutoFactory then
+                pcall(function()
+                    local character = game.Players.LocalPlayer.Character
+                    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+                    
+                    local core = game:GetService("Workspace").Enemies:FindFirstChild("Core")
+                    if core and core:FindFirstChild("Humanoid") and core.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            EquipWeapon(_G.SelectWeapon)
+                            local targetPos = CFrame.new(448.46756, 199.356781, -441.389252)
+                            if (character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 5 then
+                                topos(targetPos)
                             end
-                        end
+                            game:GetService("VirtualUser"):CaptureController()
+                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                        until not core.Parent or core.Humanoid.Health <= 0 or not _G.AutoFactory
                     else
-                        topos(CFrame.new(448.46756, 199.356781, -441.389252))
+                        local targetPos = CFrame.new(448.46756, 199.356781, -441.389252)
+                        local dist = (character.HumanoidRootPart.Position - targetPos.Position).Magnitude
+                        if dist > 5 then
+                            topos(targetPos)
+                            repeat 
+                                task.wait(0.1) 
+                            until not _G.AutoFactory or game:GetService("Workspace").Enemies:FindFirstChild("Core") or not character or not character:FindFirstChild("HumanoidRootPart") or (character.HumanoidRootPart.Position - targetPos.Position).Magnitude <= 5
+                        end
                     end
-                end
-            end)
+                end)
+            end
         end
     end)
  end
@@ -10336,6 +10412,9 @@ v491:AddToggle({
     Default = false,
     Callback = function(v1084)
         _G.Tweenfruit = v1084
+        if v1084 then
+            _G.Grabfruit = false
+        end
     end
 })
 spawn(function()
@@ -10344,18 +10423,23 @@ spawn(function()
             pcall(function()
                 for _, v1086 in pairs(game.Workspace:GetChildren()) do
                     if _G.Tweenfruit and not _G.AutoFarm and v1086:FindFirstChild("Handle") and string.find(v1086.Name, "Fruit") then
-                        topos(v1086.Handle.CFrame * CFrame.new(0, -2, 0))
-                        task.wait(1)
-                        if v1086 and v1086.Parent and v1086:FindFirstChild("Handle") then
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1086.Handle.CFrame * CFrame.new(0, -2, 0)
-                            task.wait(0.5)
-                            pcall(function()
-                                if firetouchinterest then
-                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 0)
-                                    task.wait(0.1)
-                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 1)
-                                end
-                            end)
+                        _G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
+                        local attempts = _G.GrabbedFruits[v1086] or 0
+                        if attempts < 3 then
+                            _G.GrabbedFruits[v1086] = attempts + 1
+                            topos(v1086.Handle.CFrame * CFrame.new(0, -2, 0))
+                            task.wait(1)
+                            if v1086 and v1086.Parent and v1086:FindFirstChild("Handle") then
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1086.Handle.CFrame * CFrame.new(0, -2, 0)
+                                task.wait(0.5)
+                                pcall(function()
+                                    if firetouchinterest then
+                                        firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 0)
+                                        task.wait(0.1)
+                                        firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1086.Handle, 1)
+                                    end
+                                end)
+                            end
                         end
                     end
                 end
@@ -10369,6 +10453,9 @@ v491:AddToggle({
     Default = false,
     Callback = function(v1087)
         _G.Grabfruit = v1087
+        if v1087 then
+            _G.Tweenfruit = false
+        end
     end
 })
 spawn(function()
@@ -10377,15 +10464,20 @@ spawn(function()
             pcall(function()
                 for _, v1089 in pairs(game.Workspace:GetChildren()) do
                     if _G.Grabfruit and not _G.AutoFarm and v1089:FindFirstChild("Handle") and string.find(v1089.Name, "Fruit") then
-                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1089.Handle.CFrame * CFrame.new(0, -2, 0)
-                        task.wait(0.5)
-                        pcall(function()
-                            if firetouchinterest then
-                                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 0)
-                                task.wait(0.1)
-                                firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 1)
-                            end
-                        end)
+                        _G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
+                        local attempts = _G.GrabbedFruits[v1089] or 0
+                        if attempts < 3 then
+                            _G.GrabbedFruits[v1089] = attempts + 1
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v1089.Handle.CFrame * CFrame.new(0, -2, 0)
+                            task.wait(0.5)
+                            pcall(function()
+                                if firetouchinterest then
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 0)
+                                    task.wait(0.1)
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v1089.Handle, 1)
+                                end
+                            end)
+                        end
                     end
                 end
             end)
@@ -10809,7 +10901,8 @@ v493:AddDropdown({
         _G.SelectIsland = v1118
     end
 })
-v493:AddToggle({
+local TeleportIslandToggle
+TeleportIslandToggle = v493:AddToggle({
     Name = "Auto Tween To Island",
     Description = "",
     Default = false,
@@ -10853,6 +10946,7 @@ Islands = {
     ["Hydra Island"] = CFrame.new(5291.249, 1005.443, 393.762),
     ["Floating Turtle"] = CFrame.new(-13274.528, 531.821, -7579.223),
     ["Mansion"] = MansionCFrame,
+    ["Castle On The Sea"] = CFrame.new(-5083.26, 314.606, -3175.673),
     ["Haunted Castle"] = CFrame.new(-9515.372, 164.006, 5786.061),
     ["Ice Cream Island"] = CFrame.new(-902.568, 79.932, -10988.848),
     ["Peanut Island"] = CFrame.new(-2062.748, 50.474, -10232.568),
@@ -10876,16 +10970,35 @@ local function TeleportToIsland()
     local cf = Islands[_G.SelectIsland]
     if not cf then return end
 
+    local character = game.Players.LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
     if _G.SelectIsland == "Mansion" then
-        if not TryPortal(Vector3.new(cf.X, cf.Y, cf.Z)) then
-            v1116(cf)
+        local oldPos = character.HumanoidRootPart.Position
+        TryPortal(Vector3.new(cf.X, cf.Y, cf.Z))
+        task.wait(0.5)
+        character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local newPos = character.HumanoidRootPart.Position
+            if (newPos - oldPos).Magnitude < 10 then
+                -- Portal failed, fall back to tweening
+                v1116(cf)
+            end
         end
         return
     end
 
     if _G.SelectIsland == "Castle On The Sea" then
-        if not TryPortal(Vector3.new(-5083.26, 314.606, -3175.673)) then
-            v1116(MansionCFrame)
+        local oldPos = character.HumanoidRootPart.Position
+        TryPortal(Vector3.new(-5083.26, 314.606, -3175.673))
+        task.wait(0.5)
+        character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local newPos = character.HumanoidRootPart.Position
+            if (newPos - oldPos).Magnitude < 10 then
+                -- Portal failed, fall back to tweening
+                v1116(cf)
+            end
         end
         return
     end
@@ -10897,6 +11010,20 @@ task.spawn(function()
     while task.wait(0.5) do
         if _G.TeleportIsland then
             TeleportToIsland()
+            local cf = Islands[_G.SelectIsland]
+            if cf then
+                local character = game.Players.LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local dist = (character.HumanoidRootPart.Position - cf.Position).Magnitude
+                    local distMansion = (character.HumanoidRootPart.Position - MansionCFrame.Position).Magnitude
+                    if dist <= 50 or distMansion <= 50 then
+                        _G.TeleportIsland = false
+                        if TeleportIslandToggle then
+                            TeleportIslandToggle:Set(false)
+                        end
+                    end
+                end
+            end
         end
     end
 end)
@@ -12209,6 +12336,10 @@ v496:AddTextBox({
         PlaceholderText = "Paste the Job ID here...",
         Callback = function(p215)
             if p215 ~= "" then
+                if string.match(p215, "^H2O2SERVER%|") then
+                    warn("NewRedzHub: H2O2SERVER tokens are encrypted by HoHo Hub and cannot be decrypted by Redz Hub. Please use a standard Roblox JobId (GUID).")
+                    return
+                end
                 game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, p215)
             end
         end
@@ -12224,6 +12355,10 @@ v496:AddButton({
         local jobId = tostring(getclipboard())
 
         if jobId and jobId ~= "" then
+            if string.match(jobId, "^H2O2SERVER%|") then
+                warn("NewRedzHub: H2O2SERVER tokens are encrypted by HoHo Hub and cannot be decrypted by Redz Hub. Please use a standard Roblox JobId (GUID).")
+                return
+            end
             TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, LocalPlayer)
         else
             warn("Clipboard vazio ou inválido")
