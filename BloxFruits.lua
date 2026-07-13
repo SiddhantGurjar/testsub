@@ -4103,7 +4103,9 @@ local function createCustomDiscordInvite(Configs)
 
     local inviteHolder = Instance.new("Frame")
     inviteHolder.Name = "InviteHolder"
-    inviteHolder.Size = UDim2.new(1, -10, 0, 160)
+    inviteHolder.Size = UDim2.new(0, 250, 0, 160)
+    inviteHolder.AnchorPoint = Vector2.new(0.5, 0)
+    inviteHolder.Position = UDim2.new(0.5, 0, 0, 10)
     inviteHolder.BackgroundTransparency = 1
     inviteHolder.Parent = container
 
@@ -4162,7 +4164,8 @@ local function createCustomDiscordInvite(Configs)
     logo.Size = UDim2.new(0, 38, 0, 38)
     logo.Position = UDim2.new(0, 15, 0, 30)
     logo.Image = Configs.Logo or ""
-    logo.BackgroundTransparency = 1
+    logo.BackgroundTransparency = 0
+    logo.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
     logo.ZIndex = 2
     logo.Parent = card
 
