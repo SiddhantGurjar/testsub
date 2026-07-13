@@ -6727,71 +6727,7 @@ if World3 then
                 end
             end
         end)
-        local _ = v487:AddSection({"Elite Quests & Upgrades"})
-        v487:AddToggle({
-            Name = "Auto Farm Elite",
-            Description = "Takes quest and kills Elite Bosses (Diablo, Deandre, Urban)",
-            Default = false,
-            Callback = function(v793)
-                _G.AutoElitehunter = v793
-                StopTween(_G.AutoElitehunter)
-            end
-        })
-        v487:AddToggle({
-            Name = "Auto Farm Elite + Hop Server",
-            Description = "Hops server automatically if Elite quest is on cooldown",
-            Default = false,
-            Callback = function(Value)
-                _G.AutoEliteHunterHop = Value
-                _G.AutoElitehunter = Value
-                StopTween(_G.AutoElitehunter)
-            end
-        })
 
-        spawn(function()
-            while wait() do
-                if _G.AutoElitehunter and World3 then
-                    pcall(function()
-                        if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
-                            if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Diablo") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Deandre") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Urban") then
-                                if game:GetService("Workspace").Enemies:FindFirstChild("Diablo") or game:GetService("Workspace").Enemies:FindFirstChild("Deandre") or game:GetService("Workspace").Enemies:FindFirstChild("Urban") then
-                                    for _, v795 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                        if (v795.Name == "Diablo" or v795.Name == "Deandre" or v795.Name == "Urban") and v795:FindFirstChild("Humanoid") and v795:FindFirstChild("HumanoidRootPart") and v795.Humanoid.Health > 0 then
-                                            repeat
-                                                wait()
-                                                AutoHaki()
-                                                EquipWeapon(_G.SelectWeapon)
-                                                NeedAttacking = true
-                                                StartBring = true
-                                                v795.HumanoidRootPart.CanCollide = false
-                                                v795.Humanoid.WalkSpeed = 0
-                                                topos(v795.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
-                                                game:GetService("VirtualUser"):CaptureController()
-                                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
-                                            until _G.AutoElitehunter == false or v795.Humanoid.Health <= 0 or not v795.Parent
-                                        end
-                                    end
-                                else
-                                    NeedAttacking = false
-                                    if game:GetService("ReplicatedStorage"):FindFirstChild("Diablo") then
-                                        TP1(game:GetService("ReplicatedStorage"):FindFirstChild("Diablo").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                                    elseif game:GetService("ReplicatedStorage"):FindFirstChild("Deandre") then
-                                        TP1(game:GetService("ReplicatedStorage"):FindFirstChild("Deandre").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                                    elseif game:GetService("ReplicatedStorage"):FindFirstChild("Urban") then
-                                        TP1(game:GetService("ReplicatedStorage"):FindFirstChild("Urban").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
-                                    end
-                                end
-                            end
-                        elseif _G.AutoEliteHunterHop and game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter") == "I don't have anything for you right now. Come back later." then
-                            Hop()
-                        else
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter")
-                        end
-                    end)
-                end
-            end
-        end)
         local _ = v487:AddSection({"Auto CDK"})
         v487:AddToggle({
             Name = "Auto Cdk",
