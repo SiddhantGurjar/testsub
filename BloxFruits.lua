@@ -7908,7 +7908,7 @@ do
         return nil
     end
 
-    local function stopBoatTween()
+    function stopBoatTween()
         if activeBoatTween then
             pcall(function()
                 activeBoatTween:Stop()
@@ -12641,7 +12641,7 @@ spawn(function()
         pcall(function()
             CheckQuest()
             for _, v1167 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                if _G.BringMonster and (StartBring and v1167.Name == MonFarm or v1167.Name == Mon and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 and (v1167.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 320) then
+                if _G.BringMonster and not _G.AutoFarmMastery and (StartBring and v1167.Name == MonFarm or v1167.Name == Mon and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 and (v1167.HumanoidRootPart.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 320) then
                     if v1167.Name == "Factory Staff" then
                         if (v1167.HumanoidRootPart.Position - PosMon.Position).Magnitude <= 250 then
                             v1167.Head.CanCollide = false
