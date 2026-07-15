@@ -217,6 +217,9 @@ function spamCombatSkills(mob)
             if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 then
                 return false
             end
+            if _G.PlayerRespawning then
+                return false
+            end
             -- Check if farm toggles are active
             if not (_G.AutoFarm or _G.AutoFarmMastery or _G.AutoNear or _G.FarmBone or _G.AutoBoss or _G.AutoAllBoss) then
                 return false
@@ -3733,9 +3736,11 @@ function requestEntrance(v402)
     task.wait(0.5)
 end
 function TelePPlayer(v404)
+    if _G.PlayerRespawning then return end
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v404
 end
 function topos(v405)
+    if _G.PlayerRespawning then return end
     local l_LocalPlayer_1 = game.Players.LocalPlayer
     if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character.Humanoid.Health > 0 and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
         if not v405 then
@@ -4341,6 +4346,7 @@ local function StopTween(state)
 end
 
 local function TweenTo(cf)
+    if _G.PlayerRespawning then return end
     if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
     local hrp = HRP()
     if not hrp then return end
@@ -4401,6 +4407,35 @@ local function TweenTo(cf)
         pcall(function() character.PartTele:Destroy() end)
     end
 end
+
+_G.PlayerRespawning = false
+spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            local myChar = game.Players.LocalPlayer.Character
+            local isDead = false
+            if not myChar or not myChar:FindFirstChild("Humanoid") or not myChar:FindFirstChild("HumanoidRootPart") or myChar.Humanoid.Health <= 0 then
+                isDead = true
+            end
+            
+            if isDead then
+                if not _G.PlayerRespawning then
+                    _G.PlayerRespawning = true
+                    stopTeleport()
+                    if StopTween then
+                        StopTween(false)
+                    end
+                end
+            else
+                -- Player is alive and character is loaded
+                if _G.PlayerRespawning then
+                    task.wait(4) -- Wait 4 seconds for Roblox replication to settle down at the spawnpoint
+                    _G.PlayerRespawning = false
+                end
+            end
+        end)
+    end
+end)
 
 local function GoSubmerged()
     if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
