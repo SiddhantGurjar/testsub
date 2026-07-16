@@ -12018,7 +12018,112 @@ v494:AddButton({
     "🌀 Kamui",
     function()
         pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/AdminKamui.luau"))()
+            local char = game.Players.LocalPlayer.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+            local hrp = char.HumanoidRootPart
+            
+            -- Create Kamui center part
+            local kamuiPart = Instance.new("Part")
+            kamuiPart.Name = "KamuiPortal"
+            kamuiPart.Size = Vector3.new(1, 1, 1)
+            kamuiPart.Position = hrp.Position
+            kamuiPart.Anchored = true
+            kamuiPart.CanCollide = false
+            kamuiPart.Material = Enum.Material.Neon
+            kamuiPart.Color = Color3.fromRGB(0, 0, 0)
+            kamuiPart.Shape = Enum.PartType.Ball
+            kamuiPart.Parent = workspace
+            
+            -- Add glowing outer aura ring
+            local ring = Instance.new("Part")
+            ring.Size = Vector3.new(1.2, 0.1, 1.2)
+            ring.Position = hrp.Position
+            ring.Anchored = true
+            ring.CanCollide = false
+            ring.Material = Enum.Material.Neon
+            ring.Color = Color3.fromRGB(138, 43, 226) -- Blue Violet
+            ring.Parent = workspace
+            
+            local mesh = Instance.new("SpecialMesh", ring)
+            mesh.MeshId = "rbxassetid://3270017"
+            mesh.Scale = Vector3.new(0.5, 0.5, 0.5)
+            
+            -- Add Particle Emitters for swirling dark energy
+            local attachment = Instance.new("Attachment", kamuiPart)
+            local emitter = Instance.new("ParticleEmitter", attachment)
+            emitter.Texture = "rbxassetid://258129705" -- Swirl aura texture
+            emitter.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(75, 0, 130))
+            emitter.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 5), NumberSequenceKeypoint.new(1, 0)})
+            emitter.Lifetime = NumberRange.new(0.8, 1.2)
+            emitter.Rate = 120
+            emitter.Speed = NumberRange.new(2, 5)
+            emitter.RotSpeed = NumberRange.new(100, 300)
+            emitter.SpreadAngle = Vector2.new(180, 180)
+            
+            -- Camera / Lighting distortion effects
+            local cc = Instance.new("ColorCorrectionEffect", game.Lighting)
+            cc.Contrast = 0.5
+            cc.Saturation = -0.5
+            
+            local blur = Instance.new("BlurEffect", game.Lighting)
+            blur.Size = 0
+            
+            -- Tween effects (opening the portal)
+            local tweenService = game:GetService("TweenService")
+            local openInfo = TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            local closeInfo = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            
+            local openTween = tweenService:Create(kamuiPart, openInfo, {Size = Vector3.new(8, 8, 8)})
+            local openRing = tweenService:Create(mesh, openInfo, {Scale = Vector3.new(40, 40, 5)})
+            local openBlur = tweenService:Create(blur, openInfo, {Size = 24})
+            
+            openTween:Play()
+            openRing:Play()
+            openBlur:Play()
+            
+            -- Spin the ring and pull nearby small parts
+            task.spawn(function()
+                local angle = 0
+                for time = 1, 60 do
+                    if not ring or not ring.Parent then break end
+                    angle = (angle + 15) % 360
+                    ring.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, math.rad(angle), 0)
+                    
+                    -- Pull client-side nearby loose parts for a cool physics effect
+                    pcall(function()
+                        for _, p in pairs(workspace:GetDescendants()) do
+                            if p:IsA("BasePart") and not p.Anchored and p.Parent ~= char and not p.Parent:IsA("Tool") then
+                                local dist = (p.Position - kamuiPart.Position).Magnitude
+                                if dist < 25 then
+                                    p.Velocity = (kamuiPart.Position - p.Position).Unit * 50
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.02)
+                end
+                
+                -- Close the portal
+                if kamuiPart and kamuiPart.Parent then
+                    local closeTween = tweenService:Create(kamuiPart, closeInfo, {Size = Vector3.new(0.1, 0.1, 0.1)})
+                    local closeRing = tweenService:Create(mesh, closeInfo, {Scale = Vector3.new(0.1, 0.1, 0.1)})
+                    local closeCC = tweenService:Create(cc, closeInfo, {Contrast = 0, Saturation = 0})
+                    local closeBlur = tweenService:Create(blur, closeInfo, {Size = 0})
+                    
+                    closeTween:Play()
+                    closeRing:Play()
+                    closeCC:Play()
+                    closeBlur:Play()
+                    
+                    closeTween.Completed:Wait()
+                    
+                    -- Clean up everything
+                    kamuiPart:Destroy()
+                    ring:Destroy()
+                    cc:Destroy()
+                    blur:Destroy()
+                end
+            end)
         end)
     end
 })
