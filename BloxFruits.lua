@@ -7990,7 +7990,8 @@ do
         local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
         if enemies then
             for _, enemy in pairs(enemies:GetChildren()) do
-                if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                local hum = enemy:FindFirstChild("Humanoid")
+                if hum and hum:IsA("Humanoid") and hum.Health > 0 then
                     local name = enemy.Name:lower()
                     if name:find("terror") and _G.Autoterrorshark then
                         return enemy
@@ -12995,6 +12996,7 @@ end
 
 task.spawn(function()
     local accumulator = 0
+    local lastFruitM1Time = 0
     while true do
         local speed = _G.FastAttackSpeed or 200
         local ratePerFrame = 1
@@ -13103,8 +13105,9 @@ task.spawn(function()
                     end)
                 elseif isFruitM1 and _Tool:FindFirstChild("LeftClickRemote") then
                     pcall(function()
-                        local multiplier = _G.FastAttackMultiplier or 1
-                        for i = 1, multiplier do
+                        local currentTime = os.clock()
+                        if currentTime - lastFruitM1Time >= 0.22 then
+                            lastFruitM1Time = currentTime
                             local targetPos = u17[1][2].Position
                             local playerPos = v13.Position
                             local direction = (targetPos - playerPos).Unit
