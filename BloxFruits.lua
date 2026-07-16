@@ -9295,28 +9295,10 @@ v490:AddButton({
         if hrp then
             local targetPos = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
             task.spawn(function()
-                -- 1. Teleport to Top of Great Tree (loop to override rubberband)
+                -- Teleport to Top of Great Tree (loop to override rubberband)
                 for i = 1, 15 do
                     if not hrp or not hrp.Parent then break end
                     hrp.CFrame = targetPos
-                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                    task.wait(0.05)
-                end
-                
-                -- 2. Speak to Mysterious Force NPC
-                pcall(function()
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MysteriousForce")
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MysteriousForce", "Talk")
-                end)
-                
-                task.wait(0.5)
-                
-                -- 3. Teleport to Temple of Time
-                local templePos = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-                for i = 1, 15 do
-                    if not hrp or not hrp.Parent then break end
-                    hrp.CFrame = templePos
                     hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                     task.wait(0.05)
