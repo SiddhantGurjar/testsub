@@ -9293,13 +9293,34 @@ v490:AddButton({
         local character = game.Players.LocalPlayer.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
         if hrp then
-            hrp.CFrame = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
-            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-            hrp.Anchored = true
+            local targetPos = CFrame.new(3030.39453125, 2280.6171875, -7320.18359375)
             task.spawn(function()
-                task.wait(3)
-                hrp.Anchored = false
+                -- 1. Teleport to Top of Great Tree (loop to override rubberband)
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = targetPos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
+                
+                -- 2. Speak to Mysterious Force NPC
+                pcall(function()
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MysteriousForce")
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MysteriousForce", "Talk")
+                end)
+                
+                task.wait(0.5)
+                
+                -- 3. Teleport to Temple of Time
+                local templePos = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = templePos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
             end)
         end
     end
@@ -9319,13 +9340,15 @@ v490:AddButton({
         local character = game.Players.LocalPlayer.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
         if hrp then
-            hrp.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-            hrp.Anchored = true
+            local targetPos = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
             task.spawn(function()
-                task.wait(3)
-                hrp.Anchored = false
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = targetPos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
             end)
         end
     end
@@ -9345,13 +9368,15 @@ v490:AddButton({
         local character = game.Players.LocalPlayer.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
         if hrp then
-            hrp.CFrame = CFrame.new(28575.181640625, 14936.6279296875, 72.31636810302734)
-            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-            hrp.Anchored = true
+            local targetPos = CFrame.new(28575.181640625, 14936.6279296875, 72.31636810302734)
             task.spawn(function()
-                task.wait(3)
-                hrp.Anchored = false
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = targetPos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
             end)
         end
     end
@@ -9371,13 +9396,15 @@ v490:AddButton({
         local character = game.Players.LocalPlayer.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
         if hrp then
-            hrp.CFrame = CFrame.new(29553.7812, 15066.6133, -88.2750015, 1, 0, 0, 0, 1, 0, 0, 0, 1)
-            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-            hrp.Anchored = true
+            local targetPos = CFrame.new(29553.7812, 15066.6133, -88.2750015, 1, 0, 0, 0, 1, 0, 0, 0, 1)
             task.spawn(function()
-                task.wait(3)
-                hrp.Anchored = false
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = targetPos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
             end)
         end
     end
@@ -9387,31 +9414,40 @@ v490:AddButton({
     Title = "Auto Race Door",
     Value = false,
     Callback = function()
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.1)
-        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
-        wait(0.5)
-        if game:GetService("Players").LocalPlayer.Data.Race.Value == "Human" then
-            topos(CFrame.new(29221.822265625, 14890.9755859375, -205.99114990234375))
-        elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Skypiea" then
-            if game:GetService("Players").LocalPlayer.Data.Race.Value == "Fishman" then
-                topos(CFrame.new(28231.17578125, 14890.9755859375, -211.64173889160156))
-            elseif game:GetService("Players").LocalPlayer.Data.Race.Value == "Cyborg" then
-                topos(CFrame.new(28502.681640625, 14895.9755859375, -423.7279357910156))
-            elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Ghoul" then
-                if game:GetService("Players").LocalPlayer.Data.Race.Value == "Mink" then
-                    topos(CFrame.new(29012.341796875, 14890.9755859375, -380.1492614746094))
+        task.spawn(function()
+            local character = game.Players.LocalPlayer.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local targetPos = CFrame.new(28286.35546875, 14895.3017578125, 102.62469482421875)
+                for i = 1, 15 do
+                    if not hrp or not hrp.Parent then break end
+                    hrp.CFrame = targetPos
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.05)
+                end
+            end
+            
+            task.wait(0.2)
+            
+            if game:GetService("Players").LocalPlayer.Data.Race.Value == "Human" then
+                topos(CFrame.new(29221.822265625, 14890.9755859375, -205.99114990234375))
+            elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Skypiea" then
+                if game:GetService("Players").LocalPlayer.Data.Race.Value == "Fishman" then
+                    topos(CFrame.new(28231.17578125, 14890.9755859375, -211.64173889160156))
+                elseif game:GetService("Players").LocalPlayer.Data.Race.Value == "Cyborg" then
+                    topos(CFrame.new(28502.681640625, 14895.9755859375, -423.7279357910156))
+                elseif game:GetService("Players").LocalPlayer.Data.Race.Value ~= "Ghoul" then
+                    if game:GetService("Players").LocalPlayer.Data.Race.Value == "Mink" then
+                        topos(CFrame.new(29012.341796875, 14890.9755859375, -380.1492614746094))
+                    end
+                else
+                    topos(CFrame.new(28674.244140625, 14890.6767578125, 445.4310607910156))
                 end
             else
-                topos(CFrame.new(28674.244140625, 14890.6767578125, 445.4310607910156))
+                topos(CFrame.new(28960.158203125, 14919.6240234375, 235.03948974609375))
             end
-        else
-            topos(CFrame.new(28960.158203125, 14919.6240234375, 235.03948974609375))
-        end
+        end)
     end
 })
 v490:AddButton({
@@ -11166,6 +11202,47 @@ local function TeleportToIsland()
 
     local character = game.Players.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+    local myPos = character.HumanoidRootPart.Position
+    local targetPos = cf.Position
+    local castlePos = Vector3.new(-5083.26, 314.606, -3175.673)
+    local mansionPos = Vector3.new(-12471.17, 374.94, -7551.678)
+
+    local directDist = (targetPos - myPos).Magnitude
+    local distViaCastle = (targetPos - castlePos).Magnitude
+    local distViaMansion = (targetPos - mansionPos).Magnitude
+
+    -- Check if we are in Third Sea (where portals exist)
+    local isThirdSea = (targetPos.X < -1000 or targetPos.Z < -1000) and (myPos.X < -1000 or myPos.Z < -1000)
+
+    if isThirdSea and directDist > 3000 then
+        -- Choose the best portal to bypass distance
+        if distViaMansion < directDist - 1000 and distViaMansion < distViaCastle then
+            local oldPos = character.HumanoidRootPart.Position
+            TryPortal(mansionPos)
+            task.wait(0.5)
+            character = game.Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local newPos = character.HumanoidRootPart.Position
+                if (newPos - oldPos).Magnitude > 100 then
+                    myPos = newPos
+                    directDist = (targetPos - myPos).Magnitude
+                end
+            end
+        elseif distViaCastle < directDist - 1000 then
+            local oldPos = character.HumanoidRootPart.Position
+            TryPortal(castlePos)
+            task.wait(0.5)
+            character = game.Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local newPos = character.HumanoidRootPart.Position
+                if (newPos - oldPos).Magnitude > 100 then
+                    myPos = newPos
+                    directDist = (targetPos - myPos).Magnitude
+                end
+            end
+        end
+    end
 
     if _G.SelectIsland == "Mansion" then
         local oldPos = character.HumanoidRootPart.Position
