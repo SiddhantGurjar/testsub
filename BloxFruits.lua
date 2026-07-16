@@ -12119,9 +12119,9 @@ v494:AddButton({
     "Give Divine Art",
     function()
         pcall(function()
-            -- 1. Create a client-side fake tool named "Divine Art" if they don't have one
-            local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
-            local char = game.Players.LocalPlayer.Character
+            local player = game.Players.LocalPlayer
+            local backpack = player:FindFirstChild("Backpack")
+            local char = player.Character
             if backpack and char then
                 local oldTool = backpack:FindFirstChild("Divine Art") or char:FindFirstChild("Divine Art")
                 if oldTool then oldTool:Destroy() end
@@ -12149,31 +12149,183 @@ v494:AddButton({
                 divineStyle.ToolTip = "Martial Art"
                 divineStyle.Parent = backpack
                 
+                -- 1. Hook the click (M1 attack) to spawn golden slashes
+                divineStyle.Activated:Connect(function()
+                    pcall(function()
+                        local c = player.Character
+                        if not c or not c:FindFirstChild("HumanoidRootPart") then return end
+                        local hrp = c.HumanoidRootPart
+                        
+                        -- Spawn a beautiful curved neon gold slash
+                        local slash = Instance.new("Part")
+                        slash.Size = Vector3.new(4, 0.1, 4)
+                        slash.CFrame = hrp.CFrame * CFrame.new(0, 0, -2) * CFrame.Angles(math.rad(math.random(-20, 20)), math.rad(math.random(-20, 20)), math.rad(math.random(-180, 180)))
+                        slash.Anchored = true
+                        slash.CanCollide = false
+                        slash.Material = Enum.Material.Neon
+                        slash.Color = Color3.fromRGB(255, 215, 0)
+                        slash.Parent = workspace
+                        
+                        local mesh = Instance.new("SpecialMesh", slash)
+                        mesh.MeshId = "rbxassetid://3270017"
+                        mesh.Scale = Vector3.new(2, 2, 0.1)
+                        
+                        local emitter = Instance.new("ParticleEmitter", slash)
+                        emitter.Texture = "rbxassetid://258129705"
+                        emitter.Color = ColorSequence.new(Color3.fromRGB(255, 223, 0), Color3.fromRGB(255, 255, 255))
+                        emitter.Size = NumberSequence.new(1, 0)
+                        emitter.Rate = 50
+                        emitter.Speed = NumberRange.new(5, 10)
+                        emitter.Lifetime = NumberRange.new(0.3, 0.5)
+                        
+                        local tweenService = game:GetService("TweenService")
+                        local info = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                        local t1 = tweenService:Create(mesh, info, {Scale = Vector3.new(4, 4, 0.1)})
+                        local t2 = tweenService:Create(slash, info, {Transparency = 1})
+                        
+                        t1:Play()
+                        t2:Play()
+                        task.spawn(function()
+                            task.wait(0.3)
+                            slash:Destroy()
+                        end)
+                    end)
+                end)
+                
                 -- Notify success
                 game:GetService("StarterGui"):SetCore("SendNotification", {
                     Title = "Divine Art",
-                    Text = "Divine Art style added to Backpack! (Visual Skin Active)",
-                    Duration = 5
+                    Text = "Divine Art style added! Hold the tool and use Z, X, C keys for skills!",
+                    Duration = 6
                 })
             end
             
-            -- 2. Activate the Divine Gold visual skin hook
+            -- 2. Hook Keyboard keys for visual skills (Z, X, C)
+            if not _G.DivineArtKeysHooked then
+                _G.DivineArtKeysHooked = true
+                game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+                    if processed then return end
+                    local c = player.Character
+                    if not c or not c:FindFirstChild("Divine Art") then return end
+                    local hrp = c:FindFirstChild("HumanoidRootPart")
+                    if not hrp then return end
+                    
+                    local key = input.KeyCode
+                    local tweenService = game:GetService("TweenService")
+                    
+                    if key == Enum.KeyCode.Z then
+                        -- [Z] Bloodbane Devour / Holy Grasp
+                        pcall(function()
+                            local sphere = Instance.new("Part")
+                            sphere.Shape = Enum.PartType.Ball
+                            sphere.Size = Vector3.new(1, 1, 1)
+                            sphere.Position = hrp.Position + hrp.CFrame.LookVector * 5
+                            sphere.Anchored = true
+                            sphere.CanCollide = false
+                            sphere.Material = Enum.Material.Neon
+                            sphere.Color = Color3.fromRGB(255, 255, 255)
+                            sphere.Parent = workspace
+                            
+                            local emitter = Instance.new("ParticleEmitter", sphere)
+                            emitter.Texture = "rbxassetid://258129705"
+                            emitter.Color = ColorSequence.new(Color3.fromRGB(255, 215, 0), Color3.fromRGB(255, 255, 255))
+                            emitter.Size = NumberSequence.new(2, 0)
+                            emitter.Rate = 100
+                            
+                            local info = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                            local t = tweenService:Create(sphere, info, {Size = Vector3.new(6, 6, 6)})
+                            t:Play()
+                            
+                            task.wait(0.5)
+                            local tClose = tweenService:Create(sphere, TweenInfo.new(0.3), {Size = Vector3.new(0.1, 0.1, 0.1), Transparency = 1})
+                            tClose:Play()
+                            tClose.Completed:Wait()
+                            sphere:Destroy()
+                        end)
+                        
+                    elseif key == Enum.KeyCode.X then
+                        -- [X] Scarlet Tear / Divine Barrage
+                        pcall(function()
+                            for i = 1, 5 do
+                                task.spawn(function()
+                                    local slash = Instance.new("Part")
+                                    slash.Size = Vector3.new(5, 0.1, 5)
+                                    slash.CFrame = hrp.CFrame * CFrame.new(math.random(-3, 3), math.random(-2, 2), -3) * CFrame.Angles(0, 0, math.rad(math.random(-180, 180)))
+                                    slash.Anchored = false
+                                    slash.CanCollide = false
+                                    slash.Material = Enum.Material.Neon
+                                    slash.Color = Color3.fromRGB(255, 215, 0)
+                                    slash.Parent = workspace
+                                    
+                                    local mesh = Instance.new("SpecialMesh", slash)
+                                    mesh.MeshId = "rbxassetid://3270017"
+                                    mesh.Scale = Vector3.new(3, 3, 0.1)
+                                    
+                                    local bodyVel = Instance.new("BodyVelocity", slash)
+                                    bodyVel.Velocity = hrp.CFrame.LookVector * 100
+                                    bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                    
+                                    local info = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                                    local t1 = tweenService:Create(mesh, info, {Scale = Vector3.new(6, 6, 0.1)})
+                                    local t2 = tweenService:Create(slash, info, {Transparency = 1})
+                                    
+                                    t1:Play()
+                                    t2:Play()
+                                    task.wait(0.4)
+                                    slash:Destroy()
+                                end)
+                                task.wait(0.1)
+                            end
+                        end)
+                        
+                    elseif key == Enum.KeyCode.C then
+                        -- [C] Devourer of Worlds / Judgment Beam
+                        pcall(function()
+                            local beam = Instance.new("Part")
+                            beam.Shape = Enum.PartType.Cylinder
+                            beam.Size = Vector3.new(200, 1, 1)
+                            beam.CFrame = (hrp.CFrame * CFrame.new(0, 0, -8)) * CFrame.Angles(0, 0, math.rad(90))
+                            beam.Anchored = true
+                            beam.CanCollide = false
+                            beam.Material = Enum.Material.Neon
+                            beam.Color = Color3.fromRGB(255, 223, 0)
+                            beam.Parent = workspace
+                            
+                            local emitter = Instance.new("ParticleEmitter", beam)
+                            emitter.Texture = "rbxassetid://258129705"
+                            emitter.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 215, 0))
+                            emitter.Size = NumberSequence.new(5, 0)
+                            emitter.Rate = 200
+                            emitter.Speed = NumberRange.new(10, 30)
+                            
+                            local info = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                            local t = tweenService:Create(beam, info, {Size = Vector3.new(200, 15, 15)})
+                            t:Play()
+                            
+                            task.wait(0.8)
+                            local tClose = tweenService:Create(beam, TweenInfo.new(0.4), {Size = Vector3.new(200, 0.1, 0.1), Transparency = 1})
+                            tClose:Play()
+                            tClose.Completed:Wait()
+                            beam:Destroy()
+                        end)
+                    end
+                end)
+            end
+            
+            -- 3. Also activate Sanguine Art visual color repaint skin hook
             _G.DivineArtVisuals = true
             task.spawn(function()
                 local function repaint(v)
                     if not _G.DivineArtVisuals then return end
-                    -- Match Sanguine Art/Blood-related names
                     local name = string.lower(v.Name)
                     local parentName = v.Parent and string.lower(v.Parent.Name) or ""
                     if string.find(name, "sanguine") or string.find(name, "blood") or string.find(name, "bat") or string.find(name, "shafi") or
                        string.find(parentName, "sanguine") or string.find(parentName, "blood") or string.find(parentName, "bat") then
-                        
-                        -- Repaint particle emitters to gold and white
                         if v:IsA("ParticleEmitter") then
                             v.Color = ColorSequence.new({
-                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)), -- Gold
-                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)), -- White
-                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 223, 0)) -- Light Gold
+                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),
+                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 223, 0))
                             })
                             v.LightEmission = 0.8
                             v.LightInfluence = 0
@@ -12186,8 +12338,6 @@ v494:AddButton({
                         end
                     end
                 end
-                
-                -- Hook existing and incoming workspace descendants
                 for _, desc in pairs(workspace:GetDescendants()) do
                     pcall(repaint, desc)
                 end
