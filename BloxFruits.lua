@@ -1,3 +1,5 @@
+local wait = task.wait
+
 Settings = Settings or {}
 
 _G.GlitchedMobs = _G.GlitchedMobs or {}
@@ -4339,9 +4341,12 @@ local function IsInSubmerged()
 end
 
 local function StopTween(state)
-    if not state and CurrentTween then
-        pcall(function() CurrentTween:Cancel() end)
-        CurrentTween = nil
+    if not state then
+        if CurrentTween then
+            pcall(function() CurrentTween:Cancel() end)
+            CurrentTween = nil
+        end
+        stopTeleport()
     end
 end
 
