@@ -4524,15 +4524,6 @@ v485:AddToggle({
         StopTween(_G.AutoFarm)
     end
 })
-v485:AddToggle({
-    Name = "Auto Farm Mastery",
-    Description = "Farm Mastery",
-    Default = false,
-    Callback = function(state)
-        _G.AutoFarmMastery = state
-        StopTween(_G.AutoFarmMastery)
-    end
-})
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") then
@@ -4599,7 +4590,20 @@ spawn(function()
                                         EquipWeapon(targetTool)
                                         AutoHaki()
                                         PosMon = mob.HumanoidRootPart.CFrame
-                                        topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
+                                        
+                                        local targetCFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0)
+                                        local myHrp = HRP()
+                                        if myHrp then
+                                            local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                            if dist > 5 then
+                                                myHrp.Anchored = false
+                                                topos(targetCFrame)
+                                            else
+                                                myHrp.Anchored = true
+                                                myHrp.CFrame = targetCFrame
+                                            end
+                                        end
+                                        
                                         mob.HumanoidRootPart.CanCollide = false
                                         mob.Humanoid.WalkSpeed = 0
                                         mob.Head.CanCollide = false
@@ -4613,6 +4617,7 @@ spawn(function()
                                         end
                                         spamCombatSkills(mob)
                                     until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
+                                    pcall(function() HRP().Anchored = false end)
                                 end
                             end
                             
@@ -4675,7 +4680,20 @@ spawn(function()
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v512.HumanoidRootPart.CFrame
-                                                    topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
+                                                    
+                                                    local targetCFrame = v512.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0)
+                                                    local myHrp = HRP()
+                                                    if myHrp then
+                                                        local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                                        if dist > 5 then
+                                                            myHrp.Anchored = false
+                                                            topos(targetCFrame)
+                                                        else
+                                                            myHrp.Anchored = true
+                                                            myHrp.CFrame = targetCFrame
+                                                        end
+                                                    end
+                                                    
                                                     v512.HumanoidRootPart.CanCollide = false
                                                     v512.Humanoid.WalkSpeed = 0
                                                     v512.Head.CanCollide = false
@@ -4688,6 +4706,7 @@ spawn(function()
                                                     end
                                                     spamCombatSkills(v512)
                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                pcall(function() HRP().Anchored = false end)
                                             end
                                         end
                                     end
@@ -4733,7 +4752,20 @@ spawn(function()
                                                     EquipWeapon(targetTool)
                                                     AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
-                                                    topos(v514.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
+                                                    
+                                                    local targetCFrame = v514.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0)
+                                                    local myHrp = HRP()
+                                                    if myHrp then
+                                                        local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                                        if dist > 5 then
+                                                            myHrp.Anchored = false
+                                                            topos(targetCFrame)
+                                                        else
+                                                            myHrp.Anchored = true
+                                                            myHrp.CFrame = targetCFrame
+                                                        end
+                                                    end
+                                                    
                                                     v514.HumanoidRootPart.CanCollide = false
                                                     v514.Humanoid.WalkSpeed = 0
                                                     v514.Head.CanCollide = false
@@ -4746,6 +4778,7 @@ spawn(function()
                                                     end
                                                     spamCombatSkills(v514)
                                                  until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                 pcall(function() HRP().Anchored = false end)
                                             else
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4890,7 +4923,20 @@ spawn(function()
                             AutoHaki()
                             local targetTool = getToolToEquip(v522)
                             EquipWeapon(targetTool)
-                            topos(v522.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0))
+                            
+                            local targetCFrame = v522.HumanoidRootPart.CFrame * CFrame.new(0, _G.AutoFarmMastery and 20 or 30, 0)
+                            local myHrp = HRP()
+                            if myHrp then
+                                local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                if dist > 5 then
+                                    myHrp.Anchored = false
+                                    topos(targetCFrame)
+                                else
+                                    myHrp.Anchored = true
+                                    myHrp.CFrame = targetCFrame
+                                end
+                            end
+                            
                             v522.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
                             v522.HumanoidRootPart.Transparency = 1
                             v522.Humanoid.JumpPower = 0
@@ -4904,6 +4950,7 @@ spawn(function()
                             end
                             spamCombatSkills(v522)
                         until not (_G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest")) or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
+                        pcall(function() HRP().Anchored = false end)
                         StartBring = false
                     end
                 end
@@ -5080,8 +5127,16 @@ spawn(function()
 
                                     local farmHeight = _G.AutoFarmMastery and 20 or 30
                                     local targetPos = v598.HumanoidRootPart.CFrame * CFrame.new(0, farmHeight, 0)
-                                    if (character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 5 then
-                                        topos(targetPos)
+                                    local myHrp = HRP()
+                                    if myHrp then
+                                        local dist = (myHrp.Position - targetPos.Position).Magnitude
+                                        if dist > 5 then
+                                            myHrp.Anchored = false
+                                            topos(targetPos)
+                                        else
+                                            myHrp.Anchored = true
+                                            myHrp.CFrame = targetPos
+                                        end
                                     end
 
                                     sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
@@ -5091,6 +5146,7 @@ spawn(function()
                                     end
                                     spamCombatSkills(v598)
                                 until not (_G.FarmBone or (_G.AutoFarmMastery and _G.MasteryFarmType == "Bone")) or not v598.Parent or v598.Humanoid.Health <= 0
+                                pcall(function() HRP().Anchored = false end)
                             end
                         end
                     end
@@ -11936,6 +11992,43 @@ v494:AddButton({
                 Position = vu14.Character.PrimaryPart.Position
             })
         end
+    end
+})
+v494:AddButton({
+    "Devil Fruit Rain",
+    function()
+        pcall(function()
+            for _, v in pairs(game:GetObjects("rbxassetid://14759368201")[1]:GetChildren()) do
+                v.Parent = game.Workspace.Map
+                v:MoveTo(vu14.Character.PrimaryPart.Position + Vector3.new(math.random(-50, 50), 100, math.random(-50, 50)))
+                if v.Fruit:FindFirstChild("AnimationController") then
+                    v.Fruit:FindFirstChild("AnimationController"):LoadAnimation(v.Fruit:FindFirstChild("Idle")):Play()
+                end
+                v.Handle.Touched:Connect(function(otherPart)
+                    if otherPart.Parent == vu14.Character then
+                        v.Parent = vu14.Backpack
+                        vu14.Character.Humanoid:EquipTool(v)
+                    end
+                end)
+            end
+        end)
+    end
+})
+v494:AddButton({
+    "🌀 Kamui",
+    function()
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/AdminKamui.luau"))()
+        end)
+    end
+})
+v494:AddButton({
+    "Give Divine Art",
+    function()
+        pcall(function()
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySanguineArt", true)
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySanguineArt")
+        end)
     end
 })
 vu14 = game.Players.LocalPlayer
