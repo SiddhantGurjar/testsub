@@ -4547,13 +4547,17 @@ spawn(function()
                         if (HRP().Position - CFrameQuestNew.Position).Magnitude > 20 then
                             TweenTo(CFrameQuestNew)
                         else
-                            ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestNew, LevelQuestNew)
+                            if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                _G.LastQuestTime = os.time()
+                                ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestNew, LevelQuestNew)
+                            end
                         end
                     else
                         local questText = questGui.Container.QuestTitle.Title.Text
                         if not string.find(questText, NameMonNew) then
                             StartBring = false
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
+                            task.wait(1.5)
                         else
                             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
@@ -4620,6 +4624,7 @@ spawn(function()
                     if not string.find(l_Text_0, NameMon) then
                         StartBring = false
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                        task.wait(1.5)
                     end
                     if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible ~= false then
                         if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
@@ -4630,6 +4635,7 @@ spawn(function()
                                             if not string.find(l_Text_0, NameMon) then
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                                task.wait(1.5)
                                             else
                                                 local startTime = os.time()
                                                 local lastHealth = v512.Humanoid.Health
@@ -4738,6 +4744,7 @@ spawn(function()
                                             else
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                                task.wait(1.5)
                                             end
                                         end
                                     else
@@ -4759,7 +4766,10 @@ spawn(function()
                             TP1(CFrameQuest)
                         end
                         if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 20 then
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                            if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                _G.LastQuestTime = os.time()
+                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                            end
                         end
                     end
                 end
@@ -5507,7 +5517,10 @@ task.spawn(function()
                                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - qInfo.CFrame.Position).Magnitude > 20 then
                                         topos(qInfo.CFrame)
                                     else
-                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", qInfo.QuestName, qInfo.Level)
+                                        if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                            _G.LastQuestTime = os.time()
+                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", qInfo.QuestName, qInfo.Level)
+                                        end
                                     end
                                     return
                                 else
@@ -5520,6 +5533,7 @@ task.spawn(function()
                                     if not string.find(cleanText, cleanBoss) then
                                         StartBring = false
                                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                        task.wait(1.5)
                                         return
                                     end
                                 end
@@ -6816,6 +6830,7 @@ if World3 then
             Default = false,
             Callback = function(v778)
                 _G.AutoSkullGuitar = v778
+                getgenv().AutoSkullGuitar = v778
                 StopTween(_G.AutoSkullGuitar)
             end
         })
@@ -6915,6 +6930,7 @@ if World3 then
             Default = false,
             Callback = function(v797)
                 _G.AutoGetCDK = v797
+                getgenv().AutoGetCDK = v797
                 StopTween(_G.AutoGetCDK)
             end
         })
@@ -12496,6 +12512,14 @@ v496:AddToggle({
         end
     end
 })
+v496:AddToggle({
+    Name = "Fast Fruit M1",
+    Description = "",
+    Default = false,
+    Callback = function(value)
+        _G.FastFruitM1 = value
+    end
+})
 
 _G.FastAttackSpeed = 200
 v496:AddSlider({
@@ -12634,30 +12658,46 @@ task.spawn(function()
 
             local _Tool = _Character:FindFirstChildOfClass('Tool')
             local isAllowedWeapon = false
+            local isFruitM1 = false
             if _Tool then
                 local toolTip = _Tool.ToolTip
                 local weaponType = _Tool:GetAttribute('WeaponType')
                 if _G.AutoAttack and (toolTip == 'Melee' or toolTip == 'Sword' or weaponType == 'Melee' or weaponType == 'Sword') then
                     isAllowedWeapon = true
+                elseif _G.FastFruitM1 and _G.AutoAttack and (toolTip == 'Blox Fruit' or _Tool:FindFirstChild("LeftClickRemote")) then
+                    isFruitM1 = true
                 end
             end
-            if #u17 > 0 and isAllowedWeapon then
-                pcall(function()
-                    require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
-                    local multiplier = _G.FastAttackMultiplier or 1
-                    for i = 1, multiplier do
-                        game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
+            if #u17 > 0 then
+                if isAllowedWeapon then
+                    pcall(function()
+                        require(game.ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
+                        local multiplier = _G.FastAttackMultiplier or 1
+                        for i = 1, multiplier do
+                            game.ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
 
-                        local _Head = u17[1][1]:FindFirstChild('Head')
+                            local _Head = u17[1][1]:FindFirstChild('Head')
 
-                        if _Head then
-                            game.ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(game.Players.LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
-                            cloneref(u4):FireServer(string.gsub('RE/RegisterHit', '.', function(p31)
-                                return string.char(bit32.bxor(string.byte(p31), math.floor(workspace:GetServerTimeNow() / 10 % 10) + 1))
-                            end), bit32.bxor(u5 + 909090, game.ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17)
+                            if _Head then
+                                game.ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(game.Players.LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
+                                cloneref(u4):FireServer(string.gsub('RE/RegisterHit', '.', function(p31)
+                                    return string.char(bit32.bxor(string.byte(p31), math.floor(workspace:GetServerTimeNow() / 10 % 10) + 1))
+                                end), bit32.bxor(u5 + 909090, game.ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17)
+                            end
                         end
-                    end
-                end)
+                    end)
+                elseif isFruitM1 and _Tool:FindFirstChild("LeftClickRemote") then
+                    pcall(function()
+                        local multiplier = _G.FastAttackMultiplier or 1
+                        for i = 1, multiplier do
+                            local targetPos = u17[1][2].Position
+                            local playerPos = v13.Position
+                            local direction = (targetPos - playerPos).Unit
+                            _G.FruitCombo = (_G.FruitCombo or 0) % 3 + 1
+                            _Tool.LeftClickRemote:FireServer(direction, _G.FruitCombo)
+                        end
+                    end)
+                end
             end
         end
     end
