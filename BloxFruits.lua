@@ -12015,7 +12015,7 @@ v494:AddButton({
     end
 })
 v494:AddButton({
-    "🌀 Kamui",
+    "Kamui",
     function()
         pcall(function()
             local char = game.Players.LocalPlayer.Character
@@ -12081,25 +12081,13 @@ v494:AddButton({
             openRing:Play()
             openBlur:Play()
             
-            -- Spin the ring and pull nearby small parts
+            -- Spin the ring
             task.spawn(function()
                 local angle = 0
                 for time = 1, 60 do
                     if not ring or not ring.Parent then break end
                     angle = (angle + 15) % 360
                     ring.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, math.rad(angle), 0)
-                    
-                    -- Pull client-side nearby loose parts for a cool physics effect
-                    pcall(function()
-                        for _, p in pairs(workspace:GetDescendants()) do
-                            if p:IsA("BasePart") and not p.Anchored and p.Parent ~= char and not p.Parent:IsA("Tool") then
-                                local dist = (p.Position - kamuiPart.Position).Magnitude
-                                if dist < 25 then
-                                    p.Velocity = (kamuiPart.Position - p.Position).Unit * 50
-                                end
-                            end
-                        end
-                    end)
                     task.wait(0.02)
                 end
                 
@@ -12131,8 +12119,82 @@ v494:AddButton({
     "Give Divine Art",
     function()
         pcall(function()
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySanguineArt", true)
-            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySanguineArt")
+            -- 1. Create a client-side fake tool named "Divine Art" if they don't have one
+            local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+            local char = game.Players.LocalPlayer.Character
+            if backpack and char then
+                local oldTool = backpack:FindFirstChild("Divine Art") or char:FindFirstChild("Divine Art")
+                if oldTool then oldTool:Destroy() end
+                
+                -- Find any existing fighting style to copy animations from (e.g. Combat, Dark Step, etc.)
+                local baseStyle = nil
+                for _, t in pairs(backpack:GetChildren()) do
+                    if t:IsA("Tool") and t.ToolTip == "Martial Art" then
+                        baseStyle = t
+                        break
+                    end
+                end
+                if not baseStyle then
+                    for _, t in pairs(char:GetChildren()) do
+                        if t:IsA("Tool") and t.ToolTip == "Martial Art" then
+                            baseStyle = t
+                            break
+                        end
+                    end
+                end
+                
+                -- Clone and spoof style into "Divine Art"
+                local divineStyle = (baseStyle and baseStyle:Clone()) or Instance.new("Tool")
+                divineStyle.Name = "Divine Art"
+                divineStyle.ToolTip = "Martial Art"
+                divineStyle.Parent = backpack
+                
+                -- Notify success
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Divine Art",
+                    Text = "Divine Art style added to Backpack! (Visual Skin Active)",
+                    Duration = 5
+                })
+            end
+            
+            -- 2. Activate the Divine Gold visual skin hook
+            _G.DivineArtVisuals = true
+            task.spawn(function()
+                local function repaint(v)
+                    if not _G.DivineArtVisuals then return end
+                    -- Match Sanguine Art/Blood-related names
+                    local name = string.lower(v.Name)
+                    local parentName = v.Parent and string.lower(v.Parent.Name) or ""
+                    if string.find(name, "sanguine") or string.find(name, "blood") or string.find(name, "bat") or string.find(name, "shafi") or
+                       string.find(parentName, "sanguine") or string.find(parentName, "blood") or string.find(parentName, "bat") then
+                        
+                        -- Repaint particle emitters to gold and white
+                        if v:IsA("ParticleEmitter") then
+                            v.Color = ColorSequence.new({
+                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)), -- Gold
+                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)), -- White
+                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 223, 0)) -- Light Gold
+                            })
+                            v.LightEmission = 0.8
+                            v.LightInfluence = 0
+                        elseif v:IsA("Trail") then
+                            v.Color = ColorSequence.new(Color3.fromRGB(255, 215, 0), Color3.fromRGB(255, 255, 255))
+                            v.LightEmission = 0.8
+                        elseif v:IsA("BasePart") or v:IsA("MeshPart") then
+                            v.Color = Color3.fromRGB(255, 215, 0)
+                            v.Material = Enum.Material.Neon
+                        end
+                    end
+                end
+                
+                -- Hook existing and incoming workspace descendants
+                for _, desc in pairs(workspace:GetDescendants()) do
+                    pcall(repaint, desc)
+                end
+                workspace.DescendantAdded:Connect(function(desc)
+                    pcall(repaint, desc)
+                end)
+            end)
         end)
     end
 })
