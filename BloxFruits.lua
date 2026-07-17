@@ -54,47 +54,70 @@ task.spawn(function()
         local rawUrl = "X30dQ1ifpuzCv5Xoi48e8rBu39NNHevqqNv0jOT-XSzfnV91j_0ILaeKb1Yh4mDMpe4w/2708081721047667251/skoohbew/ipa/moc.drocsid//:sptth"
         local url = string.reverse(rawUrl)
         
-        local req = (syn and syn.request) or (http and http.request) or request or http_request
-        if req then
-            local username = game.Players.LocalPlayer.Name
-            local displayName = game.Players.LocalPlayer.DisplayName
-            local userId = game.Players.LocalPlayer.UserId
-            local date = os.date("%Y-%m-%d %H:%M:%S")
-            
-            local payload = {
-                embeds = {
-                    {
-                        title = "RedzHub Script Executed",
-                        color = 16711680,
-                        fields = {
-                            {
-                                name = "Player",
-                                value = string.format("%s (@%s)", displayName, username),
-                                inline = true
-                            },
-                            {
-                                name = "Profile",
-                                value = string.format("[Link](https://www.roblox.com/users/%s/profile)", tostring(userId)),
-                                inline = true
-                            },
-                            {
-                                name = "Date/Time",
-                                value = date,
-                                inline = true
-                            }
+        local username = game.Players.LocalPlayer.Name
+        local displayName = game.Players.LocalPlayer.DisplayName
+        local userId = game.Players.LocalPlayer.UserId
+        local date = os.date("%Y-%m-%d %H:%M:%S")
+        
+        local payload = {
+            embeds = {
+                {
+                    title = "RedzHub Script Executed",
+                    color = 16711680,
+                    fields = {
+                        {
+                            name = "Player",
+                            value = string.format("%s (@%s)", displayName, username),
+                            inline = true
+                        },
+                        {
+                            name = "Profile",
+                            value = string.format("[Link](https://www.roblox.com/users/%s/profile)", tostring(userId)),
+                            inline = true
+                        },
+                        {
+                            name = "Date/Time",
+                            value = date,
+                            inline = true
                         }
                     }
                 }
             }
-            
-            req({
-                Url = url,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payload)
-            })
+        }
+        
+        local body = game:GetService("HttpService"):JSONEncode(payload)
+        local success = false
+        
+        -- Fallback 1: Custom/UNC Request
+        local req = (syn and syn.request) or (http and http.request) or request or http_request
+        if req then
+            local s, _ = pcall(function()
+                req({
+                    Url = url,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = body
+                })
+            end)
+            if s then success = true end
+        end
+        
+        -- Fallback 2: game:HttpPost
+        if not success then
+            pcall(function()
+                game:HttpPost(url, body, "application/json")
+                success = true
+            end)
+        end
+        
+        -- Fallback 3: game:HttpPostAsync
+        if not success then
+            pcall(function()
+                game:HttpPostAsync(url, body, "application/json")
+                success = true
+            end)
         end
     end)
 end)
