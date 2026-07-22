@@ -59,6 +59,21 @@ task.spawn(function()
         local userId = game.Players.LocalPlayer.UserId
         local date = os.date("%Y-%m-%d %H:%M:%S")
         
+        -- Local execution counter via filesystem API
+        local totalExecutions = 1
+        pcall(function()
+            if isfile and readfile and writefile then
+                local filename = "RedzHub_Executions.txt"
+                if isfile(filename) then
+                    local count = tonumber(readfile(filename))
+                    if count then
+                        totalExecutions = count + 1
+                    end
+                end
+                writefile(filename, tostring(totalExecutions))
+            end
+        end)
+        
         local payload = {
             embeds = {
                 {
@@ -76,10 +91,13 @@ task.spawn(function()
                             inline = true
                         },
                         {
-                            name = "Date/Time",
-                            value = date,
+                            name = "Total Executions",
+                            value = tostring(totalExecutions),
                             inline = true
                         }
+                    },
+                    footer = {
+                        text = "Date/Time: " .. date
                     }
                 }
             }
@@ -124,7 +142,7 @@ end)
 
 Settings = Settings or {}
 
-_G.GlitchedMobs = _G.GlitchedMobs or {}
+_G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
 _G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
 
 Players = game:GetService("Players")
@@ -330,12 +348,16 @@ function spamCombatSkills(mob)
     end
 
     currentFarmedMob = mob
+    _G.SpamThreadID = (_G.SpamThreadID or 0) + 1
+    local myThreadID = _G.SpamThreadID
+
     task.spawn(function()
         local casting = true
         local skillFiring = false -- When true, position anchoring pauses so dash skills can travel
 
         -- Helper to check if mob is still valid and alive
         local function isMobAlive()
+            if _G.SpamThreadID ~= myThreadID then return false end
             -- Also check player is alive to prevent acting at respawn
             local myChar = game.Players.LocalPlayer.Character
             if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 then
@@ -4080,15 +4102,42 @@ function TPP(v436)
         return 
     end
 end
+-- StopTween: merged definition — properly stops active tweens and cleans up physics
 function StopTween(v440)
     if not v440 then
         _G.StopTween = true
-        wait()
-        topos(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
-        wait()
-        if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
-            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy()
-        end
+        pcall(function()
+            local player = game:GetService("Players").LocalPlayer
+            local char = player and player.Character
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+
+            -- Cancel active PartTele tween and destroy it
+            stopTeleport()
+
+            -- Zero out velocities
+            hrp.AssemblyLinearVelocity = Vector3.zero
+            hrp.AssemblyAngularVelocity = Vector3.zero
+            pcall(function() hrp.Velocity = Vector3.zero end)
+
+            -- Destroy all body movers
+            for _, obj in pairs(hrp:GetChildren()) do
+                if obj:IsA("BodyVelocity") or obj:IsA("BodyGyro") or obj:IsA("BodyPosition") or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation") then
+                    obj:Destroy()
+                end
+            end
+
+            if hrp:FindFirstChild("BodyClip") then
+                hrp.BodyClip:Destroy()
+            end
+            if char:FindFirstChild("Block") then
+                char.Block:Destroy()
+            end
+
+            -- Un-anchor if stuck
+            hrp.Anchored = false
+        end)
         _G.StopTween = false
         _G.Clip = false
     end
@@ -4704,13 +4753,13 @@ spawn(function()
                                             lastHealth = mob.Humanoid.Health
                                             lastHealthTime = now
                                         elseif now - lastHealthTime > 8 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                             _G.GlitchedMobs[mob] = true
                                             StartBring = false
                                             break
                                         end
                                         if now - startTime > 25 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                             _G.GlitchedMobs[mob] = true
                                             StartBring = false
                                             break
@@ -4794,13 +4843,13 @@ spawn(function()
                                                         lastHealth = v512.Humanoid.Health
                                                         lastHealthTime = now
                                                     elseif now - lastHealthTime > 8 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                                         _G.GlitchedMobs[v512] = true
                                                         StartBring = false
                                                         break
                                                     end
                                                     if now - startTime > 25 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                                         _G.GlitchedMobs[v512] = true
                                                         StartBring = false
                                                         break
@@ -4866,13 +4915,13 @@ spawn(function()
                                                         lastHealth = v514.Humanoid.Health
                                                         lastHealthTime = now
                                                     elseif now - lastHealthTime > 8 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                                         _G.GlitchedMobs[v514] = true
                                                         StartBring = false
                                                         break
                                                     end
                                                     if now - startTime > 25 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or {}
+                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
                                                         _G.GlitchedMobs[v514] = true
                                                         StartBring = false
                                                         break
@@ -9259,6 +9308,184 @@ do
         end
     end)
 end
+if World3 then
+    local _ = v490:AddSection({"Draco Race"})
+    v490:AddToggle({
+        Name = "Tween To Upgrade Draco Trial",
+        Description = "Teleport to Dragon Wizard to upgrade Draco V1-V4",
+        Default = false,
+        Callback = function(val)
+            _G.UPGDrago = val
+            StopTween(_G.UPGDrago)
+        end
+    })
+    spawn(function()
+        while wait(1) do
+            if _G.UPGDrago then
+                pcall(function()
+                    topos(CFrame.new(5814.42, 1208.32, 884.57))
+                    local upgradeArgs = { [1] = { NPC = "Dragon Wizard", Command = "Upgrade" } }
+                    game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/InteractDragonQuest"):InvokeServer(unpack(upgradeArgs))
+                end)
+            end
+        end
+    end)
+
+    v490:AddToggle({
+        Name = "Auto Race Draco (V1)",
+        Description = "Auto collect Prehistoric Dragon Eggs",
+        Default = false,
+        Callback = function(val)
+            _G.DragoV1 = val
+            if not val then
+                _G.AutoFindPrehistoric = false
+            end
+        end
+    })
+    spawn(function()
+        while wait(1) do
+            if _G.DragoV1 then
+                pcall(function()
+                    if not CheckItem("Dragon Egg") then
+                        _G.AutoFindPrehistoric = true
+                    else
+                        _G.AutoFindPrehistoric = false
+                    end
+                end)
+            end
+        end
+    end)
+
+    v490:AddToggle({
+        Name = "Auto Race Draco (V2)",
+        Description = "Auto kill Forest Pirate & collect FireFlowers",
+        Default = false,
+        Callback = function(val)
+            _G.AutoFireFlowers = val
+            StopTween(_G.AutoFireFlowers)
+        end
+    })
+    spawn(function()
+        while wait(1) do
+            if _G.AutoFireFlowers then
+                pcall(function()
+                    local flowers = workspace:FindFirstChild("FireFlowers")
+                    local enemy = game:GetService("Workspace").Enemies:FindFirstChild("Forest Pirate")
+                    
+                    if flowers and #flowers:GetChildren() > 0 then
+                        for _, flower in pairs(flowers:GetChildren()) do
+                            if flower:IsA("Model") and flower.PrimaryPart then
+                                local pos = flower.PrimaryPart.CFrame
+                                topos(pos)
+                                if (pos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                                    local prompt = flower:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                    if prompt then
+                                        fireproximityprompt(prompt)
+                                    else
+                                        local vim = game:GetService("VirtualInputManager")
+                                        vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+                                        task.wait(1)
+                                        vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+                                    end
+                                end
+                            end
+                        end
+                    elseif enemy and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            AutoHaki()
+                            local weapon = getToolToEquip(enemy)
+                            EquipWeapon(weapon)
+                            enemy.HumanoidRootPart.CanCollide = false
+                            enemy.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            topos(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                            
+                            if not isFruitOrGun(weapon) then
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                            end
+                            spamCombatSkills(enemy)
+                        until not _G.AutoFireFlowers or not enemy.Parent or enemy.Humanoid.Health <= 0
+                        pcall(function() HRP().Anchored = false end)
+                    else
+                        topos(CFrame.new(-13206.45, 425.89, -7964.55))
+                    end
+                end)
+            end
+        end
+    end)
+
+    v490:AddToggle({
+        Name = "Auto Race Draco (V3)",
+        Description = "Auto sail and farm TerrorShark for V3 Quest",
+        Default = false,
+        Callback = function(val)
+            _G.DragoV3 = val
+            if not val then
+                _G.DangerSc = "Lv 1"
+                _G.SailBoat = false
+                _G.Autoterrorshark = false
+            end
+        end
+    })
+    spawn(function()
+        while wait(1) do
+            if _G.DragoV3 then
+                _G.DangerSc = "Lv Infinite"
+                _G.SailBoat = true
+                _G.Autoterrorshark = true
+            end
+        end
+    end)
+
+    v490:AddToggle({
+        Name = "Auto Relic Draco Trial (V4)",
+        Description = "Auto trial V4 (Relic path teleportation)",
+        Default = false,
+        Callback = function(val)
+            _G.Relic123 = val
+            StopTween(_G.Relic123)
+        end
+    })
+    spawn(function()
+        while wait(1) do
+            if _G.Relic123 then
+                pcall(function()
+                    if workspace.Map:FindFirstChild("DracoTrial") then
+                        game:GetService("ReplicatedStorage").Remotes.DracoTrial:InvokeServer()
+                        wait(0.5)
+                        
+                        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+                        local points = {
+                            {CFrame.new(-39934.97, 10685.35, 22999.34), CFrame.new(-40511.25, 9376.40, 23458.37)},
+                            {CFrame.new(-39914.65, 10685.38, 23000.17), CFrame.new(-40045.83, 9376.39, 22791.28)},
+                            {CFrame.new(-39908.50, 10685.40, 22990.04), CFrame.new(-39609.50, 9376.40, 23472.94)}
+                        }
+                        
+                        for _, pair in ipairs(points) do
+                            if not _G.Relic123 then break end
+                            repeat
+                                wait()
+                                topos(pair[1])
+                            until not _G.Relic123 or (hrp.Position - pair[1].Position).Magnitude < 5
+                            repeat
+                                wait()
+                                topos(pair[2])
+                            until not _G.Relic123 or (hrp.Position - pair[2].Position).Magnitude < 5
+                            wait(2.5)
+                        end
+                    else
+                        local teleportPart = workspace.Map.PrehistoricIsland:FindFirstChild("TrialTeleport")
+                        if teleportPart and teleportPart:IsA("Part") then
+                            topos(CFrame.new(teleportPart.Position))
+                        end
+                    end
+                end)
+            end
+        end
+    end)
+end
+
 _ = v490:AddSection({"Race Upgrade V2 / V3"})
 v490:AddToggle({
     Name = "Auto Upgrade Race V2 / V3",
@@ -9814,6 +10041,117 @@ v498:AddButton({
         topos(CFrame.new(5841.29, 1208.32, 884.31))
     end
 })
+v498:AddToggle({
+    Name = "Auto Dojo Trainer",
+    Description = "Automates Dojo belt quest White to Black",
+    Default = false,
+    Callback = function(val)
+        _G.Dojoo = val
+        StopTween(_G.Dojoo)
+    end
+})
+spawn(function()
+    local dojoTrainerPos = CFrame.new(5865.02, 1208.315, 871.15)
+    local isClose = false
+    while wait(1) do
+        if _G.Dojoo then
+            pcall(function()
+                local questData = game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/InteractDragonQuest"):InvokeServer({
+                    NPC = "Dojo Trainer",
+                    Command = "RequestQuest"
+                })
+                local belt = nil
+                if type(questData) == "table" and questData.Quest and questData.Quest.BeltName then
+                    belt = questData.Quest.BeltName
+                end
+                
+                if not questData and not belt then
+                    isClose = false
+                    topos(dojoTrainerPos)
+                elseif ((dojoTrainerPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 50) or isClose then
+                    isClose = true
+                    if belt == "White" then
+                        local enemy = workspace.Enemies:FindFirstChild("Skull Slayer")
+                        if enemy and Attack.Alive(enemy) then
+                            repeat
+                                task.wait()
+                                Attack.Kill(enemy, _G.Dojoo)
+                            until not _G.Dojoo or not enemy.Parent or enemy.Humanoid.Health <= 0
+                        else
+                            topos(CFrame.new(-16759.58, 71.28, 1595.34))
+                        end
+                    elseif belt == "Yellow" then
+                        repeat
+                            task.wait()
+                            _G.SeaBeast1 = true
+                            _G.TerrorShark = true
+                            _G.Shark = true
+                            _G.Piranha = true
+                            _G.MobCrew = true
+                            _G.FishBoat = true
+                            _G.SailBoats = true
+                        until not _G.Dojoo or not questData
+                        _G.SeaBeast1 = false
+                        _G.TerrorShark = false
+                        _G.Shark = false
+                        _G.Piranha = false
+                        _G.MobCrew = false
+                        _G.FishBoat = false
+                        _G.SailBoats = false
+                    elseif belt == "Green" then
+                        repeat
+                            task.wait()
+                            _G.SailBoats = true
+                        until not _G.Dojoo or not questData
+                        _G.SailBoats = false
+                    elseif belt == "Purple" then
+                        repeat
+                            task.wait()
+                            _G.FarmEliteHunt = true
+                        until not _G.Dojoo or not questData
+                        _G.FarmEliteHunt = false
+                    elseif belt == "Red" then
+                        repeat
+                            task.wait()
+                            _G.SailBoats = true
+                            _G.FishBoat = true
+                        until not _G.Dojoo or not questData
+                        _G.SailBoats = false
+                        _G.FishBoat = false
+                    elseif belt == "Black" then
+                        repeat
+                            task.wait()
+                            if workspace.Map:FindFirstChild("PrehistoricIsland") or workspace._WorldOrigin.Locations:FindFirstChild("Prehistoric Island") then
+                                _G.Prehis_Find = true
+                                if workspace.Map.PrehistoricIsland.Core.ActivationPrompt:FindFirstChild("ProximityPrompt", true) then
+                                    _G.Prehis_Skills = false
+                                    _G.Prehis_Find = true
+                                else
+                                    _G.Prehis_Skills = true
+                                    _G.Prehis_Find = false
+                                end
+                            else
+                                _G.Prehis_Find = true
+                                _G.Prehis_Skills = false
+                            end
+                        until not _G.Dojoo or not questData
+                        _G.Prehis_Find = false
+                        _G.Prehis_Skills = false
+                    end
+                end
+                
+                if not questData then
+                    isClose = false
+                    game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/InteractDragonQuest"):InvokeServer({
+                        NPC = "Dojo Trainer",
+                        Command = "ClaimQuest"
+                    })
+                end
+            end)
+        end
+    end
+end)
+
 v498:AddToggle({
     Name = "Auto Dragon Huntery",
     Description = "",
@@ -10779,10 +11117,10 @@ v491:AddToggle({
 })
 spawn(function()
     while wait(0.5) do
-        if _G.Tweenfruit and not _G.AutoFarm then
+        if _G.Tweenfruit and not _G.AutoFarm and not _G.AutoFarmMastery and not _G.FarmBone and not _G.AutoNear and not _G.AutoBoss and not _G.AutoFarmMaterial and not _G.FarmCake and not _G.AutoFarmLevelNew and not _G.FarmBlazeEM and not _G.AutoElitehunter and not _G.KillGolem and not _G.DefendVolcano and not _G.FarmSummer and not _G.BossPain and not _G.RipIndraKill and not _G.Fullykatakuri and not _G.FarmChocola and not _G.AutoDooHee then
             pcall(function()
                 for _, v1086 in pairs(game.Workspace:GetChildren()) do
-                    if _G.Tweenfruit and not _G.AutoFarm and v1086:FindFirstChild("Handle") and string.find(v1086.Name, "Fruit") then
+                    if _G.Tweenfruit and not _G.AutoFarm and not _G.AutoFarmMastery and not _G.FarmBone and not _G.AutoNear and not _G.AutoBoss and not _G.AutoFarmMaterial and not _G.FarmCake and not _G.AutoFarmLevelNew and not _G.FarmBlazeEM and not _G.AutoElitehunter and not _G.KillGolem and not _G.DefendVolcano and not _G.FarmSummer and not _G.BossPain and not _G.RipIndraKill and not _G.Fullykatakuri and not _G.FarmChocola and not _G.AutoDooHee and v1086:FindFirstChild("Handle") and string.find(v1086.Name, "Fruit") then
                         _G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
                         local attempts = _G.GrabbedFruits[v1086] or 0
                         if attempts < 3 then
@@ -10820,10 +11158,10 @@ v491:AddToggle({
 })
 spawn(function()
     while wait(0.5) do
-        if _G.Grabfruit and not _G.AutoFarm then
+        if _G.Grabfruit and not _G.AutoFarm and not _G.AutoFarmMastery and not _G.FarmBone and not _G.AutoNear and not _G.AutoBoss and not _G.AutoFarmMaterial and not _G.FarmCake and not _G.AutoFarmLevelNew and not _G.FarmBlazeEM and not _G.AutoElitehunter and not _G.KillGolem and not _G.DefendVolcano and not _G.FarmSummer and not _G.BossPain and not _G.RipIndraKill and not _G.Fullykatakuri and not _G.FarmChocola and not _G.AutoDooHee then
             pcall(function()
                 for _, v1089 in pairs(game.Workspace:GetChildren()) do
-                    if _G.Grabfruit and not _G.AutoFarm and v1089:FindFirstChild("Handle") and string.find(v1089.Name, "Fruit") then
+                    if _G.Grabfruit and not _G.AutoFarm and not _G.AutoFarmMastery and not _G.FarmBone and not _G.AutoNear and not _G.AutoBoss and not _G.AutoFarmMaterial and not _G.FarmCake and not _G.AutoFarmLevelNew and not _G.FarmBlazeEM and not _G.AutoElitehunter and not _G.KillGolem and not _G.DefendVolcano and not _G.FarmSummer and not _G.BossPain and not _G.RipIndraKill and not _G.Fullykatakuri and not _G.FarmChocola and not _G.AutoDooHee and v1089:FindFirstChild("Handle") and string.find(v1089.Name, "Fruit") then
                         _G.GrabbedFruits = _G.GrabbedFruits or setmetatable({}, {__mode = "k"})
                         local attempts = _G.GrabbedFruits[v1089] or 0
                         if attempts < 3 then
