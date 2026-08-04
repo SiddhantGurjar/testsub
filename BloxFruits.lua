@@ -9856,7 +9856,7 @@ if not World3 then
         Content = "Only Sea 3"
     })
 else
-end)
+end
 _ = v498:AddSection({"Leviathan Island"})
 
 -- 1st: Status Leviathan Island
@@ -10595,8 +10595,6 @@ spawn(function()
         end
     end)
 end)
-
-end
 
 _ = v491:AddSection({"Fruits"})
 v491:AddToggle({
