@@ -409,7 +409,7 @@ function spamCombatSkills(mob)
                         local character = game.Players.LocalPlayer.Character
                         if character and character:FindFirstChild("HumanoidRootPart") then
                             local mobPos = mob.HumanoidRootPart.Position
-                            local farmHeight = 20
+                            local farmHeight = 15
                             local holdPos = Vector3.new(mobPos.X, mobPos.Y + farmHeight, mobPos.Z)
                             character.HumanoidRootPart.CFrame = CFrame.lookAt(
                                 holdPos,
@@ -4798,7 +4798,7 @@ spawn(function()
                                         AutoHaki()
                                         PosMon = mob.HumanoidRootPart.CFrame
                                         
-                                        local targetCFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
+                                        local targetCFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                                         local myHrp = HRP()
                                         if myHrp then
                                             local dist = (myHrp.Position - targetCFrame.Position).Magnitude
@@ -4888,7 +4888,7 @@ spawn(function()
                                                     AutoHaki()
                                                     PosMon = v512.HumanoidRootPart.CFrame
                                                     
-                                                    local targetCFrame = v512.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
+                                                    local targetCFrame = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                                                     local myHrp = HRP()
                                                     if myHrp then
                                                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
@@ -4960,7 +4960,7 @@ spawn(function()
                                                     AutoHaki()
                                                     PosMon = v514.HumanoidRootPart.CFrame
                                                     
-                                                    local targetCFrame = v514.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
+                                                    local targetCFrame = v514.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                                                     local myHrp = HRP()
                                                     if myHrp then
                                                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
@@ -5048,7 +5048,7 @@ spawn(function()
                                 StartMagnet = true
                                 v546.HumanoidRootPart.CanCollide = false
                                 v546.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                topos(v546.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(v546.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                             until v546.Humanoid.Health <= 0 or not v546.Parent or _G.AutoRaidPirate == false
                             NeedAttacking = false
                             StartMagnet = false
@@ -5131,7 +5131,7 @@ spawn(function()
                             local targetTool = getToolToEquip(v522)
                             EquipWeapon(targetTool)
                             
-                            local targetCFrame = v522.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
+                            local targetCFrame = v522.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                             local myHrp = HRP()
                             if myHrp then
                                 local dist = (myHrp.Position - targetCFrame.Position).Magnitude
@@ -5332,7 +5332,7 @@ spawn(function()
                                     MonFarm = v598.Name
                                     PosMon = v598.HumanoidRootPart.CFrame
 
-                                    local farmHeight = 20
+                                    local farmHeight = 15
                                     local targetPos = v598.HumanoidRootPart.CFrame * CFrame.new(0, farmHeight, 0)
                                     local myHrp = HRP()
                                     if myHrp then
@@ -5393,7 +5393,7 @@ spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 AutoHaki()
                                 v601.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                topos(v601.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(v601.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 670))
                                 v601.HumanoidRootPart.Transparency = 1
@@ -5833,7 +5833,7 @@ task.spawn(function()
                                 v662.HumanoidRootPart.CanCollide = false
                                 v662.Humanoid.WalkSpeed = 0
                                 v662.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                topos(v662.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(v662.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 if not isFruitOrGun(targetTool) then
                                     game:GetService("VirtualUser"):CaptureController()
@@ -6055,7 +6055,7 @@ task.spawn(function()
                                     EquipWeapon(_G.SelectWeapon)
                                     PosMon = v671.HumanoidRootPart.CFrame
                                     MonFarm = v671.Name
-                                    topos(v671.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v671.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     v671.HumanoidRootPart.CanCollide = false
                                     v671.Humanoid.WalkSpeed = 0
                                     v671.Head.CanCollide = false
@@ -6198,7 +6198,7 @@ if World1 then
                                         StartBring = true
                                         v696.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                         v696.HumanoidRootPart.Transparency = 1
-                                        topos(v696.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v696.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 870), workspace.CurrentCamera.CFrame)
                                     until v696.Humanoid.Health <= 0 or not v696.Parent or not _G.AutoSecondSea
@@ -6237,7 +6237,7 @@ if World1 then
                                     v700.HumanoidRootPart.CanCollide = false
                                     v700.Humanoid.WalkSpeed = 0
                                     v700.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                    topos(v700.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v700.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                     sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
@@ -6279,7 +6279,7 @@ if World1 then
                                     repeat
                                         task.wait()
                                         EquipWeapon(_G.SelectWeapon)
-                                        topos(v704.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v704.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         v704.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                         v704.HumanoidRootPart.Transparency = 1
                                         v704.Humanoid.JumpPower = 0
@@ -6350,7 +6350,7 @@ if World1 then
                                         v706.HumanoidRootPart.CanCollide = false
                                         v706.Humanoid.WalkSpeed = 0
                                         v706.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v706.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v706.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
@@ -6390,7 +6390,7 @@ if World1 then
                                     StartBring = true
                                     v709.Humanoid.WalkSpeed = 0
                                     v709.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                    topos(v709.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v709.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.Autopole or not v709.Parent or v709.Humanoid.Health <= 0
                             end
@@ -6443,7 +6443,7 @@ if World1 then
                                         v714.HumanoidRootPart.CanCollide = false
                                         v714.Humanoid.WalkSpeed = 0
                                         v714.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                        topos(v714.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v714.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         AttackNoCD()
                                     until not _G.Autosaw or not v714.Parent or v714.Humanoid.Health <= 0
                                 end
@@ -6477,7 +6477,7 @@ if World1 then
                                         StartBring = true
                                         v717.Humanoid.WalkSpeed = 0
                                         v717.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v717.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v717.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.ChiefWarden or not v717.Parent or v717.Humanoid.Health <= 0
                                 end
@@ -6513,7 +6513,7 @@ if World1 then
                                         StartBring = true
                                         v720.Humanoid.WalkSpeed = 0
                                         v720.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v720.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v720.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.Trident or not v720.Parent or v720.Humanoid.Health <= 0
                                 end
@@ -6565,7 +6565,7 @@ if World2 then
                                                 l_v724_0.HumanoidRootPart.Transparency = 1
                                                 l_v724_0.HumanoidRootPart.CanCollide = false
                                                 l_v724_0.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                                topos(l_v724_0.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                                topos(l_v724_0.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                                 PosMonBarto = l_v724_0.HumanoidRootPart.CFrame
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
@@ -6658,7 +6658,7 @@ if World2 then
                                     v727.HumanoidRootPart.CanCollide = false
                                     v727.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
                                     v727.HumanoidRootPart.CFrame = OldCFrameBartlio
-                                    topos(v727.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v727.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
@@ -6704,7 +6704,7 @@ if World2 then
                                             task.wait()
                                             AutoHaki()
                                             EquipWeapon(_G.SelectWeapon)
-                                            topos(v730.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                            topos(v730.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                             v730.HumanoidRootPart.CFrame = OldCFrameThird
                                             v730.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
                                             v730.HumanoidRootPart.CanCollide = false
@@ -6752,7 +6752,7 @@ if World2 then
                                     EquipWeapon(_G.SelectWeapon)
                                     v738.HumanoidRootPart.CanCollide = false
                                     v738.Humanoid.WalkSpeed = 0
-                                    topos(v738.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v738.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.AutoDarkBoss or not v738.Parent or v738.Humanoid.Health <= 0
                             end
@@ -6790,7 +6790,7 @@ if World2 then
                                     EquipWeapon(_G.SelectWeapon)
                                     v741.HumanoidRootPart.CanCollide = false
                                     v741.Humanoid.WalkSpeed = 0
-                                    topos(v741.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v741.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.CursedCaptain or not v741.Parent or v741.Humanoid.Health <= 0
                             end
@@ -6864,7 +6864,7 @@ if World2 then
                                     StartBring = true
                                     v752.Humanoid.WalkSpeed = 0
                                     v752.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                    topos(v752.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v752.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.Longsword or not v752.Parent or v752.Humanoid.Health <= 0
                             end
@@ -6904,7 +6904,7 @@ if World2 then
                                     StartBring = true
                                     v755.Humanoid.WalkSpeed = 0
                                     v755.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                    topos(v755.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v755.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.GravityBlade or not v755.Parent or v755.Humanoid.Health <= 0
                             end
@@ -6938,7 +6938,7 @@ if World2 then
                                     StartBring = true
                                     v758.Humanoid.WalkSpeed = 0
                                     v758.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                    topos(v758.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v758.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.SwodsFlail or not v758.Parent or v758.Humanoid.Health <= 0
                             end
@@ -6980,7 +6980,7 @@ if World2 then
                                     v761.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
                                     PosMon = v761.HumanoidRootPart.CFrame
                                     MonFarm = v761.Name
-                                    topos(v761.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v761.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     AttackNoCD()
                                     StartBring = true
                                 until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Hidden Key") or _G.AutoRengoku == false or not v761.Parent or v761.Humanoid.Health <= 0
@@ -7016,7 +7016,7 @@ if World2 then
                                     StartBring = true
                                     v764.Humanoid.WalkSpeed = 0
                                     v764.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                    topos(v764.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(v764.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.SwodsDRTrident or not v764.Parent or v764.Humanoid.Health <= 0
                             end
@@ -7148,7 +7148,7 @@ if World3 then
                                                         v784.Humanoid.JumpPower = 0
                                                         v784.Humanoid.WalkSpeed = 0
                                                         v784.HumanoidRootPart.CanCollide = false
-                                                        v784.HumanoidRootPart.CFrame = v780.CFrame * CFrame.new(0, 20, 0)
+                                                        v784.HumanoidRootPart.CFrame = v780.CFrame * CFrame.new(0, 15, 0)
                                                         topos(CFrame.new(-10160.787, 138.662, 5955.031))
                                                         task.wait(0.5)
                                                         local l_VirtualUser_0 = game:GetService("VirtualUser")
@@ -7258,7 +7258,7 @@ if World3 then
                                 boss.HumanoidRootPart.CanCollide = false
                                 boss.Humanoid.WalkSpeed = 0
                                 boss.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                topos(boss.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(boss.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 sethiddenproperty(l_Player, "SimulationRadius", math.huge)
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
@@ -7349,7 +7349,7 @@ if World3 then
                                         for _, v in pairs(workspace.Enemies:GetChildren()) do
                                             if (v:FindFirstChild("HumanoidRootPart").Position - CFrame.new(-22695, 5270, 3814).Position).Magnitude <= 300 then
                                                 EquipWeapon("Tushita")
-                                                topos(v.HumanoidRootPart.CFrame * CFrame.new(0,20,0))
+                                                topos(v.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                             end
@@ -7357,7 +7357,7 @@ if World3 then
                                     end
                                 else
                                     local m = game:GetService("Workspace").Enemies:FindFirstChild("Cake Queen")
-                                    if m then topos(m.HumanoidRootPart.CFrame * CFrame.new(0,20,0)) else topos(CFrame.new(-709, 381, -11011)) end
+                                    if m then topos(m.HumanoidRootPart.CFrame * CFrame.new(0,15,0)) else topos(CFrame.new(-709, 381, -11011)) end
                                 end
                             end
 
@@ -7368,7 +7368,7 @@ if World3 then
                                 EquipWeapon("Yama")
                                 local m = game:GetService("Workspace").Enemies:FindFirstChild("Forest Pirate")
                                 if m then
-                                    topos(m.HumanoidRootPart.CFrame * CFrame.new(0,20,0))
+                                    topos(m.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 else
@@ -7390,7 +7390,7 @@ if World3 then
                                     end
                                 end
                                 if marked then
-                                    topos(marked.HumanoidRootPart.CFrame * CFrame.new(0,20,0))
+                                    topos(marked.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 else
@@ -7413,7 +7413,7 @@ if World3 then
                                         end
                                         for _, v in pairs(workspace.Enemies:GetChildren()) do
                                             if (v:FindFirstChild("HumanoidRootPart").Position - workspace.Map.HellDimension.Spawn.Position).Magnitude <= 300 then
-                                                topos(v.HumanoidRootPart.CFrame * CFrame.new(0,20,0))
+                                                topos(v.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                             end
@@ -7522,7 +7522,7 @@ if World3 then
                                         StartBring = true
                                         v811.Humanoid.WalkSpeed = 0
                                         v811.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v811.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v811.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.AutoGetTushita or not v811.Parent or v811.Humanoid.Health <= 0
                                 end
@@ -7617,7 +7617,7 @@ if World3 then
                                             MonFarm = v611_mob.Name
                                             v611_mob.Head.CanCollide = false
 
-                                            local targetPos = v611_mob.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
+                                            local targetPos = v611_mob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                                             if (character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 5 then
                                                 topos(targetPos)
                                             end
@@ -7822,7 +7822,7 @@ if World3 then
                                             PosMon = v615.HumanoidRootPart.CFrame
                                             MonFarm = v615.Name
                                             v615.Head.CanCollide = false
-                                            topos(v615.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                            topos(v615.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                             NeedAttacking = true
                                             if v615.Name ~= "Cookie Crafter" then
                                                 if v615.Name == "Cake Guard" then
@@ -7913,7 +7913,7 @@ if World3 then
                                             EquipWeapon(_G.SelectWeapon)
                                             AutoHaki()
                                             PosMon = v621.HumanoidRootPart.CFrame
-                                            topos(v621.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                            topos(v621.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                             v621.HumanoidRootPart.CanCollide = false
                                             v621.Humanoid.WalkSpeed = 0
                                             v621.Head.CanCollide = false
@@ -7976,7 +7976,7 @@ if World3 then
                                             AutoHaki()
                                             EquipWeapon(_G.SelectWeapon)
                                             PosMon = v626.HumanoidRootPart.CFrame
-                                            topos(v626.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                            topos(v626.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                             v626.HumanoidRootPart.CanCollide = false
                                             v626.Humanoid.WalkSpeed = 0
                                             v626.Head.CanCollide = false
@@ -8029,7 +8029,7 @@ if World3 then
                                         StartBring = true
                                         v815.Humanoid.WalkSpeed = 0
                                         v815.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v815.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v815.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.SwodTwinHooks or not v815.Parent or v815.Humanoid.Health <= 0
                                 end
@@ -8063,7 +8063,7 @@ if World3 then
                                         StartBring = true
                                         v818.Humanoid.WalkSpeed = 0
                                         v818.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v818.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v818.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.SwodCanvander or not v818.Parent or v818.Humanoid.Health <= 0
                                 end
@@ -8103,7 +8103,7 @@ if World3 then
                                         StartBring = true
                                         v821.Humanoid.WalkSpeed = 0
                                         v821.HumanoidRootPart.Size = Vector3.new(80, 80, 80)
-                                        topos(v821.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(v821.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until not _G.SwodsBuddy or not v821.Parent or v821.Humanoid.Health <= 0
                                 end
@@ -9404,7 +9404,7 @@ spawn(function()
                                         enemy.HumanoidRootPart.CanCollide = false
                                         StartBring = true
                                         enemy.Humanoid.WalkSpeed = 0
-                                        topos(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                        topos(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                     until not _G.AutoUpgradeRace or not enemy.Parent or enemy.Humanoid.Health <= 0
@@ -9452,7 +9452,7 @@ spawn(function()
                                     humanTarget.HumanoidRootPart.CanCollide = false
                                     StartBring = true
                                     humanTarget.Humanoid.WalkSpeed = 0
-                                    topos(humanTarget.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                    topos(humanTarget.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 until not _G.AutoUpgradeRace or not humanTarget.Parent or humanTarget.Humanoid.Health <= 0
@@ -9501,7 +9501,7 @@ spawn(function()
                                 local hrp = sbTarget.HumanoidRootPart
                                 repeat
                                     task.wait()
-                                    topos(hrp.CFrame * CFrame.new(0, 20, 0))
+                                    topos(hrp.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                 until not _G.AutoUpgradeRace or not sbTarget.Parent or hum.Health <= 0
@@ -10353,7 +10353,7 @@ spawn(function()
                                 v924.HumanoidRootPart.CanCollide = false
                                 v924.Humanoid.WalkSpeed = 0
                                 v924.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                topos(v924.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(v924.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                             until not _G.KillGolem or not v924.Parent or v924.Humanoid.Health <= 0
                         end
@@ -11032,7 +11032,7 @@ local function FarmRaidEnemies()
                 task.wait(0.1)
                 if mob.Humanoid.Health > 0 then
                     EquipWeapon(_G.SelectWeapon)
-                    topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                    topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                 end
             until mob.Humanoid.Health <= 0 or not _G.Dungeon
         end
@@ -11120,7 +11120,7 @@ spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 v1072.HumanoidRootPart.CanCollide = false
                                 v1072.Humanoid.WalkSpeed = 0
-                                topos(v1072.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                                topos(v1072.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                             until not _G.AutoLawRaid or not v1072.Parent or v1072.Humanoid.Health <= 0
                         end
