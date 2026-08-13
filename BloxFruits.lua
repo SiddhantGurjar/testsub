@@ -3732,24 +3732,78 @@ function CancelTween23()
     end
     NoClip = false
 end
+
+_G.FarmDistance = _G.FarmDistance or 10
+_G.FarmHeight = _G.FarmHeight or 15
+_G.OrbitSpeed = _G.OrbitSpeed or 4
+_G.StarIndex = _G.StarIndex or 1
+_G.StarDelay = _G.StarDelay or 0.50
+_G.LastStar = _G.LastStar or 0
+_G.BringDistance = _G.BringDistance or 320
+
+local StarPoints = {
+    Vector3.new(10, _G.FarmHeight, 0),
+    Vector3.new(-10, _G.FarmHeight, 0),
+    Vector3.new(0, _G.FarmHeight, 10),
+    Vector3.new(0, _G.FarmHeight, -10),
+    Vector3.new(7, _G.FarmHeight, 7),
+    Vector3.new(-7, _G.FarmHeight, -7)
+}
+
+function FarmModePosition(basePos)
+    local t = tick()
+    local d = _G.FarmDistance
+    local h = _G.FarmHeight
+
+    if _G.FarmMode == "Orbit" then
+        return CFrame.new(basePos + Vector3.new(
+            math.cos(t * _G.OrbitSpeed) * d,
+            h,
+            math.sin(t * _G.OrbitSpeed) * d
+        ))
+
+    elseif _G.FarmMode == "Star" then
+        if tick() - _G.LastStar > _G.StarDelay then
+            _G.LastStar = tick()
+            _G.StarIndex = (_G.StarIndex % #StarPoints) + 1
+        end
+
+        return CFrame.new(basePos + StarPoints[_G.StarIndex])
+
+    else
+        return CFrame.new(basePos + Vector3.new(0, h, 0))
+    end
+end
+
 function KillMob(v373, v374)
     pcall(function()
-        thismob = DetectMob2(v373)
-        if thismob:FindFirstChild("HumanoidRootPart") and thismob.Parent and thismob:FindFirstChild("Humanoid") and thismob.Humanoid.Health > 0 then
+        local thismob = DetectMob2(v373)
+        if thismob and thismob:FindFirstChild("HumanoidRootPart") and thismob:FindFirstChild("Humanoid") and thismob.Humanoid.Health > 0 then
             repeat
                 task.wait()
-                Buso()
-                EquipWeapon()
-                Tween23(thismob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
-                BringPos = thismob.HumanoidRootPart.CFrame
-                BringMob(v373)
+                if type(Buso) == "function" then Buso() end
+                if type(EquipWeapon) == "function" then EquipWeapon() end
                 NoClip = true
-            until not thismob.Parent or not thismob:FindFirstChild("Humanoid") or thismob:FindFirstChild("Humanoid").Health <= 0 or not thismob:FindFirstChild("HumanoidRootPart") or v374()
+
+                local hrp = thismob.HumanoidRootPart
+                local pos = hrp.Position
+                
+                local novaPosicao = FarmModePosition(pos)
+                
+                Tween23(CFrame.new(novaPosicao))
+                BringPos = hrp.CFrame
+                MonFarm = thismob.Name
+                PosMon = hrp.CFrame
+                StartBring = true
+            until not thismob.Parent or not thismob:FindFirstChild("Humanoid") or thismob.Humanoid.Health <= 0 or not thismob:FindFirstChild("HumanoidRootPart") or v374()
+
             NoClip = false
             CancelTween23()
+            StartBring = false
         end
     end)
 end
+
 spawn(function()
     while wait() do
         pcall(function()
@@ -13960,3 +14014,41 @@ tweenOut.Completed:Wait()
 gui:Destroy()
 
 return redzlib
+
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            if type(CheckQuest) == "function" then CheckQuest() end
+            for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                if _G.BringMonster
+                and not _G.AutoFarmMastery
+                and StartBring
+                and (mob.Name == MonFarm or mob.Name == Mon)
+                and mob:FindFirstChild("Humanoid")
+                and mob:FindFirstChild("HumanoidRootPart")
+                and mob.Humanoid.Health > 0 then
+                    local hrp = mob.HumanoidRootPart
+                    local hum = mob.Humanoid
+                    if _G.BringDistance and PosMon and (hrp.Position - PosMon.Position).Magnitude <= _G.BringDistance then
+                        hrp.CFrame = PosMon
+                        hrp.Size = Vector3.new(60,60,60)
+                        hrp.Transparency = 1
+                        hrp.CanCollide = false
+                        mob.Head.CanCollide = false
+                        hum.JumpPower = 0
+                        hum.WalkSpeed = 0
+                        hum:ChangeState(11)
+                        hum:ChangeState(14)
+                        local anim = hum:FindFirstChild("Animator")
+                        if anim then
+                            anim:Destroy()
+                        end
+                        if sethiddenproperty then
+                            sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
