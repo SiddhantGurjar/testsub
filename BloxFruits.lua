@@ -14030,6 +14030,8 @@ spawn(function()
                     if _G.BringDistance and PosMon and (hrp.Position - PosMon.Position).Magnitude <= _G.BringDistance then
                         if not _G.AutoFarmMastery then
                             hrp.CFrame = PosMon
+                        elseif (hrp.Position - PosMon.Position).Magnitude <= 15 then
+                            hrp.CFrame = PosMon
                         end
                         hrp.Size = Vector3.new(60,60,60)
                         hrp.Transparency = 1
