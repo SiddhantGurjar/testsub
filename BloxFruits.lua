@@ -14020,8 +14020,7 @@ spawn(function()
         pcall(function()
             if type(CheckQuest) == "function" then CheckQuest() end
             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                if _G.BringMonster
-                and not _G.AutoFarmMastery
+                if not _G.AutoFarmMastery
                 and StartBring
                 and (mob.Name == MonFarm or mob.Name == Mon)
                 and mob:FindFirstChild("Humanoid")
