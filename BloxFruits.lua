@@ -3828,65 +3828,6 @@ spawn(function()
         end)
     end
 end)
-spawn(function()
-    while task.wait() do
-        pcall(function()
-            local l_Character_3 = game:GetService("Players").LocalPlayer.Character
-            local l_HumanoidRootPart_1 = l_Character_3:FindFirstChild("HumanoidRootPart")
-            if (l_Character_3.Humanoid.Health <= 0 or not l_HumanoidRootPart_1) and l_Character_3:FindFirstChild("Block") then
-                l_Character_3.Block:Destroy()
-            end
-        end)
-    end
-end)
-spawn(function()
-    while task.wait() do
-        pcall(function()
-            local l_Character_4 = game:GetService("Players").LocalPlayer.Character
-            local l_HumanoidRootPart_2 = l_Character_4:FindFirstChild("HumanoidRootPart")
-            if l_Character_4:FindFirstChild("Block") and (l_HumanoidRootPart_2.Position - l_Character_4.Block.Position).Magnitude >= 100 then
-                l_Character_4.Block:Destroy()
-            end
-        end)
-    end
-end)
-function enableNoclip()
-    if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
-        local l_BodyVelocity_1 = Instance.new("BodyVelocity")
-        l_BodyVelocity_1.Name = "BodyClip"
-        l_BodyVelocity_1.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
-        l_BodyVelocity_1.MaxForce = Vector3.new(100000, 100000, 100000)
-        l_BodyVelocity_1.Velocity = Vector3.new(0, 0, 0)
-    end
-end
-function disableNoclip()
-    local l_BodyClip_0 = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip")
-    if l_BodyClip_0 then
-        l_BodyClip_0:Destroy()
-    end
-end
-function disableCollisions()
-    for _, v385 in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-        if v385:IsA("BasePart") then
-            v385.CanCollide = false
-        end
-    end
-end
-_, _ = pcall(function()
-    return getgenv().Module
-end)
-spawn(function()
-    pcall(function()
-        while task.wait(0.1) do
-            if getgenv().Module or _G.DefendVolcano or getgenv().AutoFarm or v391 then
-                enableNoclip()
-                disableCollisions()
-            else
-                disableNoclip()
-            end
-        end
-    end)
-end)
 function EquipAllWeapon()
     pcall(function()
         for _, v389 in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
@@ -14013,7 +13954,66 @@ tweenOut.Completed:Wait()
 
 gui:Destroy()
 
-return redzlib
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            local l_Character_3 = game:GetService("Players").LocalPlayer.Character
+            local l_HumanoidRootPart_1 = l_Character_3:FindFirstChild("HumanoidRootPart")
+            if (l_Character_3.Humanoid.Health <= 0 or not l_HumanoidRootPart_1) and l_Character_3:FindFirstChild("Block") then
+                l_Character_3.Block:Destroy()
+            end
+        end)
+    end
+end)
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            local l_Character_4 = game:GetService("Players").LocalPlayer.Character
+            local l_HumanoidRootPart_2 = l_Character_4:FindFirstChild("HumanoidRootPart")
+            if l_Character_4:FindFirstChild("Block") and (l_HumanoidRootPart_2.Position - l_Character_4.Block.Position).Magnitude >= 100 then
+                l_Character_4.Block:Destroy()
+            end
+        end)
+    end
+end)
+function enableNoclip()
+    if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+        local l_BodyVelocity_1 = Instance.new("BodyVelocity")
+        l_BodyVelocity_1.Name = "BodyClip"
+        l_BodyVelocity_1.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+        l_BodyVelocity_1.MaxForce = Vector3.new(100000, 100000, 100000)
+        l_BodyVelocity_1.Velocity = Vector3.new(0, 0, 0)
+    end
+end
+function disableNoclip()
+    local l_BodyClip_0 = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip")
+    if l_BodyClip_0 then
+        l_BodyClip_0:Destroy()
+    end
+end
+function disableCollisions()
+    for _, v385 in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+        if v385:IsA("BasePart") then
+            v385.CanCollide = false
+        end
+    end
+end
+_, _ = pcall(function()
+    return getgenv().Module
+end)
+spawn(function()
+    pcall(function()
+        while task.wait(0.1) do
+            if getgenv().Module or _G.DefendVolcano or getgenv().AutoFarm or v391 then
+                enableNoclip()
+                disableCollisions()
+            else
+                disableNoclip()
+            end
+        end
+    end)
+end)
+
 
 spawn(function()
     while task.wait() do
@@ -14052,3 +14052,5 @@ spawn(function()
         end)
     end
 end)
+
+return redzlib
