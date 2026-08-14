@@ -14020,8 +14020,7 @@ spawn(function()
         pcall(function()
             if type(CheckQuest) == "function" then CheckQuest() end
             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                if not _G.AutoFarmMastery
-                and StartBring
+                if StartBring
                 and (mob.Name == MonFarm or mob.Name == Mon)
                 and mob:FindFirstChild("Humanoid")
                 and mob:FindFirstChild("HumanoidRootPart")
@@ -14029,7 +14028,9 @@ spawn(function()
                     local hrp = mob.HumanoidRootPart
                     local hum = mob.Humanoid
                     if _G.BringDistance and PosMon and (hrp.Position - PosMon.Position).Magnitude <= _G.BringDistance then
-                        hrp.CFrame = PosMon
+                        if not _G.AutoFarmMastery then
+                            hrp.CFrame = PosMon
+                        end
                         hrp.Size = Vector3.new(60,60,60)
                         hrp.Transparency = 1
                         hrp.CanCollide = false
