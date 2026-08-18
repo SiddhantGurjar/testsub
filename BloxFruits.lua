@@ -1,6 +1,34 @@
 if not game:IsLoaded() then
 	game.Loaded:Wait()
 end 
+
+task.spawn(function()
+    while task.wait(0.5) do
+        local p = game.Players.LocalPlayer
+        if not p.Character or not p.Character:FindFirstChild("Humanoid") or p.Character.Humanoid.Health <= 0 then
+            _G.PlayerRespawning = true
+            StopTween(false)
+        else
+            if _G.PlayerRespawning then
+                task.wait(4)
+                _G.PlayerRespawning = false
+            end
+        end
+    end
+end)
+
+
+_G.GlitchedMobs = _G.GlitchedMobs or {}
+task.spawn(function()
+    while task.wait(1) do
+        for i, v in pairs(_G.GlitchedMobs) do
+            if tick() - v > 60 then
+                _G.GlitchedMobs[i] = nil
+            end
+        end
+    end
+end)
+
 local function Start(Name, Async)
 	local function Execute()
 		local StartTime = tick()
@@ -2683,12 +2711,12 @@ end
 function StopTween(v440)
     if not v440 then
         _G.StopTween = true
-        wait()
-        topos(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
-        wait()
-        if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
-            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy()
-        end
+        pcall(function()
+            local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+            hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+            if hrp:FindFirstChild("BodyClip") then hrp.BodyClip:Destroy() end
+            if hrp:FindFirstChild("PartTele") then hrp.PartTele:Destroy() end
+        end)
         _G.StopTween = false
         _G.Clip = false
     end
@@ -9809,7 +9837,7 @@ spawn(function()
             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                 if _G.BringMonster
                 and StartBring
-                and (mob.Name == MonFarm or mob.Name == Mon)
+                and (mob.Name == MonFarm or mob.Name == Mon) and not _G.GlitchedMobs[mob]
                 and mob:FindFirstChild("Humanoid")
                 and mob:FindFirstChild("HumanoidRootPart")
                 and mob.Humanoid.Health > 0 then
