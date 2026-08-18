@@ -14028,12 +14028,8 @@ spawn(function()
                     local hrp = mob.HumanoidRootPart
                     local hum = mob.Humanoid
                     if _G.BringDistance and PosMon and (hrp.Position - PosMon.Position).Magnitude <= _G.BringDistance then
-                        if not _G.AutoFarmMastery then
-                            hrp.CFrame = PosMon
-                            hrp.Anchored = false
-                        elseif (hrp.Position - PosMon.Position).Magnitude <= 15 then
-                            hrp.Anchored = true
-                        end
+                        hrp.CFrame = PosMon
+                        hrp.Anchored = false
                         hrp.Size = Vector3.new(60,60,60)
                         hrp.Transparency = 1
                         hrp.CanCollide = false
