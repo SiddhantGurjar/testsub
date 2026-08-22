@@ -2881,7 +2881,7 @@ v484:AddDiscordInvite({
     Online = 1548
 })
 local v999 = v484:AddParagraph("Mentions:", "")
-v999:SetDesc("Honorable Mention: Plock4444\nHonorable Mention: omg190")
+v999:SetDesc("Honorable Mention: Plock4444\nHonorable Mention: sae.dev")
 
 local v100 = v484:AddParagraph("mini notice", "")
 v100:SetDesc("This Redz is FAKE, it's a fan-made version of Redz Hub")
