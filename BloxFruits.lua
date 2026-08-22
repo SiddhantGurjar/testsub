@@ -2876,7 +2876,7 @@ v484:AddDiscordInvite({
     Description = "Join our discord community to receive information about the next update",
     Banner = Color3.fromRGB(233,37,69),
     Logo = "rbxassetid://84556257345790", 
-    Invite = "https://discord.gg/Mkj6W5Rz8E",
+    Invite = "https://discord.gg/redzhub",
     Members = 23347, 
     Online = 1548
 })
