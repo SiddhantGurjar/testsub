@@ -1078,7 +1078,7 @@ local Loader = {
     Owner = "https://raw.githubusercontent.com/PlockScripts/"
 }
 
-Loader.Repository = Loader.Owner .. "Scripts/main/"
+Loader.Repository = Loader.Owner .. "Scripts3/main/"
 
 local fetcher = {}
 
