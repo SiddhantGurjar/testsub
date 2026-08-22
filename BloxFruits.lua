@@ -1075,7 +1075,7 @@ function RedzNotify(Title, Text, Image, Time)
 end
 
 local Loader = {
-    Owner = "https://raw.githubusercontent.com/newredzv3/"
+    Owner = "https://raw.githubusercontent.com/PlockScripts/"
 }
 
 Loader.Repository = Loader.Owner .. "Scripts/main/"
@@ -2162,7 +2162,7 @@ function UpdateAuraESP()
     end
 end]]
 
-local redzlib = fetcher.load("{Owner}Library/refs/heads/main/Redz-V5-remake/main.luau")()
+local redzlib = fetcher.load("{Owner}Library/main/redz-V5-remake/main.luau")()
 function AutoHaki()
     local l_Character_0 = game:GetService("Players").LocalPlayer.Character
     if l_Character_0 and not l_Character_0:FindFirstChild("HasBuso") then
