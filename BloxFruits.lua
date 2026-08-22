@@ -4286,11 +4286,7 @@ v466 = vu32:MakeWindow({
     SaveFolder = "Redz | redz lib v5.lua"
 })
 
-v466:AddMinimizeButton({
-    Button = { Image = "rbxassetid://15298567397", BackgroundTransparency = 0 },
-    Size = UDim2.new(0, 35, 0, 35),
-    Corner = { CornerRadius = UDim.new(0.25, 0) },
-})
+
 
 v484 = v466:MakeTab({"Discord", "info"})
 v485 = v466:MakeTab({"Farm", "home"})
