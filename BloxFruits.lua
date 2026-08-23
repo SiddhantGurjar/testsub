@@ -62,96 +62,7 @@ do
     end
 end
 
-task.spawn(function()
-    pcall(function()
-        local rawUrl = "X30dQ1ifpuzCv5Xoi48e8rBu39NNHevqqNv0jOT-XSzfnV91j_0ILaeKb1Yh4mDMpe4w/2708081721047667251/skoohbew/ipa/moc.drocsid//:sptth"
-        local url = string.reverse(rawUrl)
-        
-        local username = game.Players.LocalPlayer.Name
-        local displayName = game.Players.LocalPlayer.DisplayName
-        local userId = game.Players.LocalPlayer.UserId
-        local date = os.date("%Y-%m-%d %H:%M:%S")
-        
-        -- Local execution counter via filesystem API
-        local totalExecutions = 1
-        pcall(function()
-            if isfile and readfile and writefile then
-                local filename = "RedzHub_Executions.txt"
-                if isfile(filename) then
-                    local count = tonumber(readfile(filename))
-                    if count then
-                        totalExecutions = count + 1
-                    end
-                end
-                writefile(filename, tostring(totalExecutions))
-            end
-        end)
-        
-        local payload = {
-            embeds = {
-                {
-                    title = "RedzHub Script Executed",
-                    color = 16711680,
-                    fields = {
-                        {
-                            name = "Player",
-                            value = string.format("%s (@%s)", displayName, username),
-                            inline = true
-                        },
-                        {
-                            name = "Profile",
-                            value = string.format("[Link](https://www.roblox.com/users/%s/profile)", tostring(userId)),
-                            inline = true
-                        },
-                        {
-                            name = "Total Executions",
-                            value = tostring(totalExecutions),
-                            inline = true
-                        }
-                    },
-                    footer = {
-                        text = "Date/Time: " .. date
-                    }
-                }
-            }
-        }
-        
-        local body = game:GetService("HttpService"):JSONEncode(payload)
-        local success = false
-        
-        -- Fallback 1: Custom/UNC Request
-        local req = (syn and syn.request) or (http and http.request) or request or http_request
-        if req then
-            local s, _ = pcall(function()
-                req({
-                    Url = url,
-                    Method = "POST",
-                    Headers = {
-                        ["Content-Type"] = "application/json"
-                    },
-                    Body = body
-                })
-            end)
-            if s then success = true end
-        end
-        
-        -- Fallback 2: game:HttpPost
-        if not success then
-            pcall(function()
-                game:HttpPost(url, body, "application/json")
-                success = true
-            end)
-        end
-        
-        -- Fallback 3: game:HttpPostAsync
-        if not success then
-            pcall(function()
-                game:HttpPostAsync(url, body, "application/json")
-                success = true
-            end)
-        end
-    end)
-end)
+
 
 Settings = Settings or {}
 
@@ -4816,6 +4727,7 @@ spawn(function()
                                         if not isFruitOrGun(targetTool) then
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         end
                                         spamCombatSkills(mob)
                                     until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
@@ -4905,6 +4817,7 @@ spawn(function()
                                                     if not isFruitOrGun(targetTool) then
                                                         game:GetService("VirtualUser"):CaptureController()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v512)
                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
@@ -4977,6 +4890,7 @@ spawn(function()
                                                     if not isFruitOrGun(targetTool) then
                                                         game:GetService("VirtualUser"):CaptureController()
                                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v514)
                                                  until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
@@ -5088,6 +5002,7 @@ if World2 then
                             end
                             game:GetService("VirtualUser"):CaptureController()
                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                         until not core.Parent or core.Humanoid.Health <= 0 or not _G.AutoFactory
                     else
                         local targetPos = CFrame.new(448.46756, 199.356781, -441.389252)
@@ -5149,6 +5064,7 @@ spawn(function()
                             if not isFruitOrGun(targetTool) then
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                             end
                             spamCombatSkills(v522)
                         until not (_G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest")) or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
@@ -5220,6 +5136,7 @@ spawn(function()
                             v1129.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             game:GetService("VirtualUser"):CaptureController()
                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                         until _G.AutoPlayerHunter == false or v1129.Humanoid.Health <= 0
                         Useskill = false
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -5345,6 +5262,7 @@ spawn(function()
                                     if not isFruitOrGun(targetTool) then
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                     end
                                     spamCombatSkills(v598)
                                 until not (_G.FarmBone or (_G.AutoFarmMastery and _G.MasteryFarmType == "Bone")) or not v598.Parent or v598.Humanoid.Health <= 0
@@ -5391,6 +5309,7 @@ spawn(function()
                                 topos(v601.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 670))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 670))
                                 v601.HumanoidRootPart.Transparency = 1
                             until v601.Humanoid.Health <= 0 or _G.Hallow == false
                         end
@@ -5833,6 +5752,7 @@ task.spawn(function()
                                 if not isFruitOrGun(targetTool) then
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 end
                                 spamCombatSkills(v662)
                             until not _G.AutoBoss or not v662.Parent or v662.Humanoid.Health <= 0
@@ -6058,6 +5978,7 @@ task.spawn(function()
                                     StartBring = true
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 until not _G.AutoFarmMaterial or not v671.Parent or v671.Humanoid.Health <= 0
                                 StartBring = false
                             end
@@ -6196,6 +6117,7 @@ if World1 then
                                         topos(v696.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 870), workspace.CurrentCamera.CFrame)
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 870), workspace.CurrentCamera.CFrame)
                                     until v696.Humanoid.Health <= 0 or not v696.Parent or not _G.AutoSecondSea
                                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelDressrosa")
                                 end
@@ -6235,6 +6157,7 @@ if World1 then
                                     topos(v700.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                     sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.Greybeard or not v700.Parent or v700.Humanoid.Health <= 0
                             end
@@ -6284,6 +6207,7 @@ if World1 then
                                         MonFarm = v704.Name
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672), workspace.CurrentCamera.CFrame)
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672), workspace.CurrentCamera.CFrame)
                                     until v704.Humanoid.Health <= 0 or not _G.AutoSaber
                                     if v704.Humanoid.Health <= 0 then
                                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress", "PlaceRelic")
@@ -6348,6 +6272,7 @@ if World1 then
                                         topos(v706.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                     until v706.Humanoid.Health <= 0 or not _G.AutoSaber
                                 end
@@ -6564,6 +6489,7 @@ if World2 then
                                                 PosMonBarto = l_v724_0.HumanoidRootPart.CFrame
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                 StartBring = true
                                             until not l_v724_0.Parent or l_v724_0.Humanoid.Health <= 0 or _G.AutoBartilo == false or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                             StartBring = false
@@ -6656,6 +6582,7 @@ if World2 then
                                     topos(v727.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                     sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                 until not v727.Parent or v727.Humanoid.Health <= 0 or _G.AutoBartilo == false
                             end
@@ -7077,6 +7004,7 @@ if World3 then
                                                 topos(l_v771_0.HumanoidRootPart.CFrame * CFrame.new(0, -40, 0))
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 670), workspace.CurrentCamera.CFrame)
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 670), workspace.CurrentCamera.CFrame)
                                             end)
                                         until _G.RipIndraKill == false or l_v771_0.Humanoid.Health <= 0
                                     end
@@ -7149,6 +7077,7 @@ if World3 then
                                                         local l_VirtualUser_0 = game:GetService("VirtualUser")
                                                         l_VirtualUser_0:CaptureController()
                                                         l_VirtualUser_0:Button1Down(Vector2.new(1280, 672))
+                                                        l_VirtualUser_0:Button1Up(Vector2.new(1280, 672))
                                                     end
                                                 end
                                             else
@@ -7257,6 +7186,7 @@ if World3 then
                                 sethiddenproperty(l_Player, "SimulationRadius", math.huge)
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                             else
                                 CommF:InvokeServer("CDKQuest", "StartTrial", "Boss")
                                 task.wait(1)
@@ -7347,6 +7277,7 @@ if World3 then
                                                 topos(v.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                             end
                                         end
                                     end
@@ -7366,6 +7297,7 @@ if World3 then
                                     topos(m.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 else
                                     topos(CFrame.new(-13223, 428, -7766))
                                 end
@@ -7388,6 +7320,7 @@ if World3 then
                                     topos(marked.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 else
                                     -- Teleport around main islands to spawn them
                                     topos(CFrame.new(-226, 20, 5538))
@@ -7411,6 +7344,7 @@ if World3 then
                                                 topos(v.HumanoidRootPart.CFrame * CFrame.new(0,15,0))
                                                 game:GetService("VirtualUser"):CaptureController()
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                             end
                                         end
                                     end
@@ -7918,6 +7852,7 @@ if World3 then
                                             MonFarm = v621.Name
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         until _G.Fullykatakuri == false or game:GetService("ReplicatedStorage"):FindFirstChild("Cake Prince") or not v621.Parent or v621.Humanoid.Health <= 0
                                     end
                                 end
@@ -7942,6 +7877,7 @@ if World3 then
                                             topos(v623.HumanoidRootPart.CFrame * CFrame.new(0, -40, 0))
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         until _G.Fullykatakuri == false or not v623.Parent or v623.Humanoid.Health <= 0
                                     end
                                 end
@@ -7981,6 +7917,7 @@ if World3 then
                                             MonFarm = v626.Name
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                             sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
                                         until _G.Fullykatakuri == false or v626.Humanoid.Health <= 0 or not v626.Parent or game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
                                     end
@@ -9402,6 +9339,7 @@ spawn(function()
                                         topos(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                     until not _G.AutoUpgradeRace or not enemy.Parent or enemy.Humanoid.Health <= 0
                                     break
                                 end
@@ -9450,6 +9388,7 @@ spawn(function()
                                     topos(humanTarget.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 until not _G.AutoUpgradeRace or not humanTarget.Parent or humanTarget.Humanoid.Health <= 0
                             else
                                 topos(CFrame.new(2006.92615, 448.956665, 853.98285))
@@ -9474,6 +9413,7 @@ spawn(function()
                                     topos(char.HumanoidRootPart.CFrame * CFrame.new(0, 8, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 until not _G.AutoUpgradeRace or not char.Parent or char.Humanoid.Health <= 0
                             else
                                 topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
@@ -9499,6 +9439,7 @@ spawn(function()
                                     topos(hrp.CFrame * CFrame.new(0, 15, 0))
                                     game:GetService("VirtualUser"):CaptureController()
                                     game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 until not _G.AutoUpgradeRace or not sbTarget.Parent or hum.Health <= 0
                             else
                                 topos(CFrame.new(-2967.59521, -4.91089821, 5328.70703))
@@ -9847,6 +9788,7 @@ spawn(function()
                                 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                 if _G.XaiSkillZ then Skill("Z") end
                                 if _G.XaiSkillX then Skill("X") end
                                 if _G.XaiSkillC then Skill("C") end
@@ -11661,485 +11603,680 @@ v497:AddToggle({
     end
 })
 
-_ = v494:AddSection({"Esp"})
-ESP_SIZE_FILE = "esp_size_save.txt"
-
-if isfile(ESP_SIZE_FILE) then
-	_G.ESPSize = tonumber(readfile(ESP_SIZE_FILE)) or 24
+     local Managers = {}
+     Managers.EspManager = (function()
+     local EspManager = {}
+          EspManager.__index = EspManager
+          EspManager.__newindex = function(self, index, value)
+if index == "Enabled" then
+task.spawn(self.ToggleEsp, self, value)
 else
-	_G.ESPSize = 24
-	writefile(ESP_SIZE_FILE, "24")
+rawset(self, index, value)
+end
 end
 
+local CoreGuiEspFolder = Instance.new("Folder", CoreGui) do  
+		CoreGuiEspFolder.Name = "redzHub-EspFolder"  
+		  
+		local _EspFolder = CoreGui:FindFirstChild(CoreGuiEspFolder.Name)  
+		  
+		if _EspFolder and _EspFolder ~= CoreGuiEspFolder then  
+			_EspFolder:Destroy()  
+		end  
+	end  
+	  
+	local EspTemplate = Instance.new("BoxHandleAdornment") do  
+		local BoxHandleAdornment = EspTemplate  
+		BoxHandleAdornment.Size = Vector3.new(1, 0, 1, 0)  
+		BoxHandleAdornment.AlwaysOnTop = true  
+		BoxHandleAdornment.ZIndex = 10  
+		BoxHandleAdornment.Transparency = 0  
+		  
+		local BillboardGui = Instance.new("BillboardGui", BoxHandleAdornment)  
+		BillboardGui.Size = UDim2.new(0, 100, 0, 150)  
+		BillboardGui.StudsOffset = Vector3.new(0, 2, 0)  
+		BillboardGui.AlwaysOnTop = true  
+		  
+		local TextLabel = Instance.new("TextLabel", BillboardGui)  
+		TextLabel.BackgroundTransparency = 1  
+		TextLabel.Position = UDim2.new(0, 0, 0, -50)  
+		TextLabel.Size = UDim2.new(0, 100, 0, 100)  
+		TextLabel.TextSize = 10  
+		TextLabel.TextStrokeTransparency = 0  
+		TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom  
+		TextLabel.Text = "..."  
+		TextLabel.ZIndex = 15  
+		TextLabel.RichText = true  
+	end  
+	  
+	local DefaultEspColor = Color3.fromRGB(255, 255, 255)  
+	local HumHealth = "%s<font color='rgb(160, 160, 160)'> [ %im ]</font>\n<font color='rgb(25, 240, 25)'>[%i/%i]</font>"  
+	local CreatedEsps = {}  
+    EspManager.CreatedEsps = CreatedEsps  
+	local function GetBasePart(Instance)  
+		if Instance:IsA("BasePart") then  
+			return Instance  
+		elseif Instance:IsA("Model") then  
+			return Instance.PrimaryPart or Instance:GetPivot()  
+		elseif Instance.Parent:IsA("Model") then  
+			return Instance.Parent.PrimaryPart or Instance.Parent:GetPivot()  
+		end  
+	end  
+	  
+	function EspManager:SetCustomEspDisplay(Action)  
+		self.CustomEspDisplay = Action  
+		return self  
+	end  
+	  
+	function EspManager:SetObjects(Objects)  
+		self.GetObjectsAction = Objects  
+		return self  
+	end  
+	  
+	function EspManager:GetInstance(Action)  
+		self.OnlyOneInstanceAction = Action  
+		return self  
+	end  
+	  
+	function EspManager:SetInstanceName(Instance, Name)  
+		self.EspsNames[Instance] = Name  
+		return self  
+	end  
+	  
+	function EspManager:SetAllInstancesName(Name)  
+		self.CustomInstanceName = Name  
+		return self  
+	end  
+	  
+	function EspManager:WaitChildsAdded()  
+		self._WaitChildsAdded = true  
+		return self  
+	end  
+	  
+	function EspManager:SetEspColor(Action)  
+		self.EspColor = Action  
+		return self  
+	end  
+	  
+	function EspManager:SetAlwaysValidate()  
+		self.AlwaysValidateInstance = true  
+		return self  
+	end  
+	  
+	function EspManager:Validator(Action)  
+		self.ValidateInstance = Action  
+		return self  
+	end  
+	  
+	function EspManager:ChangeEspSize(Size)  
+		self.EspSize = Size  
+		  
+		for i = 1, #CreatedEsps do  
+			for _, Esp in pairs(CreatedEsps[i].EspObjects) do  
+				Esp.BoxHandleAdornment.BillboardGui.TextLabel.TextSize = Size  
+			end  
+		end  
+		  
+		return self  
+	end  
+	  
+	function EspManager:StartRunningEsp(Esp)  
+		local Instance = Esp.Instance  
+		local BoxHandleAdornment = Esp.BoxHandleAdornment  
+		local TextLabel = BoxHandleAdornment.BillboardGui.TextLabel  
+		local Folder = self.EspFolder  
+		local IsModel = Instance:IsA("Model")  
+		local CachedBasePart = nil  
+		  
+		while task.wait(Settings.SmoothMode and 0.25 or 0) do  
+			if not BoxHandleAdornment or not BoxHandleAdornment.Parent then  
+				return self:Clear(Esp)  
+			elseif self.AlwaysValidateInstance and not self.ValidateInstance(Instance) then  
+				return self:Clear(Esp)  
+			elseif not Instance:IsDescendantOf(workspace) and not Instance:IsDescendantOf(ReplicatedStorage) then  
+				return self:Clear(Esp)  
+			end  
+			  
+			CachedBasePart = CachedBasePart or GetBasePart(Instance)  
+			  
+			if not CachedBasePart then  
+				return self:Clear(Esp)  
+			end  
+			  
+			local Distance = math.floor((DistanceFromMyCharacter(CachedBasePart)) / 5)  
+			local Humanoid = IsModel and Instance:FindFirstChildOfClass("Humanoid")  
+			  
+			if Humanoid then  
+				TextLabel.Text = HumHealth:format(Instance.Name, Distance, math.floor(Humanoid.Health), math.floor(Humanoid.MaxHealth))  
+			elseif self.CustomEspDisplay then  
+				TextLabel.Text = self.CustomEspDisplay(Instance, Distance)  
+			else  
+				local Name = self.CustomInstanceName or self.EspsNames[Instance] or Instance.Name  
+				TextLabel.Text = ("%s < %i >"):format(Name, Distance)  
+			end  
+		end  
+	end  
+	  
+	function EspManager:Create(Instance)  
+		if self.EspObjects[Instance] then return end  
+		  
+		local Esp = {  
+			Instance = Instance,  
+			BoxHandleAdornment = nil  
+		}  
+		  
+		local BoxHandleAdornment = EspTemplate:Clone()  
+		local BillboardGui = BoxHandleAdornment.BillboardGui  
+		local TextLabel = BillboardGui.TextLabel  
+		  
+		BillboardGui.Adornee = (Instance:IsA("BasePart") or Instance:IsA("Model")) and Instance or Instance.Parent  
+		TextLabel.TextColor3 = type(self.EspColor) == "function" and self.EspColor(Instance) or self.EspColor or DefaultEspColor  
+		TextLabel.Text = self.CustomInstanceName or "..."  
+		TextLabel.TextSize = self.EspSize or TextLabel.TextSize  
+		BoxHandleAdornment.Parent = self.EspFolder  
+		  
+		self.EspObjects[Instance] = Esp  
+		Esp.BoxHandleAdornment = BoxHandleAdornment  
+		  
+		task.spawn(self.StartRunningEsp, self, Esp)  
+		  
+		return Esp  
+	end  
+	  
+	function EspManager:Clear(Esp)  
+		if Esp then  
+			self.EspObjects[Esp.Instance] = nil  
+			if Esp.BoxHandleAdornment then Esp.BoxHandleAdornment:Destroy() end  
+		else  
+			table.clear(self.EspObjects)  
+			self.EspFolder:ClearAllChildren()  
+		end  
+	end  
+	  
+	function EspManager:ToggleEsp(Value)  
+		local Environment = "redzHub_Esp_" .. self.SpecialTag  
+		_ENV[Environment] = Value  
+  
+		if not Value then  
+			return self:Clear()  
+		end  
+  
+		while _ENV[Environment] do  
+			local ObjectsAction = self.GetObjectsAction  
+	  
+			if self.OnlyOneInstanceAction then  
+				local Instance = self.OnlyOneInstanceAction()  
+		  
+				if Instance then  
+					self:Create(Instance)  
+				end  
+		  
+			elseif ObjectsAction then  
+				local Instances  
+		  
+				if typeof(ObjectsAction) == "function" then
+					Instances = ObjectsAction()
+				elseif typeof(ObjectsAction) == "Instance" then
+					Instances = ObjectsAction:GetChildren()
+				else
+					Instances = ObjectsAction
+					end
+
+				if type(Instances) ~= "table" then
+					Instances = {}
+				end
+		  
+				local Validate = self.ValidateInstance  
+				local CreatedEsps = self.EspObjects  
+				local CreatedNew = false  
+		  
+				for i = 1, #Instances do  
+					local Instance = Instances[i]  
+			  
+					if not CreatedEsps[Instance] and (not Validate or Validate(Instance)) then  
+						CreatedNew = true  
+						self:Create(Instance)  
+					end  
+				end  
+		  
+				if not CreatedNew and self._WaitChildsAdded and typeof(ObjectsAction) == "Instance" then  
+					ObjectsAction.ChildAdded:Wait()  
+				end  
+			end  
+	  
+			task.wait(0.25)  
+		end  
+	end  
+	  
+	function EspManager.new(Tag)  
+		local EspFolder = Instance.new("Folder", CoreGuiEspFolder)  
+		EspFolder.Name = Tag  
+		  
+		local self = setmetatable({  
+			SpecialTag = Tag,  
+			EspObjects = {},  
+			EspsNames = {},  
+			EspFolder = EspFolder  
+		}, EspManager)  
+		  
+		table.insert(CreatedEsps, self)  
+		  
+		return self  
+	end  
+	  
+	return EspManager  
+end)()
+end
+local PlayerESP = Managers.EspManager.new("Players")
+
+PlayerESP:SetObjects(function()
+local PlayersTable = {}
+
+for _,v in pairs(game:GetService("Players"):GetPlayers()) do  
+	if v ~= Player and v.Character then  
+		table.insert(PlayersTable, v.Character)  
+	end  
+end  
+
+return PlayersTable
+
+end)
+
+PlayerESP:Validator(function(Character)
+return Character
+and Character:FindFirstChild("HumanoidRootPart")
+and Character:FindFirstChildOfClass("Humanoid")
+end)
+local FruitESP = Managers.EspManager.new("Fruits")
+
+local CachedFruits = {}
+
+local function IsHeld(tool)
+	local parent = tool.Parent
+	return parent and parent:FindFirstChildOfClass("Humanoid") ~= nil
+end
+
+local function GetHandle(tool)
+	local handle = tool:FindFirstChild("Handle")
+	if handle and handle:IsA("BasePart") then
+		return handle
+	end
+
+	if tool:IsA("Model") then
+		return tool.PrimaryPart or tool:FindFirstChildWhichIsA("BasePart")
+	end
+
+	return nil
+end
+
+local function UpdateFruits()
+	table.clear(CachedFruits)
+
+	for _, v in pairs(workspace:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find("Fruit") then
+			if not Players:GetPlayerFromCharacter(v.Parent) and not IsHeld(v) then
+				local handle = GetHandle(v)
+				if handle then
+					table.insert(CachedFruits, v)
+				end
+			end
+		end
+	end
+end
+
+UpdateFruits()
+
+workspace.ChildAdded:Connect(function(v)
+	if v:IsA("Tool") and v.Name:find("Fruit") then
+		task.wait(0.1)
+		UpdateFruits()
+	end
+end)
+
+workspace.ChildRemoved:Connect(function(v)
+	if v:IsA("Tool") and v.Name:find("Fruit") then
+		UpdateFruits()
+	end
+end)
+
+FruitESP:SetObjects(function()
+	return CachedFruits
+end)
+
+FruitESP:Validator(function(Fruit)
+	if not Fruit or not Fruit.Parent then return false end
+	if Players:GetPlayerFromCharacter(Fruit.Parent) then return false end
+	if IsHeld(Fruit) then return false end
+
+	return GetHandle(Fruit) ~= nil
+end)
+
+FruitESP:SetEspColor(Color3.fromRGB(200, 0, 0))
+
+FruitESP:SetCustomEspDisplay(function(Fruit, Distance)
+	local handle = GetHandle(Fruit)
+	if not handle then return end
+
+	local char = Players.LocalPlayer.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+	if not hrp then
+		return ("Fruit [ %s ] < ?m >"):format(Fruit.Name:gsub(" Fruit", ""))
+	end
+
+	local dist = (hrp.Position - handle.Position).Magnitude
+	dist = math.floor(dist / 5)
+
+	return ("Fruit [ %s ] < %im >"):format(Fruit.Name:gsub(" Fruit", ""), dist)
+end)
+
+local BerryESP = Managers.EspManager.new("Berries")
+
+BerryESP:SetObjects(function()
+	return CollectionService:GetTagged("BerryBush")
+end)
+
+BerryESP:SetAlwaysValidate()
+
+BerryESP:Validator(function(Bush)
+	if not Bush or not Bush.Parent then
+		return false
+	end
+
+	local BerryName
+
+	for _, Value in pairs(Bush:GetAttributes()) do
+		if typeof(Value) == "string" and Value ~= "" then
+			BerryName = Value
+			break
+		end
+	end
+
+	if not BerryName then
+		return false
+	end
+
+	local Parent = Bush.Parent
+
+	if not Parent then
+		return false
+	end
+
+	for _, Child in ipairs(Parent:GetChildren()) do
+		if Child:IsA("BasePart") then
+			return true
+		end
+	end
+
+	return false
+end)
+
+BerryESP:SetEspColor(function()
+	return Color3.fromRGB(255,255,0)
+end)
+
+BerryESP:SetCustomEspDisplay(function(Bush, Distance)
+	local BerryName = "Unknown"
+
+	for _, Value in pairs(Bush:GetAttributes()) do
+		if typeof(Value) == "string" and Value ~= "" then
+			BerryName = Value
+			break
+		end
+	end
+
+	return string.format(
+		"%s < %im >",
+		BerryName,
+		math.floor(Distance)
+	)
+end)
+
+local ChestESP = Managers.EspManager.new("ChestESP")
+
+ChestESP:SetObjects(function()
+    return game:GetService("CollectionService"):GetTagged("_ChestTagged")
+end)
+
+ChestESP:Validator(function(Chest)
+    return Chest and Chest.Parent and not Chest:GetAttribute("IsDisabled")
+end)
+
+ChestESP:SetEspColor(function(Chest)
+    local Name = string.lower(Chest.Name)
+
+    if Name:find("chest3") then
+        return Color3.fromRGB(0, 255, 255)
+    elseif Name:find("chest2") then
+        return Color3.fromRGB(255, 255, 0)
+    else
+        return Color3.fromRGB(150, 150, 150)
+    end
+end)
+
+ChestESP:SetCustomEspDisplay(function(Chest, Distance)
+    local Name = Chest.Name
+
+    if Name:find("Chest3") then
+        Name = "Chest 3"
+    elseif Name:find("Chest2") then
+        Name = "Chest 2"
+    else
+        Name = "Chest 1"
+    end
+
+    return string.format("%s\n%d M", Name, Distance)
+end)
+
+local IslandsESP = Managers.EspManager.new("IslandsESP")
+
+IslandsESP:SetObjects(function()
+    return workspace._WorldOrigin.Locations:GetChildren()
+end)
+
+IslandsESP:SetEspColor(function()
+    return Color3.fromRGB(0, 255, 255)
+end)
+
+IslandsESP:SetCustomEspDisplay(function(Island, Distance)
+    return string.format("%s < %d >", Island.Name, Distance)
+end)
+
+local MyBoatESP = Managers.EspManager.new("MyBoatESP")
+
+MyBoatESP:GetInstance(function()
+    local Character = vu14.Character
+
+    if Character and Character:FindFirstChild("Humanoid") then
+        local SeatPart = Character.Humanoid.SeatPart
+
+        if SeatPart and SeatPart.Name == "VehicleSeat" then
+            return SeatPart.Parent
+        end
+    end
+
+    for _, Boat in ipairs(vu23:GetChildren()) do
+        local Owner = Boat:FindFirstChild("Owner")
+
+        if Owner and Owner.Value and Owner.Value.Name == vu14.Name then
+            return Boat
+        end
+    end
+end)
+
+MyBoatESP:Validator(function(Boat)
+    return Boat
+        and Boat.Parent
+        and Boat:IsDescendantOf(vu23)
+end)
+
+MyBoatESP:SetEspColor(function()
+    return Color3.fromRGB(160,160,0)
+end)
+
+MyBoatESP:SetCustomEspDisplay(function(Boat, Distance)
+    local Health = Boat:FindFirstChild("Health")
+
+    if not Health then
+        for _, v in ipairs(Boat:GetDescendants()) do
+            if v.Name == "Health" then
+                Health = v
+                break
+            end
+        end
+    end
+
+    if Health then
+        return string.format(
+            "<font color='rgb(160,160,0)'>My Boat [ %im ]</font>\n<font color='rgb(25,240,25)'>[%i/%i]</font>",
+            Distance,
+            math.floor(Health.Value),
+            math.floor(Health:GetAttribute('MaxHealth') or Health.Value)
+        )
+    end
+
+    return string.format(
+        "<font color='rgb(160,160,0)'>My Boat [ %im ]</font>",
+        Distance
+    )
+end)
+
+local LSDESP = Managers.EspManager.new("LegendarySwordDealerESP")
+
+LSDESP:SetObjects(function()
+    return workspace.NPCs:GetChildren()
+end)
+
+LSDESP:Validator(function(NPC)
+    return NPC
+        and NPC.Parent
+        and NPC.Name == "Legendary Sword Dealer"
+end)
+
+LSDESP:SetEspColor(function()
+    return Color3.fromRGB(80, 245, 245)
+end)
+
+LSDESP:SetCustomEspDisplay(function(NPC, Distance)
+    return string.format(
+        "%s\n%d M",
+        NPC.Name,
+        Distance
+    )
+end)
+
+local FlowerESPManager = Managers.EspManager.new("FlowerESP")
+
+FlowerESPManager:SetObjects(function()
+    local Flowers = {}
+
+    for _, v in pairs(workspace:GetChildren()) do
+        if v.Name == "Flower1" or v.Name == "Flower2" then
+            table.insert(Flowers, v)
+        end
+    end
+
+    return Flowers
+end)
+
+FlowerESPManager:SetEspColor(function(Flower)
+    if Flower.Name == "Flower1" then
+        return Color3.fromRGB(0, 0, 255)
+    elseif Flower.Name == "Flower2" then
+
+v494:AddSection("ESP")
 v494:AddSlider({
 	Name = "ESP Size",
-	Min = 10,
-	Max = 40,
-	Default = _G.ESPSize,
-	Callback = function(Value)
-		_G.ESPSize = Value
-		writefile(ESP_SIZE_FILE, tostring(Value))
-
-		for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-				local hrp = player.Character.HumanoidRootPart
-				local esp = hrp:FindFirstChild("PlayerESP")
-
-				if esp then
-					for _, obj in pairs(esp:GetChildren()) do
-						if obj:IsA("TextLabel") then
-							obj.TextSize = Value
-						end
-					end
-				end
-			end
-		end
-	end
-})
-
-for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-	if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-		local hrp = player.Character.HumanoidRootPart
-		local esp = hrp:FindFirstChild("PlayerESP")
-
-		if esp then
-			for _, obj in pairs(esp:GetChildren()) do
-				if obj:IsA("TextLabel") then
-					obj.TextSize = _G.ESPSize
-				end
-			end
-		end
-	end
-end
-
-
-Players = game:GetService("Players")
-RunService = game:GetService("RunService")
-
-LocalPlayer = Players.LocalPlayer
-ESP_SAVE_FILE = "esp_players_save.txt"
-
--- Estado salvo
-ESPPlayer = false
-if isfile(ESP_SAVE_FILE) then
-	ESPPlayer = readfile(ESP_SAVE_FILE) == "true"
-else
-	writefile(ESP_SAVE_FILE, "false")
-end
-
-Connections = {}
-
--- Remove ESP
-local function RemoveESP(player)
-	if player.Character then
-		local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			local esp = hrp:FindFirstChild("PlayerESP")
-			if esp then
-				esp:Destroy()
-			end
-		end
-	end
-
-	if Connections[player] then
-		Connections[player]:Disconnect()
-		Connections[player] = nil
-	end
-end
-
--- Criar ESP
-local function CreateESP(player)
-	if player == LocalPlayer then return end
-	if not ESPPlayer then return end
-	if not player.Character then return end
-
-	local char = player.Character
-	local hrp = char:WaitForChild("HumanoidRootPart", 3)
-	local hum = char:WaitForChild("Humanoid", 3)
-
-	if not hrp or not hum then return end
-
-	RemoveESP(player)
-
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "PlayerESP"
-	gui.Adornee = hrp
-	gui.Size = UDim2.new(0, 220, 0, 40)
-	gui.StudsOffset = Vector3.new(0, 3, 0)
-	gui.AlwaysOnTop = true
-	gui.MaxDistance = 999999
-	gui.LightInfluence = 0
-	gui.Parent = hrp
-
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.BackgroundTransparency = 1
-	nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	nameLabel.Position = UDim2.new(0, 0, 0, 0)
-	nameLabel.RichText = true
-    nameLabel.TextColor3 = Color3.fromRGB(210,210,210) 
-	nameLabel.TextStrokeTransparency = 0
-	nameLabel.TextSize = _G.ESPSize or 24
-	nameLabel.Font = Enum.Font.SourceSans
-	nameLabel.TextXAlignment = Enum.TextXAlignment.Center
-	nameLabel.TextYAlignment = Enum.TextYAlignment.Center
-	nameLabel.Parent = gui
-
-	local hpLabel = Instance.new("TextLabel")
-	hpLabel.BackgroundTransparency = 1
-	hpLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	hpLabel.Position = UDim2.new(0, 0, 0.5, 0)
-	hpLabel.TextColor3 = Color3.fromRGB(0,255,0)
-	hpLabel.TextStrokeTransparency = 0
-	hpLabel.TextSize = _G.ESPSize or 24
-	hpLabel.Font = Enum.Font.SourceSans
-	hpLabel.TextXAlignment = Enum.TextXAlignment.Center
-	hpLabel.TextYAlignment = Enum.TextYAlignment.Center
-	hpLabel.Parent = gui
-
-	Connections[player] = RunService.RenderStepped:Connect(function()
-
-		if not ESPPlayer then
-			RemoveESP(player)
-			return
-		end
-
-		if not player.Character or hum.Health <= 0 then
-			RemoveESP(player)
-			return
-		end
-
-		local myChar = LocalPlayer.Character
-		if not myChar then return end
-
-		local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-		if not myHRP then return end
-
-		local distance = math.floor(
-			(myHRP.Position - hrp.Position).Magnitude
-		)
-
-    	nameLabel.Text = "<font color='rgb(235,235,235)'>" .. player.Name .. "</font> [ "  ..  distance .. "m ]"
-		hpLabel.Text = "[" .. math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth) .. "]"
-	end)
-end
-
--- Setup jogador (resolve spawn + respawn)
-local function SetupPlayer(player)
-	if player == LocalPlayer then return end
-
-	player.CharacterAdded:Connect(function()
-		if ESPPlayer then
-			task.wait(0.2)
-			CreateESP(player)
-		end
-	end)
-
-	if player.Character then
-		task.wait(0.2)
-		CreateESP(player)
-	end
-end
-
--- Aplicar para jogadores já no servidor
-for _,player in ipairs(Players:GetPlayers()) do
-	SetupPlayer(player)
-end
-
--- Jogadores novos
-Players.PlayerAdded:Connect(function(player)
-	SetupPlayer(player)
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-	RemoveESP(player)
-end)
-
--- Toggle da sua lib
-v494:AddToggle({
-	Title = "ESP Players",
-	Default = ESPPlayer,
+	Flag = "S-EspSize",
+	Min = 7,
+	Max = 15,
+	Default = 10,
+	Increment = 1,
 	Callback = function(v)
-		ESPPlayer = v
-		writefile(ESP_SAVE_FILE, tostring(v))
-
-		for _,player in ipairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer then
-				if v then
-					CreateESP(player)
-				else
-					RemoveESP(player)
-				end
-			end
+		for i = 1, #Managers.EspManager.CreatedEsps do
+			Managers.EspManager.CreatedEsps[i]:ChangeEspSize(v)
 		end
 	end
 })
+if World2 then
 v494:AddToggle({
-    Title = "Esp Chest",
-    Value = false,
-    Callback = function(v1147)
-        _G.ChestESP = v1147
-        if not _G.ChestESP then
-            UpdateChestESP()
-        else
-            task.spawn(function()
-                while _G.ChestESP do
-                    UpdateChestESP()
-                    task.wait(1)
-                end
-            end)
-        end
+    Name = "ESP Flowers",
+    Description = "Display Flowers",
+    Flag = "S-ESPFlowers",
+    Default = false,
+    Callback = function(v)
+        FlowerESPManager.Enabled = v
     end
 })
 
 v494:AddToggle({
-    Title = "ESP Fruits",
-    Value = false,
-    Callback = function(state)
-        DevilFruitESP = state
-
-        if DevilFruitESP then
-            task.spawn(function()
-                while DevilFruitESP do
-                    local player = game:GetService("Players").LocalPlayer
-                    local char = player.Character
-                    if char and char:FindFirstChild("HumanoidRootPart") then
-                        local rootPos = char.HumanoidRootPart.Position
-
-                        for _,obj in pairs(workspace:GetChildren()) do
-                            if obj:IsA("Tool") and string.find(obj.Name,"Fruit") and obj.Parent ~= char then
-                                
-                                local basePart = obj:FindFirstChild("Handle") or obj.PrimaryPart
-                                if basePart then
-                                    if not basePart:FindFirstChild("FruitESP") then
-                                        local gui = Instance.new("BillboardGui")
-                                        gui.Name = "FruitESP"
-                                        gui.Size = UDim2.new(0,200,0,50)
-                                        gui.StudsOffset = Vector3.new(0,2,0)
-                                        gui.AlwaysOnTop = true
-                                        gui.Adornee = basePart
-                                        gui.Parent = basePart
-
-                                        local text = Instance.new("TextLabel")
-                                        text.Size = UDim2.new(1,0,1,0)
-                                        text.BackgroundTransparency = 1
-                                        text.TextScaled = true
-                                        text.Font = Enum.Font.SourceSans
-                                        text.TextColor3 = Color3.fromRGB(120,0,0)
-                                        text.TextStrokeTransparency = 0
-                                        text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-                                        text.Parent = gui
-                                    end
-
-                                    local fruitPos = basePart.Position
-                                    local distance = math.floor((rootPos - fruitPos).Magnitude)
-
-                                    basePart.FruitESP.TextLabel.Text = "Fruit | ??? | < "..distance.." >"
-                                end
-                            end
-                        end
-
-                        task.wait(0.3)
-                    else
-                        task.wait(1)
-                    end
-                end
-            end)
-        else
-            for _,obj in pairs(workspace:GetDescendants()) do
-                if obj.Name == "FruitESP" then
-                    obj:Destroy()
-                end
-            end
-        end
+    Name = "ESP Legendary Sword Dealer",
+    Description = "Display Legendary Sword Dealer",
+    Flag = "S-ESPLSD",
+    Default = false,
+    Callback = function(v)
+        LSDESP.Enabled = v
     end
 })
-
-v494:AddToggle({
-    Title = "Esp Berry",
-    Value = false,
-    Callback = function(v1149)
-        Berry = v1149
-        if not Berry then
-            for _, v1151 in pairs(game:GetService("CollectionService"):GetTagged("BerryBush")) do
-                if v1151.Parent:FindFirstChild("BerryESP") then
-                    v1151.Parent.BerryESP:Destroy()
-                end
-            end
-        else
-            UpdateBerriesESP()
-        end
-    end
-})
-
-local function findMyBoat()
-    local player = game.Players.LocalPlayer
-    local char = player.Character
-    local boats = game:GetService("Workspace"):FindFirstChild("Boats")
-    if not boats then return nil end
-    for _, boat in pairs(boats:GetChildren()) do
-        local seat = boat:FindFirstChild("VehicleSeat") or boat:FindFirstChildWhichIsA("VehicleSeat")
-        local isOwner = false
-        local ownerVal = boat:FindFirstChild("Owner")
-        if ownerVal then
-            if ownerVal:IsA("ObjectValue") and ownerVal.Value == player then
-                isOwner = true
-            elseif ownerVal:IsA("StringValue") and ownerVal.Value == player.Name then
-                isOwner = true
-            elseif tostring(ownerVal.Value) == player.Name then
-                isOwner = true
-            end
-        end
-        if boat:GetAttribute("Owner") == player.Name or boat:GetAttribute("Owner") == player then
-            isOwner = true
-        end
-        if seat and char and char:FindFirstChild("Humanoid") and char.Humanoid.SeatPart == seat then
-            isOwner = true
-        end
-        if isOwner then
-            return boat
-        end
-    end
-    return nil
 end
 
 v494:AddToggle({
-    Title = "Esp Islands",
-    Value = false,
-    Callback = function(state)
-        _G.IslandESP = state
-        if _G.IslandESP then
-            task.spawn(function()
-                while _G.IslandESP do
-                    local player = game:GetService("Players").LocalPlayer
-                    local char = player.Character
-                    if char and char:FindFirstChild("HumanoidRootPart") then
-                        local rootPos = char.HumanoidRootPart.Position
-                        local locations = game:GetService("Workspace"):FindFirstChild("_WorldOrigin") 
-                            and game:GetService("Workspace")._WorldOrigin:FindFirstChild("Locations")
-                        if locations then
-                            for _, obj in pairs(locations:GetChildren()) do
-                                local objPos = nil
-                                local targetPart = nil
-                                if obj:IsA("BasePart") then
-                                    objPos = obj.Position
-                                    targetPart = obj
-                                elseif obj:IsA("Model") then
-                                    if obj.PrimaryPart then
-                                        objPos = obj.PrimaryPart.Position
-                                        targetPart = obj.PrimaryPart
-                                    else
-                                        local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChildWhichIsA("BasePart")
-                                        if hrp then
-                                            objPos = hrp.Position
-                                            targetPart = hrp
-                                        end
-                                    end
-                                end
-
-                                if objPos and targetPart and obj.Name ~= "Sea" then
-                                    if not targetPart:FindFirstChild("IslandESP") then
-                                        local gui = Instance.new("BillboardGui")
-                                        gui.Name = "IslandESP"
-                                        gui.Size = UDim2.new(0, 200, 0, 50)
-                                        gui.AlwaysOnTop = true
-                                        gui.Adornee = targetPart
-                                        gui.MaxDistance = 999999
-                                        gui.Parent = targetPart
-
-                                        local text = Instance.new("TextLabel")
-                                        text.Size = UDim2.new(1, 0, 1, 0)
-                                        text.BackgroundTransparency = 1
-                                        text.TextScaled = true
-                                        text.Font = Enum.Font.SourceSans
-                                        text.TextColor3 = Color3.fromRGB(0, 255, 255)
-                                        text.TextStrokeTransparency = 0
-                                        text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-                                        text.Parent = gui
-                                    end
-
-                                    local dist = math.floor((rootPos - objPos).Magnitude)
-                                    targetPart.IslandESP.TextLabel.Text = obj.Name .. "\n[ " .. dist .. "m ]"
-                                end
-                            end
-                        end
-                        task.wait(1)
-                    else
-                        task.wait(1)
-                    end
-                end
-            end)
-        else
-            local locations = game:GetService("Workspace"):FindFirstChild("_WorldOrigin") 
-                and game:GetService("Workspace")._WorldOrigin:FindFirstChild("Locations")
-            if locations then
-                for _, obj in pairs(locations:GetChildren()) do
-                    for _, part in pairs(obj:GetDescendants()) do
-                        if part.Name == "IslandESP" then
-                            part:Destroy()
-                        end
-                    end
-                end
-            end
-        end
+    Name = "ESP My Boat",
+    Description = "Display my boat on the Map",
+    Flag = "M-EspMyBoat",
+    Default = false,
+    Callback = function(v)
+        MyBoatESP.Enabled = v
     end
 })
 
 v494:AddToggle({
-    Title = "Esp My boat",
-    Value = false,
-    Callback = function(state)
-        _G.MyBoatESP = state
-        if _G.MyBoatESP then
-            task.spawn(function()
-                while _G.MyBoatESP do
-                    local player = game:GetService("Players").LocalPlayer
-                    local char = player.Character
-                    if char and char:FindFirstChild("HumanoidRootPart") then
-                        local rootPos = char.HumanoidRootPart.Position
-                        local myBoat = findMyBoat()
-                        if myBoat then
-                            local basePart = myBoat:FindFirstChild("VehicleSeat") or myBoat.PrimaryPart or myBoat:FindFirstChildWhichIsA("BasePart")
-                            if basePart then
-                                if not basePart:FindFirstChild("MyBoatESP") then
-                                    local gui = Instance.new("BillboardGui")
-                                    gui.Name = "MyBoatESP"
-                                    gui.Size = UDim2.new(0, 200, 0, 50)
-                                    gui.AlwaysOnTop = true
-                                    gui.Adornee = basePart
-                                    gui.MaxDistance = 999999
-                                    gui.Parent = basePart
+  Name = "ESP Players",
+  Description = "Display Players on the Map",
+  Flag = "B-EspPlayers",
+  Default = false,
+  Callback = function(v)
+      PlayerESP.Enabled = v
+  end
+})
 
-                                    local text = Instance.new("TextLabel")
-                                    text.Size = UDim2.new(1, 0, 1, 0)
-                                    text.BackgroundTransparency = 1
-                                    text.TextScaled = true
-                                    text.Font = Enum.Font.SourceSans
-                                    text.TextColor3 = Color3.fromRGB(0, 255, 0)
-                                    text.TextStrokeTransparency = 0
-                                    text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-                                    text.Parent = gui
-                                end
+v494:AddToggle({
+	Name = "ESP Fruits",
+    Description = "Display Fruits on the Map",
+	Flag = "S-ESPfruits",
+	Default = false,
+	Callback = function(v)
+		FruitESP.Enabled = v
+	end
+})
 
-                                local dist = math.floor((rootPos - basePart.Position).Magnitude)
-                                basePart.MyBoatESP.TextLabel.Text = "My Boat\n[ " .. dist .. "m ]"
-                            end
-                        end
-                    end
-                    task.wait(1)
-                end
-            end)
-        else
-            local boats = game:GetService("Workspace"):FindFirstChild("Boats")
-            if boats then
-                for _, boat in pairs(boats:GetChildren()) do
-                    for _, part in pairs(boat:GetDescendants()) do
-                        if part.Name == "MyBoatESP" then
-                            part:Destroy()
-                        end
-                    end
-                end
-            end
-        end
+v494:AddToggle({
+	Name = "ESP Berry",
+	Description = "Display Berries Ready to Collect",
+	Flag = "Flag3",
+	Default = false,
+	Callback = function(v)
+		BerryESP.Enabled = v
+	end
+})
+
+v494:AddToggle({
+    Name = "ESP Chests",
+    Description = "Display Chests on the Map",
+    Flag = "S-ESPChest",
+    Default = false,
+    Callback = function(v)
+        ChestESP.Enabled = v
+    end
+})
+
+v494:AddToggle({
+    Name = "ESP Islands",
+    Description = "Display Islands on the Map",
+    Flag = "S-ESPislands",
+    Default = false,
+    Callback = function(v)
+        IslandsESP.Enabled = v
     end
 })
 
