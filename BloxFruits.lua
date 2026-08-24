@@ -13539,63 +13539,6 @@ spawn(function()
         end
     end
 end)
-_ = v496:AddSection({" Race "})
-v496:AddToggle({
-    Title = "Auto Active Race V3",
-    Description = "",
-    Value = false,
-    Callback = function(v1171)
-        _G.AutoRaceV3 = v1171
-    end
-})
-spawn(function()
-    while wait() do
-        pcall(function()
-            if _G.AutoRaceV3 then
-                game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("ActivateAbility")
-            end
-        end)
-    end
-end)
-_G.AutoRaceV4 = false
-
-v496:AddToggle({
-    Title = "Auto Active Race V4",
-    Description = "",
-    Value = false,
-    Callback = function(state)
-        _G.AutoRaceV4 = state
-    end
-})
-
-spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoRaceV4 then
-            pcall(function()
-
-                local player = game.Players.LocalPlayer
-                local char = player.Character
-                if not char then return end
-
-                local energy = char:FindFirstChild("RaceEnergy")
-                local transformed = char:FindFirstChild("RaceTransformed")
-
-                if energy and transformed then
-                    if energy.Value >= 1 and not transformed.Value then
-                        
-                        local vim = game:GetService("VirtualInputManager")
-                        vim:SendKeyEvent(true, Enum.KeyCode.Y, false, game)
-                        task.wait(0.1)
-                        vim:SendKeyEvent(false, Enum.KeyCode.Y, false, game)
-
-                        task.wait(5)
-                    end
-                end
-
-            end)
-        end
-    end
-end)
 v496:AddToggle({Title = "Infinite Soru", Value = false, Callback = function(v1173)
     InfiniteSoru = v1173
 end})
@@ -13662,6 +13605,63 @@ spawn(function()
                         end
                     end
                 end
+            end)
+        end
+    end
+end)
+_ = v496:AddSection({" Race "})
+v496:AddToggle({
+    Title = "Auto Active Race V3",
+    Description = "",
+    Value = false,
+    Callback = function(v1171)
+        _G.AutoRaceV3 = v1171
+    end
+})
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.AutoRaceV3 then
+                game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("ActivateAbility")
+            end
+        end)
+    end
+end)
+_G.AutoRaceV4 = false
+
+v496:AddToggle({
+    Title = "Auto Active Race V4",
+    Description = "",
+    Value = false,
+    Callback = function(state)
+        _G.AutoRaceV4 = state
+    end
+})
+
+spawn(function()
+    while task.wait(0.5) do
+        if _G.AutoRaceV4 then
+            pcall(function()
+
+                local player = game.Players.LocalPlayer
+                local char = player.Character
+                if not char then return end
+
+                local energy = char:FindFirstChild("RaceEnergy")
+                local transformed = char:FindFirstChild("RaceTransformed")
+
+                if energy and transformed then
+                    if energy.Value >= 1 and not transformed.Value then
+                        
+                        local vim = game:GetService("VirtualInputManager")
+                        vim:SendKeyEvent(true, Enum.KeyCode.Y, false, game)
+                        task.wait(0.1)
+                        vim:SendKeyEvent(false, Enum.KeyCode.Y, false, game)
+
+                        task.wait(5)
+                    end
+                end
+
             end)
         end
     end
