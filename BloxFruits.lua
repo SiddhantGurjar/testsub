@@ -13263,39 +13263,23 @@ spawn(function()
                 
                 local pos = mob.HumanoidRootPart.Position
                 
-                -- The version that actually fired used VirtualUser. 
-                -- We use WorldToScreenPoint to fix the aim, and remove CaptureController to fix the sticking!
-                local cam = workspace.CurrentCamera
-                if cam then
-                    local screenPos, onScreen = cam:WorldToScreenPoint(pos)
-                    if onScreen then
-                        pcall(function()
-                            local vu = game:GetService("VirtualUser")
-                            -- Clicking the exact pixel of the NPC
-                            vu:Button1Down(Vector2.new(screenPos.X, screenPos.Y))
-                            task.wait(0.01)
-                            vu:Button1Up(Vector2.new(screenPos.X, screenPos.Y))
-                        end)
-                        pcall(function()
-                            local vim = game:GetService("VirtualInputManager")
-                            vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, true, game, 1)
-                            task.wait(0.01)
-                            vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, false, game, 1)
-                        end)
-                    else
-                        -- If they are off-screen, try shooting the remote
-                        local Net = game.ReplicatedStorage:FindFirstChild("Modules")
-                        Net = Net and Net:FindFirstChild("Net")
-                        local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
-                        if shoot then pcall(function() shoot:FireServer(pos) end) end
-                    end
+                -- Pure Server Remote Firing (No VirtualUser, No Screen Taps, No Crosshair)
+                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
+                Net = Net and Net:FindFirstChild("Net")
+                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
+                
+                if shoot then
+                    pcall(function() shoot:FireServer(pos) end)
                 end
                 
-                pcall(function() tool:Activate() end)
-                
-                if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
-                    if tool:FindFirstChild("RemoteEvent") then
-                        tool.RemoteEvent:FireServer("TAP", pos)
+                -- Universally trigger the tool's remotes directly (Perfect for Dragonstorm & Soul Guitar)
+                for _, v in pairs(tool:GetChildren()) do
+                    if v:IsA("RemoteEvent") then
+                        pcall(function() v:FireServer(pos) end)
+                        pcall(function() v:FireServer("TAP", pos) end)
+                        pcall(function() v:FireServer(mob) end)
+                    elseif v:IsA("RemoteFunction") then
+                        pcall(function() v:InvokeServer(pos) end)
                     end
                 end
             end)
