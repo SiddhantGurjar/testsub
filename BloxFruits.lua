@@ -11820,13 +11820,13 @@ local CoreGuiEspFolder = Instance.new("Folder", CoreGui) do
 	  
 	function EspManager:ToggleEsp(Value)  
 		local Environment = "redzHub_Esp_" .. self.SpecialTag  
-		_ENV[Environment] = Value  
+		_G[Environment] = Value  
   
 		if not Value then  
 			return self:Clear()  
 		end  
   
-		while _ENV[Environment] do  
+		while _G[Environment] do  
 			local ObjectsAction = self.GetObjectsAction  
 	  
 			if self.OnlyOneInstanceAction then  
