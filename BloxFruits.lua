@@ -13236,34 +13236,47 @@ v496:AddToggle({
 })
 
 spawn(function()
-    while task.wait() do
+    while task.wait(0.25) do
         if _G.AutoShootGun then
             pcall(function()
                 local plr = game.Players.LocalPlayer
                 local char = plr.Character
-                if not char then return end
+                if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
                 local tool = char:FindFirstChildOfClass("Tool")
-                if not tool or tool.ToolTip ~= "Gun" then return end
+                if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
-                local mob = workspace.Enemies:FindFirstChild(MonFarm)
+                local closest = nil
+                local minDist = 50
+                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                    if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                        local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
+                        if dist < minDist then
+                            minDist = dist
+                            closest = enemy
+                        end
+                    end
+                end
+                
+                local mob = closest
                 if not mob then return end
-                if not mob:FindFirstChild("HumanoidRootPart") then return end
-                if mob.Humanoid.Health <= 0 then return end
-
+                
                 local pos = mob.HumanoidRootPart.Position
-
+                
                 local Net = game.ReplicatedStorage:FindFirstChild("Modules")
                 Net = Net and Net:FindFirstChild("Net")
                 local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
 
-                if tool.Name == "Skull Guitar" and tool:FindFirstChild("RemoteEvent") then
-                    tool.RemoteEvent:FireServer("TAP", pos)
+                if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
+                    if tool:FindFirstChild("RemoteEvent") then
+                        tool.RemoteEvent:FireServer("TAP", pos)
+                    end
+                elseif tool:FindFirstChild("LeftClickRemote") then
+                    local direction = (pos - char.HumanoidRootPart.Position).Unit
+                    tool.LeftClickRemote:FireServer(direction, 1)
                 else
                     if shoot then
                         shoot:FireServer(pos)
-                    else
-                        tool:Activate()
                     end
                 end
             end)
