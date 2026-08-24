@@ -13236,36 +13236,57 @@ v496:AddToggle({
 })
 
 spawn(function()
-    while task.wait() do
+    while task.wait(0.15) do
         if _G.AutoShootGun then
             pcall(function()
                 local plr = game.Players.LocalPlayer
                 local char = plr.Character
-                if not char then return end
+                if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
                 local tool = char:FindFirstChildOfClass("Tool")
-                if not tool or tool.ToolTip ~= "Gun" then return end
+                if not tool then return end
 
-                local mob = workspace.Enemies:FindFirstChild(MonFarm)
+                -- Find nearest enemy within 50 studs (Proximity Scanner)
+                local closest = nil
+                local minDist = 50
+                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                    if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                        local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
+                        if dist < minDist then
+                            minDist = dist
+                            closest = enemy
+                        end
+                    end
+                end
+                
+                local mob = closest
                 if not mob then return end
-                if not mob:FindFirstChild("HumanoidRootPart") then return end
-                if mob.Humanoid.Health <= 0 then return end
-
+                
                 local pos = mob.HumanoidRootPart.Position
-
+                
+                -- Perfect Aim: Lock the camera to the enemy so screen clicks shoot exactly at them!
+                local cam = workspace.CurrentCamera
+                if cam then
+                    cam.CFrame = CFrame.new(cam.CFrame.Position, pos)
+                end
+                
+                -- Aggressive Firing (No CaptureController to prevent sticking)
+                pcall(function()
+                    local vim = game:GetService("VirtualInputManager")
+                    vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                    task.wait(0.05)
+                    vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                end)
+                pcall(function()
+                    tool:Activate()
+                end)
+                
+                -- Backup server remotes just in case
                 local Net = game.ReplicatedStorage:FindFirstChild("Modules")
                 Net = Net and Net:FindFirstChild("Net")
                 local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
-
-                if tool.Name == "Skull Guitar" and tool:FindFirstChild("RemoteEvent") then
-                    tool.RemoteEvent:FireServer("TAP", pos)
-                else
-                    if shoot then
-                        shoot:FireServer(pos)
-                    else
-                        tool:Activate()
-                    end
-                end
+                if shoot then pcall(function() shoot:FireServer(pos) end) end
+                
             end)
         end
     end
