@@ -4444,7 +4444,7 @@ v485:AddDropdown({
         end
     end
 })
-_ = v485:AddSection({"Farm"})
+_ = v485:AddSection({" Farm "})
 -- Funções auxiliares globais
 Players = game:GetService("Players")
 TweenService = game:GetService("TweenService")
@@ -5092,7 +5092,7 @@ spawn(function()
 end)
 
 if World3 then
-_ = v485:AddSection({"Kill Player"})
+_ = v485:AddSection({" Kill Player "})
 v1123 = {}
 for _, v1125 in pairs(game.Players:GetPlayers()) do
     table.insert(v1123, v1125.Name)
@@ -5180,7 +5180,7 @@ spawn(function()
 end)
 end
 
-_ = v485:AddSection({"Farm Bones"})
+_ = v485:AddSection({" Farm Bones "})
 v589 = v485:AddParagraph({Title = "Check Bone", Content = "Loading..."})
 task.spawn(function()
     while task.wait(1) do
@@ -5389,7 +5389,7 @@ spawn(function()
         end
     end)
 end)
-_ = v485:AddSection({"Auto Farm Chest And Berry"})
+_ = v485:AddSection({" Auto Farm Chest And Berry "})
 
 v485:AddToggle({
     Name = "Auto Collect Berry",
@@ -5601,7 +5601,7 @@ task.spawn(function()
     end
 end)
 
-_ = v485:AddSection({"Boss Farm"})
+_ = v485:AddSection({" Boss Farm "})
 v657 = v485:AddParagraph({Title = "Boss Spawn Status", Content = "Initializing..."})
 task.spawn(function()
     while task.wait(1) do
@@ -5777,7 +5777,7 @@ task.spawn(function()
         end
     end
 end)
-_ = v485:AddSection({"Material"})
+_ = v485:AddSection({" Material "})
 v664 = {}
 if not World1 then
     if World2 then
@@ -5883,7 +5883,7 @@ v485:AddToggle({
     end
 })
 
-_ = v485:AddSection({"Auto Farm Mastery"})
+_ = v485:AddSection({" Auto Farm Mastery "})
 
 _G.MasteryFarmType = "Level"
 v485:AddDropdown({
@@ -6016,7 +6016,7 @@ task.spawn(function()
     end
 end)
 
-_ = v486:AddSection({"Auto Fishing"})
+_ = v486:AddSection({" Auto Fishing "})
 v486:AddToggle({
     Title = "Auto Fishing",
     Description = "",
@@ -6085,7 +6085,7 @@ v486:AddDropdown({
     end
 })
 if World1 then
-    local _ = v487:AddSection({"Quest Sea 1"})
+    local _ = v487:AddSection({" Quest Sea 1 "})
     v487:AddToggle({
         Name = "AutoSecondSea",
         Description = "",
@@ -6144,7 +6144,7 @@ if World1 then
             end
         end
     end)
-    local _ = v487:AddSection({"Boss Greybeard"})
+    local _ = v487:AddSection({" Boss Greybeard "})
     v487:AddToggle({
         Name = "Kill Greybeard",
         Description = "",
@@ -6190,7 +6190,7 @@ if World1 then
             end
         end
     end)
-    local _ = v487:AddSection({"Quest Sword"})
+    local _ = v487:AddSection({" Quest Sword "})
     v487:AddToggle({
         Name = "Auto Get Saber",
         Description = "",
@@ -6462,7 +6462,7 @@ if World1 then
     end
 end
 if World2 then
-    local _ = v487:AddSection({"Quest Sea 2"})
+    local _ = v487:AddSection({" Quest Sea 2 "})
     v487:AddToggle({
         Name = "Auto Quest Sea Bartilo",
         Description = "",
@@ -6659,7 +6659,7 @@ if World2 then
         end
     end)
 
-    local _ = v487:AddSection({"Boss Dark Beard"})
+    local _ = v487:AddSection({" Boss Dark Beard "})
     v487:AddToggle({
         Name = "Auto Kill Dark Beard",
         Description = "",
@@ -6736,7 +6736,7 @@ if World2 then
             end
         end
     end)
-    local _ = v487:AddSection({"Auto Buy Haki  "})
+    local _ = v487:AddSection({" Auto Buy Haki   "})
     v487:AddToggle({
         Name = "Auto Buy Haki Colors",
         Description = "",
@@ -6775,7 +6775,7 @@ if World2 then
             end
         end
     end)
-    local _ = v487:AddSection({"Quest Sword"})
+    local _ = v487:AddSection({" Quest Sword "})
     v487:AddToggle({
         Name = "Auto Get Longsword",
         Description = "",
@@ -6966,8 +6966,8 @@ if World2 then
     end)
 end
 if World3 then
-    local _ = v487:AddSection({"Quest Sea 3"})
-    local _ = v487:AddSection({"Boss Rip indra"})
+    local _ = v487:AddSection({" Quest Sea 3 "})
+    local _ = v487:AddSection({" Boss Rip indra "})
     v487:AddToggle({
         Name = "Auto kill Rip Indra",
         Description = "",
@@ -7046,7 +7046,7 @@ if World3 then
                 end
             end
         end)
-        local _ = v487:AddSection({"Quest Skull Guitar"})
+        local _ = v487:AddSection({" Quest Skull Guitar "})
         v487:AddToggle({
             Name = "Auto Skull Guitar",
             Description = "",
@@ -7147,7 +7147,7 @@ if World3 then
             end
         end)
 
-        local _ = v487:AddSection({"Auto CDK"})
+        local _ = v487:AddSection({" Auto CDK "})
         v487:AddToggle({
             Name = "Auto Cdk",
             Description = "Completes all 6 CDK trials + Boss automatically",
@@ -7477,7 +7477,7 @@ if World3 then
                 end
             end
         end)
-        local _ = v487:AddSection({"Tyrant of the Skies"})
+        local _ = v487:AddSection({" Tyrant of the Skies "})
         local v548 = v487:AddParagraph({Title = "Check Eyes Status", Content = "Loading..."})
         task.spawn(function()
             while task.wait(1) do
@@ -7687,7 +7687,7 @@ if World3 then
             end
         end)
 
-        local _ = v487:AddSection({"Katakuri"})
+        local _ = v487:AddSection({" Katakuri "})
         local v606 = v487:AddParagraph({Title = "Check Cake Prince", Content = "Loading..."})
         local sentKatakuriNotif = false
         task.spawn(function()
@@ -7946,7 +7946,7 @@ if World3 then
         end
     end)
 
-        local _ = v487:AddSection({"Quest Sword"})
+        local _ = v487:AddSection({" Quest Sword "})
         v487:AddToggle({
             Name = "Auto Get Sword Twin Hooks",
             Description = "",
@@ -8061,7 +8061,7 @@ if World3 then
         end)
     end
 end
-_ = v489:AddSection({"Sea Event"})
+_ = v489:AddSection({" Sea Event "})
 do
     pcall(function()
         debug.setmetatable(nil, {
@@ -8708,7 +8708,7 @@ do
         end
     })
 
-    local _ = v489:AddSection({"Auto Use Skills"})
+    local _ = v489:AddSection({" Auto Use Skills "})
 
     v489:AddDropdown({
         Name = "Select Tool",
@@ -9298,7 +9298,7 @@ do
     end)
 end
 
-_ = v490:AddSection({"Race Upgrade V2 / V3"})
+_ = v490:AddSection({" Race Upgrade V2 / V3 "})
 v490:AddToggle({
     Name = "Auto Upgrade Race V2 / V3",
     Description = "Automates Flower quest (V2) and Arrow NPC quest (V3)",
@@ -9468,7 +9468,7 @@ spawn(function()
     end
 end)
 
-_ = v490:AddSection({"Teleport V4"})
+_ = v490:AddSection({" Teleport V4 "})
 v490:AddButton({
     Title = "Teleport To Top GreatTree",
     Value = false,
@@ -9582,7 +9582,7 @@ v490:AddButton({
         end
     end
 })
-_ = v490:AddSection({"Trial V4"})
+_ = v490:AddSection({" Trial V4 "})
 v490:AddButton({
     Title = "Auto Race Door",
     Value = false,
@@ -9815,7 +9815,7 @@ spawn(function()
         end
     end
 end)
-_ = v490:AddSection({"Auto Skill"})
+_ = v490:AddSection({" Auto Skill "})
 v490:AddToggle({
     Name = "Auto Skill Z",
     Description = "",
@@ -9851,7 +9851,7 @@ if not World3 then
     })
 else
 end
-_ = v498:AddSection({"Leviathan Island"})
+_ = v498:AddSection({" Leviathan Island "})
 
 -- 1st: Status Leviathan Island
 vLiviStatus = v498:AddParagraph({Title = "Status Leviathan Island", Content = "Loading..."})
@@ -10008,7 +10008,7 @@ v498:AddButton({
     end
 })
 
-_ = v498:AddSection({"Volcanic Island"})
+_ = v498:AddSection({" Volcanic Island "})
 v498:AddButton({
     Title = "Craft Volcanic Magnet",
     Value = false,
@@ -10280,7 +10280,7 @@ spawn(function()
     end
 end)
 
-_ = v498:AddSection({"Auto Kill Golem"})
+_ = v498:AddSection({" Auto Kill Golem "})
 v498:AddToggle({
     Name = "Auto Kill Golem",
     Description = "",
@@ -10359,7 +10359,7 @@ spawn(function()
         end
     end)
 end)
-_ = v498:AddSection({"Auto Collect Bone,Egg"})
+_ = v498:AddSection({" Auto Collect Bone,Egg "})
 v498:AddToggle({
     Name = "Auto Collect Bone",
     Description = "",
@@ -10398,7 +10398,7 @@ spawn(function()
         end
     end
 end)
-_ = v498:AddSection({"Kitsune Island"})
+_ = v498:AddSection({" Kitsune Island "})
 v939 = v498:AddParagraph({Title = "Check Kitsune Island", Content = "Loading..."})
 task.spawn(function()
     while task.wait(1) do
@@ -10489,7 +10489,7 @@ spawn(function()
         end
     end
 end)
-_ = v498:AddSection({"Mirage Island"})
+_ = v498:AddSection({" Mirage Island "})
 v984 = v498:AddParagraph({Title = "Check Mirage Island", Content = "Loading..."})
 task.spawn(function()
     while task.wait(1) do
@@ -10590,7 +10590,7 @@ spawn(function()
     end)
 end)
 
-_ = v491:AddSection({"Fruits"})
+_ = v491:AddSection({" Fruits "})
 v491:AddToggle({
     Name = "Auto Random Fruits",
     Description = "",
@@ -10772,7 +10772,7 @@ end)
                 end)
             end
         })
-        local _ = v491:AddSection({"Check Stock Fruits"})
+        local _ = v491:AddSection({" Check Stock Fruits "})
 local function v1096(v1091)
     local v1092 = tostring(v1091)
     repeat
@@ -10847,7 +10847,7 @@ if World1 then
     })
 else
 
-_ = v491:AddSection({"Raid Fruits"})
+_ = v491:AddSection({" Raid Fruits "})
 
 -- =========================
 -- SELECT CHIP
@@ -11002,7 +11002,7 @@ task.spawn(function()
     end
 end)
 
-_ = v491:AddSection({"Fruit Awakening"})
+_ = v491:AddSection({" Fruit Awakening "})
 v491:AddToggle({
     Name = "Auto Awakening",
     Default = false,
@@ -11032,7 +11032,7 @@ if not World2 then
     })
 else
 
-_ = v491:AddSection({"Raid Law Sea 2"})
+_ = v491:AddSection({" Raid Law Sea 2 "})
 v491:AddButton({
     Name = "Auto Buy Chip Law",
     Callback = function()
@@ -11087,7 +11087,7 @@ spawn(function()
     end
 end)
 end
-_ = v493:AddSection({"Teleport Island"})
+_ = v493:AddSection({" Teleport Island "})
 local function v1116(v1114)
     pcall(function()
         if type(topos) == "function" then
@@ -11338,7 +11338,7 @@ task.spawn(function()
         end
     end
 end)
-_ = v493:AddSection({"Teleport Sea"})
+_ = v493:AddSection({" Teleport Sea "})
 v493:AddButton({
     Name = "Sea 1",
     Description = "",
@@ -11575,7 +11575,7 @@ v497:AddToggle({
     end
 })
 
-Section = v497:AddSection({"Select Status"})
+Section = v497:AddSection({" Select Status "})
 
 v497:AddToggle({
     Name = "Melee",
@@ -12202,7 +12202,7 @@ FlowerESPManager:SetEspColor(function(Flower)
 end)
 
 
-v494:AddSection("ESP")
+v494:AddSection({"ESP"})
 v494:AddSlider({
 	Name = "ESP Size",
 	Flag = "S-EspSize",
@@ -12298,7 +12298,7 @@ v494:AddToggle({
     end
 })
 
-    v494:AddSection("Visual")
+    v494:AddSection({"Visual"})
 vu14 = game.Players.LocalPlayer
 
 v494:AddButton({
@@ -12689,7 +12689,7 @@ v494:AddButton({
     end
 })
 
-_ = v495:AddSection({"Fighting Style"})
+_ = v495:AddSection({" Fighting Style "})
 Players = game:GetService("Players")
 RunService = game:GetService("RunService")
 ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12938,7 +12938,7 @@ v495:AddToggle({
 	end
 })
 
-_ = v495:AddSection({"Buy Sea Event Crafting"})
+_ = v495:AddSection({" Buy Sea Event Crafting "})
 v495:AddButton({
     Title = "Craft Dragonheart",
     Callback = function()
@@ -13005,7 +13005,7 @@ v495:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("CraftItem", "Craft", "MythicalScroll")
     end
 })
-_ = v495:AddSection({"Buy Haki,Soru..."})
+_ = v495:AddSection({" Buy Haki,Soru... "})
 v495:AddButton({
     Title = "Buy Geppo $10,000",
     Callback = function()
@@ -13030,7 +13030,7 @@ v495:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KenTalk", "Buy")
     end
 })
-_ = v495:AddSection({"Buy Sword,Gun"})
+_ = v495:AddSection({" Buy Sword,Gun "})
 v495:AddButton({
     Title = "Buy Cutlass $1,000",
     Callback = function()
@@ -13162,7 +13162,7 @@ v495:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v1160))
     end
 })
-_ = v495:AddSection({"Reset Stats , Random Race"})
+_ = v495:AddSection({" Reset Stats , Random Race "})
 v495:AddButton({
     Title = "buy Ghoul",
     Description = "",
@@ -13194,7 +13194,7 @@ v495:AddButton({
     end
 })
 
-_ = v496:AddSection({"Join Server"})
+_ = v496:AddSection({" Join Server "})
 v496:AddTextBox({
         Name = "Job ID",
         PlaceholderText = "Paste the Job ID here...",
@@ -13230,7 +13230,7 @@ v496:AddButton({
     end
 })
 
-_ = v496:AddSection({"Settings"})
+_ = v496:AddSection({" Settings "})
 v496:AddToggle({
     Name = "Fast Attack",
     Description = "",
