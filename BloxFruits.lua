@@ -12302,7 +12302,8 @@ v494:AddToggle({
 vu14 = game.Players.LocalPlayer
 
 v494:AddButton({
-    "Meteor Rain",
+    Name = "Meteor Rain",
+    Callback =
     function()
         if vu14.Character and vu14.Character.PrimaryPart then
             require(game:GetService("ReplicatedStorage").Effect.Container.UzothSpec)({
@@ -12312,7 +12313,8 @@ v494:AddButton({
     end
 })
 v494:AddButton({
-    "Devil Fruit Rain",
+    Name = "Devil Fruit Rain",
+    Callback =
     function()
         pcall(function()
             for _, v in pairs(game:GetObjects("rbxassetid://14759368201")[1]:GetChildren()) do
@@ -12332,7 +12334,8 @@ v494:AddButton({
     end
 })
 v494:AddButton({
-    "Kamui",
+    Name = "Kamui",
+    Callback =
     function()
         pcall(function()
             local char = game.Players.LocalPlayer.Character
@@ -12433,7 +12436,8 @@ v494:AddButton({
     end
 })
 v494:AddButton({
-    "Give Divine Art",
+    Name = "Give Divine Art",
+    Callback =
     function()
         pcall(function()
             local player = game.Players.LocalPlayer
@@ -12668,7 +12672,8 @@ v494:AddButton({
 vu14 = game.Players.LocalPlayer
 
 v494:AddButton({
-    "Remove Portal Dash Cooldown",
+    Name = "Remove Portal Dash Cooldown",
+    Callback =
     function()
         local portal = vu14.Backpack:FindFirstChild("Portal-Portal") or (vu14.Character and vu14.Character:FindFirstChild("Portal-Portal"))
         if portal then
