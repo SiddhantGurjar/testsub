@@ -13529,7 +13529,7 @@ spawn(function()
         end
     end
 end)
-v496:AddToggle({Title = "Infinite Soru", Value = false, Callback = function(v1170)
+v496:AddToggle({Title = "Auto Haki", Value = false, Callback = function(v1170)
     _G.AutoHaki = v1170
 end})
 spawn(function()
