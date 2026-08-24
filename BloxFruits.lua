@@ -12834,126 +12834,103 @@ local function StopAllBuy()
 	StopFly()
 end
 
-v495:AddToggle({
+v495:AddButton({
+	Title = "🛑 Stop Buying / Cancel Flight",
+	Callback = function()
+		StopAllBuy()
+	end
+})
+
+v495:AddButton({
 	Title = "Buy Black Leg",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("BlackLeg","BuyBlackLeg")
-		end
+		_G.BuyFly = true
+		Buy("BlackLeg","BuyBlackLeg")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Electro",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("Electro","BuyElectro")
-		end
+		_G.BuyFly = true
+		Buy("Electro","BuyElectro")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Fishman Karate",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("FishmanKarate","BuyFishmanKarate")
-		end
+		_G.BuyFly = true
+		Buy("FishmanKarate","BuyFishmanKarate")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Superhuman",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("Superhuman","BuySuperhuman")
-		end
+		_G.BuyFly = true
+		Buy("Superhuman","BuySuperhuman")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Death Step",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("DeathStep","BuyDeathStep")
-		end
+		_G.BuyFly = true
+		Buy("DeathStep","BuyDeathStep")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Sharkman Karate",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("SharkmanKarate","BuySharkmanKarate")
-		end
+		_G.BuyFly = true
+		Buy("SharkmanKarate","BuySharkmanKarate")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Electric Claw",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("ElectricClaw","BuyElectricClaw")
-		end
+		_G.BuyFly = true
+		Buy("ElectricClaw","BuyElectricClaw")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Dragon Talon",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("DragonTalon","BuyDragonTalon")
-		end
+		_G.BuyFly = true
+		Buy("DragonTalon","BuyDragonTalon")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy God Human",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("GodHuman","BuyGodhuman")
-		end
+		_G.BuyFly = true
+		Buy("GodHuman","BuyGodhuman")
 	end
 })
 
-v495:AddToggle({
+v495:AddButton({
 	Title = "Buy Sanguine Art",
-	Value = false,
-	Callback = function(v)
+	Callback = function()
 		StopAllBuy()
-		if v then
-			_G.BuyFly = true
-			Buy("SanguineArt","BuySanguineArt")
-		end
+		_G.BuyFly = true
+		Buy("SanguineArt","BuySanguineArt")
 	end
 })
-
+ 
 _ = v495:AddSection({" Buy Sea Event Crafting "})
 v495:AddButton({
     Title = "Craft Dragonheart",
