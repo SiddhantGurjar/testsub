@@ -2,64 +2,78 @@ local wait = task.wait
 
 -- Executor Compatibility and Polyfill Layer
 do
-    local getgenv = getgenv or function() return _G end
-    local env = getgenv()
-
-    if not env.cloneref then
-        env.cloneref = function(ref) return ref end
-    end
-
-    if not env.sethiddenproperty then
-        env.sethiddenproperty = function(instance, property, value)
-            pcall(function()
-                instance[property] = value
-            end)
+    local safe_pcall = pcall or function() return false end
+    local env = _G
+    safe_pcall(function()
+        if type(getgenv) == "function" then
+            env = getgenv()
+        elseif type(getgenv) == "table" then
+            env = getgenv
         end
-    end
+    end)
 
-    if not env.gethiddenproperty then
-        env.gethiddenproperty = function(instance, property)
-            local success, val = pcall(function()
-                return instance[property]
-            end)
-            return success and val or nil
+    safe_pcall(function()
+        if not env.cloneref then
+            env.cloneref = function(ref) return ref end
         end
-    end
+    end)
 
-    if not env.fireclickdetector then
-        env.fireclickdetector = function(detector, distance)
-            pcall(function()
-                if detector and detector:IsA("ClickDetector") then
-                    detector:InputBegan(Enum.UserInputType.MouseButton1)
-                end
-            end)
+    safe_pcall(function()
+        if not env.sethiddenproperty then
+            env.sethiddenproperty = function(instance, property, value)
+                safe_pcall(function()
+                    instance[property] = value
+                end)
+            end
         end
-    end
+    end)
 
-    if not env.getconnections then
-        env.getconnections = function() return {} end
-    end
-    if not env.getgc then
-        env.getgc = function() return {} end
-    end
-    if not env.isnetworkowner then
-        env.isnetworkowner = function() return true end
-    end
-    if not env.queue_on_teleport then
-        env.queue_on_teleport = function() end
-    end
+    safe_pcall(function()
+        if not env.gethiddenproperty then
+            env.gethiddenproperty = function(instance, property)
+                local val = nil
+                local success = safe_pcall(function()
+                    val = instance[property]
+                end)
+                return success and val or nil
+            end
+        end
+    end)
+
+    safe_pcall(function()
+        if not env.fireclickdetector then
+            env.fireclickdetector = function(detector, distance)
+                safe_pcall(function()
+                    if detector and detector:IsA("ClickDetector") then
+                        detector:InputBegan(Enum.UserInputType.MouseButton1)
+                    end
+                end)
+            end
+        end
+    end)
+
+    safe_pcall(function()
+        if not env.getconnections then env.getconnections = function() return {} end end
+        if not env.getgc then env.getgc = function() return {} end end
+        if not env.isnetworkowner then env.isnetworkowner = function() return true end end
+        if not env.queue_on_teleport then env.queue_on_teleport = function() end end
+    end)
     
-    if not env.fireproximityprompt then
-        env.fireproximityprompt = function(prompt)
-            pcall(function()
-                if prompt and prompt:IsA("ProximityPrompt") then
-                    prompt:InputBegan(Enum.UserInputType.MouseButton1)
-                    task.wait(prompt.HoldDuration + 0.05)
-                    prompt:InputEnded(Enum.UserInputType.MouseButton1)
-                end
-            end)
+    safe_pcall(function()
+        if not env.fireproximityprompt then
+            env.fireproximityprompt = function(prompt)
+                safe_pcall(function()
+                    if prompt and prompt:IsA("ProximityPrompt") then
+                        prompt:InputBegan(Enum.UserInputType.MouseButton1)
+                        if task and task.wait then
+                            task.wait(prompt.HoldDuration + 0.05)
+                        end
+                        prompt:InputEnded(Enum.UserInputType.MouseButton1)
+                    end
+                end)
+            end
         end
-    end
+    end)
 end
 
 
