@@ -13514,6 +13514,40 @@ spawn(function()
 end)
 
 _ = v496:AddSection({" Local-Player "})
+
+Movement = loadstring(game:HttpGet("https://pastefy.app/AUTo6O5h/raw"))()
+
+v496:AddToggle({
+    Title = "Enable Speed and Jump",
+    Flag = "S-SpeedJump",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        Movement:Toggle(v)
+    end
+})
+
+v496:AddSlider({
+    Title = "WalkSpeed",
+    Flag = "S-WalkSpeed",
+    Min = 16,
+    Max = 300,
+    Default = 58,
+    Callback = function(v)
+        Movement:SetSpeed(v)
+    end
+})
+
+v496:AddSlider({
+    Title = "JumpPower",
+    Flag = "S-JumpPower",
+    Min = 50,
+    Max = 400,
+    Default = 58,
+    Callback = function(v)
+        Movement:SetJump(v)
+    end
+})
 v496:AddToggle({
     Title = "Set Home Point",
     Description = "",
