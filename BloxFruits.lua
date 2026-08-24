@@ -13247,7 +13247,7 @@ spawn(function()
                 if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
                 local closest = nil
-                local minDist = 50
+                local minDist = 75 -- Slightly increased to 75 studs just to be safe
                 for _, enemy in pairs(workspace.Enemies:GetChildren()) do
                     if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                         local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
@@ -13263,20 +13263,26 @@ spawn(function()
                 
                 local pos = mob.HumanoidRootPart.Position
                 
-                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
-                Net = Net and Net:FindFirstChild("Net")
-                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
-
+                -- Advanced Screen Aiming (No Camera Movement, No Freezing)
+                local cam = workspace.CurrentCamera
+                if cam then
+                    local screenPos, onScreen = cam:WorldToScreenPoint(pos)
+                    if onScreen then
+                        pcall(function()
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, true, game, 1)
+                            task.wait(0.01)
+                            vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, false, game, 1)
+                        end)
+                    end
+                end
+                
+                pcall(function() tool:Activate() end)
+                
+                -- Fallback for specific guns
                 if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
                     if tool:FindFirstChild("RemoteEvent") then
                         tool.RemoteEvent:FireServer("TAP", pos)
-                    end
-                elseif tool:FindFirstChild("LeftClickRemote") then
-                    local direction = (pos - char.HumanoidRootPart.Position).Unit
-                    tool.LeftClickRemote:FireServer(direction, 1)
-                else
-                    if shoot then
-                        shoot:FireServer(pos)
                     end
                 end
             end)
