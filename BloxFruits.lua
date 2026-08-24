@@ -11880,7 +11880,6 @@ local CoreGuiEspFolder = Instance.new("Folder", CoreGui) do
 	  
 	return EspManager  
 end)()
-end
 local PlayerESP = Managers.EspManager.new("Players")
 
 PlayerESP:SetObjects(function()
@@ -12197,6 +12196,11 @@ FlowerESPManager:SetEspColor(function(Flower)
     if Flower.Name == "Flower1" then
         return Color3.fromRGB(0, 0, 255)
     elseif Flower.Name == "Flower2" then
+        return Color3.fromRGB(255, 0, 0)
+    end
+    return Color3.fromRGB(255, 255, 255)
+end)
+
 
 v494:AddSection("ESP")
 v494:AddSlider({
