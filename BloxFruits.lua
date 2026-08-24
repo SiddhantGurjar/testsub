@@ -13251,7 +13251,7 @@ spawn(function()
                 -- If MonFarm isn't set (Auto Farm is off), find the nearest enemy!
                 if not mob or not mob:FindFirstChild("HumanoidRootPart") or mob.Humanoid.Health <= 0 then
                     local closest = nil
-                    local minDist = 300
+                    local minDist = 1500
                     for _, enemy in pairs(workspace.Enemies:GetChildren()) do
                         if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                             local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
@@ -13273,24 +13273,38 @@ spawn(function()
                 local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
                 
                 -- Support multiple gun types including potential typos
+                
+                -- Force the character to face the enemy so bullets go the right way
+                if char:FindFirstChild("HumanoidRootPart") then
+                    char.HumanoidRootPart.CFrame = CFrame.new(char.HumanoidRootPart.Position, Vector3.new(pos.X, char.HumanoidRootPart.Position.Y, pos.Z))
+                end
+
                 if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
                     if tool:FindFirstChild("RemoteEvent") then
                         tool.RemoteEvent:FireServer("TAP", pos)
                     end
                 else
                     if shoot then
-                        shoot:FireServer(pos)
-                    else
-                        -- Modern fallback if RE/ShootGunEvent is missing
-                        if game:GetService("VirtualUser") then
-                            local vu = game:GetService("VirtualUser")
-                            vu:CaptureController()
-                            vu:Button1Down(Vector2.new(1280, 672))
-                            task.wait()
-                            vu:Button1Up(Vector2.new(1280, 672))
-                        end
-                        tool:Activate()
+                        pcall(function() shoot:FireServer(pos) end)
                     end
+                    
+                    -- Aggressive fallback for all guns (like DragonStorm)
+                    pcall(function()
+                        tool:Activate()
+                    end)
+                    pcall(function()
+                        local vim = game:GetService("VirtualInputManager")
+                        vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                        task.wait(0.05)
+                        vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                    end)
+                    pcall(function()
+                        local vu = game:GetService("VirtualUser")
+                        vu:CaptureController()
+                        vu:Button1Down(Vector2.new(1280, 672))
+                        task.wait()
+                        vu:Button1Up(Vector2.new(1280, 672))
+                    end)
                 end
             end)
         end
