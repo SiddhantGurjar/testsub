@@ -13244,9 +13244,12 @@ spawn(function()
                 if not char then return end
 
                 local tool = char:FindFirstChildOfClass("Tool")
-                if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
+                if not tool then return end
 
-                local mob = workspace.Enemies:FindFirstChild(MonFarm or "")
+                local mob = nil
+                if type(MonFarm) == "string" and MonFarm ~= "" then
+                    mob = workspace.Enemies:FindFirstChild(MonFarm)
+                end
                 
                 -- If MonFarm isn't set (Auto Farm is off), find the nearest enemy!
                 if not mob or not mob:FindFirstChild("HumanoidRootPart") or mob.Humanoid.Health <= 0 then
@@ -13274,10 +13277,7 @@ spawn(function()
                 
                 -- Support multiple gun types including potential typos
                 
-                -- Force the character to face the enemy so bullets go the right way
-                if char:FindFirstChild("HumanoidRootPart") then
-                    char.HumanoidRootPart.CFrame = CFrame.new(char.HumanoidRootPart.Position, Vector3.new(pos.X, char.HumanoidRootPart.Position.Y, pos.Z))
-                end
+
 
                 if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
                     if tool:FindFirstChild("RemoteEvent") then
@@ -13304,6 +13304,9 @@ spawn(function()
                         vu:Button1Down(Vector2.new(1280, 672))
                         task.wait()
                         vu:Button1Up(Vector2.new(1280, 672))
+                    end)
+                    pcall(function()
+                        if mouse1click then mouse1click() end
                     end)
                 end
             end)
