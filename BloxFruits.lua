@@ -11628,6 +11628,17 @@ else
 rawset(self, index, value)
 end
 end
+local CoreGui
+pcall(function()
+    if gethui then
+        CoreGui = gethui()
+    else
+        CoreGui = game:GetService("CoreGui")
+    end
+end)
+if not CoreGui then
+    CoreGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+end
 
 local CoreGuiEspFolder = Instance.new("Folder", CoreGui) do  
 		CoreGuiEspFolder.Name = "redzHub-EspFolder"  
