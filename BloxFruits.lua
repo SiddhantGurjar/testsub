@@ -13236,7 +13236,7 @@ v496:AddToggle({
 })
 
 spawn(function()
-    while task.wait() do
+    while task.wait(0.25) do
         if _G.AutoShootGun then
             pcall(function()
                 local plr = game.Players.LocalPlayer
@@ -13287,27 +13287,6 @@ spawn(function()
                     if shoot then
                         pcall(function() shoot:FireServer(pos) end)
                     end
-                    
-                    -- Aggressive fallback for all guns (like DragonStorm)
-                    pcall(function()
-                        tool:Activate()
-                    end)
-                    pcall(function()
-                        local vim = game:GetService("VirtualInputManager")
-                        vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
-                        task.wait(0.05)
-                        vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-                    end)
-                    pcall(function()
-                        local vu = game:GetService("VirtualUser")
-                        vu:CaptureController()
-                        vu:Button1Down(Vector2.new(1280, 672))
-                        task.wait()
-                        vu:Button1Up(Vector2.new(1280, 672))
-                    end)
-                    pcall(function()
-                        if mouse1click then mouse1click() end
-                    end)
                 end
             end)
         end
