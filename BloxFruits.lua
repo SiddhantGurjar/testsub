@@ -13253,17 +13253,18 @@ spawn(function()
 
                 local pos = mob.HumanoidRootPart.Position
 
-                if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
-                    if tool:FindFirstChild("RemoteEvent") then
-                        tool.RemoteEvent:FireServer("TAP", pos)
-                    end
+                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
+                Net = Net and Net:FindFirstChild("Net")
+                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
+
+                if tool.Name == "Skull Guitar" and tool:FindFirstChild("RemoteEvent") then
+                    tool.RemoteEvent:FireServer("TAP", pos)
                 else
-                    local vu = game:GetService("VirtualUser")
-                    vu:CaptureController()
-                    vu:Button1Down(Vector2.new(1280, 672))
-                    task.wait()
-                    vu:Button1Up(Vector2.new(1280, 672))
-                    tool:Activate()
+                    if shoot then
+                        shoot:FireServer(pos)
+                    else
+                        tool:Activate()
+                    end
                 end
             end)
         end
@@ -13699,6 +13700,45 @@ spawn(function()
         end
     end
 end)
+Lighting = game:GetService("Lighting")
+FULLBRIGHT_SAVE_FILE = "fullbright_save.txt"
+
+-- Salvar valores originais
+OriginalLighting = {
+	Ambient = Lighting.Ambient,
+	ColorShift_Bottom = Lighting.ColorShift_Bottom,
+	ColorShift_Top = Lighting.ColorShift_Top,
+	Brightness = Lighting.Brightness,
+	GlobalShadows = Lighting.GlobalShadows
+}
+
+local function ApplyFullBright(state)
+	if state then
+		Lighting.Ambient = Color3.new(1, 1, 1)
+		Lighting.ColorShift_Bottom = Color3.new(1, 1, 1)
+		Lighting.ColorShift_Top = Color3.new(1, 1, 1)
+		Lighting.Brightness = 3
+		Lighting.GlobalShadows = false
+	else
+		-- Restaurar original
+		Lighting.Ambient = OriginalLighting.Ambient
+		Lighting.ColorShift_Bottom = OriginalLighting.ColorShift_Bottom
+		Lighting.ColorShift_Top = OriginalLighting.ColorShift_Top
+		Lighting.Brightness = OriginalLighting.Brightness
+		Lighting.GlobalShadows = OriginalLighting.GlobalShadows
+	end
+end
+
+FullBrightEnabled = false
+
+if isfile(FULLBRIGHT_SAVE_FILE) then
+	FullBrightEnabled = readfile(FULLBRIGHT_SAVE_FILE) == "true"
+else
+	writefile(FULLBRIGHT_SAVE_FILE, "false")
+end
+
+ApplyFullBright(FullBrightEnabled)
+
 _ = v496:AddSection({" Visual "})
 v496:AddToggle({
 	Title = "Full Bright",
@@ -13874,44 +13914,6 @@ spawn(function()
     end
 end)
 
-Lighting = game:GetService("Lighting")
-FULLBRIGHT_SAVE_FILE = "fullbright_save.txt"
-
--- Salvar valores originais
-OriginalLighting = {
-	Ambient = Lighting.Ambient,
-	ColorShift_Bottom = Lighting.ColorShift_Bottom,
-	ColorShift_Top = Lighting.ColorShift_Top,
-	Brightness = Lighting.Brightness,
-	GlobalShadows = Lighting.GlobalShadows
-}
-
-local function ApplyFullBright(state)
-	if state then
-		Lighting.Ambient = Color3.new(1, 1, 1)
-		Lighting.ColorShift_Bottom = Color3.new(1, 1, 1)
-		Lighting.ColorShift_Top = Color3.new(1, 1, 1)
-		Lighting.Brightness = 3
-		Lighting.GlobalShadows = false
-	else
-		-- Restaurar original
-		Lighting.Ambient = OriginalLighting.Ambient
-		Lighting.ColorShift_Bottom = OriginalLighting.ColorShift_Bottom
-		Lighting.ColorShift_Top = OriginalLighting.ColorShift_Top
-		Lighting.Brightness = OriginalLighting.Brightness
-		Lighting.GlobalShadows = OriginalLighting.GlobalShadows
-	end
-end
-
-FullBrightEnabled = false
-
-if isfile(FULLBRIGHT_SAVE_FILE) then
-	FullBrightEnabled = readfile(FULLBRIGHT_SAVE_FILE) == "true"
-else
-	writefile(FULLBRIGHT_SAVE_FILE, "false")
-end
-
-ApplyFullBright(FullBrightEnabled)
 
 v496:AddButton({
 	Name = "FPS Boost",
