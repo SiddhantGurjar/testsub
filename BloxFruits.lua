@@ -13224,6 +13224,52 @@ v496:AddButton({
 })
 
 _ = v496:AddSection({" Settings "})
+
+v496:AddToggle({
+    Title = "Auto Shoot",
+    Description = "",
+    Flag = "S-AutoShoot",
+    Default = false,
+    Callback = function(v)
+        _G.AutoShootGun = v
+    end
+})
+
+spawn(function()
+    while task.wait() do
+        if _G.AutoShootGun then
+            pcall(function()
+                local plr = game.Players.LocalPlayer
+                local char = plr.Character
+                if not char then return end
+
+                local tool = char:FindFirstChildOfClass("Tool")
+                if not tool or tool.ToolTip ~= "Gun" then return end
+
+                local mob = workspace.Enemies:FindFirstChild(MonFarm)
+                if not mob then return end
+                if not mob:FindFirstChild("HumanoidRootPart") then return end
+                if mob.Humanoid.Health <= 0 then return end
+
+                local pos = mob.HumanoidRootPart.Position
+
+                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
+                Net = Net and Net:FindFirstChild("Net")
+                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
+
+                if tool.Name == "Skull Guitar" and tool:FindFirstChild("RemoteEvent") then
+                    tool.RemoteEvent:FireServer("TAP", pos)
+                else
+                    if shoot then
+                        shoot:FireServer(pos)
+                    else
+                        tool:Activate()
+                    end
+                end
+            end)
+        end
+    end
+end)
 v496:AddToggle({
     Name = "Fast Attack",
     Description = "",
@@ -13467,6 +13513,7 @@ spawn(function()
     end
 end)
 
+_ = v496:AddSection({" Local-Player "})
 v496:AddToggle({
     Title = "Set Home Point",
     Description = "",
@@ -13492,6 +13539,7 @@ spawn(function()
         end
     end
 end)
+_ = v496:AddSection({" Race "})
 v496:AddToggle({
     Title = "Auto Active Race V3",
     Description = "",
@@ -13618,6 +13666,7 @@ spawn(function()
         end
     end
 end)
+_ = v496:AddSection({" Others "})
 v496:AddToggle({
     Title = "Walk on Water",
     Default = true,
@@ -13679,6 +13728,7 @@ end
 
 ApplyFullBright(FullBrightEnabled)
 
+_ = v496:AddSection({" Visual "})
 v496:AddToggle({
 	Title = "Full Bright",
 	Value = FullBrightEnabled,
@@ -13698,6 +13748,7 @@ v496:AddButton({
     if Lighting:FindFirstChild("FantasySky") then Lighting.FantasySky:Destroy() end
 end
 })
+_ = v496:AddSection({" Team "})
 v496:AddButton({
     Title = "Join Pirates Team",
     Callback = function()
@@ -13710,6 +13761,7 @@ v496:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
     end
 })
+_ = v496:AddSection({" Menu "})
 v496:AddButton({
     Title = "Open Title Name",
     Callback = function()
@@ -13719,6 +13771,7 @@ v496:AddButton({
     end
 })
 
+_ = v496:AddSection({" More FPS "})
 v496:AddButton({
 	Name = "FPS Boost",
 	Callback = function()
@@ -13860,6 +13913,7 @@ v496:AddToggle({
 
 	end
 })
+_ = v496:AddSection({" Server "})
 v496:AddButton({
     Title = "Rejoin Server",
     Callback = function()
