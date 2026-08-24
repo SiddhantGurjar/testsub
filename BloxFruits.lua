@@ -13253,18 +13253,17 @@ spawn(function()
 
                 local pos = mob.HumanoidRootPart.Position
 
-                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
-                Net = Net and Net:FindFirstChild("Net")
-                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
-
-                if tool.Name == "Skull Guitar" and tool:FindFirstChild("RemoteEvent") then
-                    tool.RemoteEvent:FireServer("TAP", pos)
-                else
-                    if shoot then
-                        shoot:FireServer(pos)
-                    else
-                        tool:Activate()
+                if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
+                    if tool:FindFirstChild("RemoteEvent") then
+                        tool.RemoteEvent:FireServer("TAP", pos)
                     end
+                else
+                    local vu = game:GetService("VirtualUser")
+                    vu:CaptureController()
+                    vu:Button1Down(Vector2.new(1280, 672))
+                    task.wait()
+                    vu:Button1Up(Vector2.new(1280, 672))
+                    tool:Activate()
                 end
             end)
         end
