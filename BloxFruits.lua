@@ -13666,6 +13666,158 @@ spawn(function()
         end
     end
 end)
+_ = v496:AddSection({" Visual "})
+v496:AddToggle({
+	Title = "Full Bright",
+	Value = FullBrightEnabled,
+	Callback = function(Value)
+		FullBrightEnabled = Value
+		writefile(FULLBRIGHT_SAVE_FILE, tostring(Value))
+		ApplyFullBright(Value)
+	end
+})
+
+v496:AddButton({
+   Title = "Remove Sky Fog",
+   Description = "",
+   Callback = function()
+    if Lighting:FindFirstChild("LightingLayers") then Lighting.LightingLayers:Destroy() end
+    if Lighting:FindFirstChild("SeaTerrorCC") then Lighting.SeaTerrorCC:Destroy() end
+    if Lighting:FindFirstChild("FantasySky") then Lighting.FantasySky:Destroy() end
+end
+})
+_ = v496:AddSection({" Team "})
+v496:AddButton({
+    Title = "Join Pirates Team",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
+    end
+})
+v496:AddButton({
+    Title = "Join Marines Team",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
+    end
+})
+_ = v496:AddSection({" Menu "})
+v496:AddButton({
+    Title = "Open Title Name",
+    Callback = function()
+        local v1209 = {[1] = "getTitles"}
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v1209))
+        game.Players.localPlayer.PlayerGui.Main.Titles.Visible = true
+    end
+})
+
+_ = v496:AddSection({" Server "})
+v496:AddButton({
+    Title = "Rejoin Server",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
+    end
+})
+v496:AddButton({Title = "Server Hop", Callback = function()
+    Hop()
+end})
+
+print("--[[Hop Server If You Meet Game Admin]]--")
+
+Admins = {
+    red_game43 = true,
+    rip_indra = true,
+    Axiore = true,
+    Polkster = true,
+    wenlocktoad = true,
+    Daigrock = true,
+    toilamvidamme = true,
+    oofficialnoobie = true,
+    Uzoth = true,
+    Azarth = true,
+    arlthmetic = true,
+    Death_King = true,
+    Lunoven = true,
+    TheGreateAced = true,
+    rip_fud = true,
+    drip_mama = true,
+    layandikit12 = true,
+    Hingoi = true,
+}
+
+task.spawn(function()
+    while task.wait(1) do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if Admins[player.Name] then
+                Hop()
+                break
+            end
+        end
+    end
+end)
+
+Players = game:GetService("Players")
+TeleportService = game:GetService("TeleportService")
+HttpService = game:GetService("HttpService")
+
+Player = Players.LocalPlayer
+PlaceId = game.PlaceId
+JobId = game.JobId
+
+_G.AutoRejoin30m = false
+RejoinRunning = false
+
+-- ===== PEGAR SERVIDOR DIFERENTE =====
+function GetNewServer()
+    local Servers = {}
+    
+    local req = game:HttpGet(
+        "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+    )
+    
+    local data = HttpService:JSONDecode(req)
+
+    for _, server in pairs(data.data) do
+        if server.playing < server.maxPlayers and server.id ~= JobId then
+            table.insert(Servers, server.id)
+        end
+    end
+
+    if #Servers > 0 then
+        return Servers[math.random(1, #Servers)]
+    end
+end
+
+-- ===== TOGGLE REDZLIB =====
+v496:AddToggle({
+    Name = "Anti-reset",
+    Description = "Server hop every 30 minutes",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoRejoin30m = Value
+        
+        if Value and not RejoinRunning then
+            RejoinRunning = true
+            
+            task.spawn(function()
+                while _G.AutoRejoin30m do
+                    task.wait(1800) -- 30 minutos
+                    
+                    if not _G.AutoRejoin30m then break end
+                    
+                    local NewServer = GetNewServer()
+                    
+                    if NewServer then
+                        TeleportService:TeleportToPlaceInstance(PlaceId, NewServer, Player)
+                    else
+                        TeleportService:Teleport(PlaceId, Player)
+                    end
+                end
+                
+                RejoinRunning = false
+            end)
+        end
+    end
+})
+
 _ = v496:AddSection({" Others "})
 v496:AddToggle({
     Title = "Walk on Water",
@@ -13728,50 +13880,6 @@ end
 
 ApplyFullBright(FullBrightEnabled)
 
-_ = v496:AddSection({" Visual "})
-v496:AddToggle({
-	Title = "Full Bright",
-	Value = FullBrightEnabled,
-	Callback = function(Value)
-		FullBrightEnabled = Value
-		writefile(FULLBRIGHT_SAVE_FILE, tostring(Value))
-		ApplyFullBright(Value)
-	end
-})
-
-v496:AddButton({
-   Title = "Remove Sky Fog",
-   Description = "",
-   Callback = function()
-    if Lighting:FindFirstChild("LightingLayers") then Lighting.LightingLayers:Destroy() end
-    if Lighting:FindFirstChild("SeaTerrorCC") then Lighting.SeaTerrorCC:Destroy() end
-    if Lighting:FindFirstChild("FantasySky") then Lighting.FantasySky:Destroy() end
-end
-})
-_ = v496:AddSection({" Team "})
-v496:AddButton({
-    Title = "Join Pirates Team",
-    Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
-    end
-})
-v496:AddButton({
-    Title = "Join Marines Team",
-    Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
-    end
-})
-_ = v496:AddSection({" Menu "})
-v496:AddButton({
-    Title = "Open Title Name",
-    Callback = function()
-        local v1209 = {[1] = "getTitles"}
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v1209))
-        game.Players.localPlayer.PlayerGui.Main.Titles.Visible = true
-    end
-})
-
-_ = v496:AddSection({" More FPS "})
 v496:AddButton({
 	Name = "FPS Boost",
 	Callback = function()
@@ -13913,115 +14021,6 @@ v496:AddToggle({
 
 	end
 })
-_ = v496:AddSection({" Server "})
-v496:AddButton({
-    Title = "Rejoin Server",
-    Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
-    end
-})
-v496:AddButton({Title = "Server Hop", Callback = function()
-    Hop()
-end})
-
-print("--[[Hop Server If You Meet Game Admin]]--")
-
-Admins = {
-    red_game43 = true,
-    rip_indra = true,
-    Axiore = true,
-    Polkster = true,
-    wenlocktoad = true,
-    Daigrock = true,
-    toilamvidamme = true,
-    oofficialnoobie = true,
-    Uzoth = true,
-    Azarth = true,
-    arlthmetic = true,
-    Death_King = true,
-    Lunoven = true,
-    TheGreateAced = true,
-    rip_fud = true,
-    drip_mama = true,
-    layandikit12 = true,
-    Hingoi = true,
-}
-
-task.spawn(function()
-    while task.wait(1) do
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if Admins[player.Name] then
-                Hop()
-                break
-            end
-        end
-    end
-end)
-
-Players = game:GetService("Players")
-TeleportService = game:GetService("TeleportService")
-HttpService = game:GetService("HttpService")
-
-Player = Players.LocalPlayer
-PlaceId = game.PlaceId
-JobId = game.JobId
-
-_G.AutoRejoin30m = false
-RejoinRunning = false
-
--- ===== PEGAR SERVIDOR DIFERENTE =====
-function GetNewServer()
-    local Servers = {}
-    
-    local req = game:HttpGet(
-        "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
-    )
-    
-    local data = HttpService:JSONDecode(req)
-
-    for _, server in pairs(data.data) do
-        if server.playing < server.maxPlayers and server.id ~= JobId then
-            table.insert(Servers, server.id)
-        end
-    end
-
-    if #Servers > 0 then
-        return Servers[math.random(1, #Servers)]
-    end
-end
-
--- ===== TOGGLE REDZLIB =====
-v496:AddToggle({
-    Name = "Anti-reset",
-    Description = "Server hop every 30 minutes",
-    Default = false,
-    Callback = function(Value)
-        _G.AutoRejoin30m = Value
-        
-        if Value and not RejoinRunning then
-            RejoinRunning = true
-            
-            task.spawn(function()
-                while _G.AutoRejoin30m do
-                    task.wait(1800) -- 30 minutos
-                    
-                    if not _G.AutoRejoin30m then break end
-                    
-                    local NewServer = GetNewServer()
-                    
-                    if NewServer then
-                        TeleportService:TeleportToPlaceInstance(PlaceId, NewServer, Player)
-                    else
-                        TeleportService:Teleport(PlaceId, Player)
-                    end
-                end
-                
-                RejoinRunning = false
-            end)
-        end
-    end
-})
-
 Players = game:GetService("Players")
 TweenService = game:GetService("TweenService")
 RunService = game:GetService("RunService")
