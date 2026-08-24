@@ -13244,7 +13244,7 @@ spawn(function()
                 if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
                 local tool = char:FindFirstChildOfClass("Tool")
-                if not tool then return end
+                if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
                 -- Find nearest enemy within 50 studs (Proximity Scanner)
                 local closest = nil
