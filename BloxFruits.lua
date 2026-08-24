@@ -13283,9 +13283,20 @@ spawn(function()
                     if tool:FindFirstChild("RemoteEvent") then
                         tool.RemoteEvent:FireServer("TAP", pos)
                     end
+                elseif tool:FindFirstChild("LeftClickRemote") then
+                    local targetPos = mob.HumanoidRootPart.Position
+                    local playerPos = char.HumanoidRootPart.Position
+                    local direction = (targetPos - playerPos).Unit
+                    tool.LeftClickRemote:FireServer(direction, 1)
                 else
                     if shoot then
                         pcall(function() shoot:FireServer(pos) end)
+                    end
+                    if tool:FindFirstChild("RemoteEvent") then
+                        pcall(function() tool.RemoteEvent:FireServer(pos) end)
+                    end
+                    if tool:FindFirstChild("RemoteFunction") then
+                        pcall(function() tool.RemoteFunction:InvokeServer(pos) end)
                     end
                 end
             end)
