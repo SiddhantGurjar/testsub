@@ -13254,7 +13254,7 @@ spawn(function()
                 -- If MonFarm isn't set (Auto Farm is off), find the nearest enemy!
                 if not mob or not mob:FindFirstChild("HumanoidRootPart") or mob.Humanoid.Health <= 0 then
                     local closest = nil
-                    local minDist = 1500
+                    local minDist = 50
                     for _, enemy in pairs(workspace.Enemies:GetChildren()) do
                         if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                             local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
