@@ -12835,7 +12835,7 @@ local function StopAllBuy()
 end
 
 v495:AddButton({
-	Title = "🛑 Stop Buying / Cancel Flight",
+	Title = "Stop Tween",
 	Callback = function()
 		StopAllBuy()
 	end
