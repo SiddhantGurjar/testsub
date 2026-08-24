@@ -13247,7 +13247,7 @@ spawn(function()
                 if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
                 local closest = nil
-                local minDist = 75 -- Slightly increased to 75 studs just to be safe
+                local minDist = 75
                 for _, enemy in pairs(workspace.Enemies:GetChildren()) do
                     if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                         local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
@@ -13263,23 +13263,36 @@ spawn(function()
                 
                 local pos = mob.HumanoidRootPart.Position
                 
-                -- Advanced Screen Aiming (No Camera Movement, No Freezing)
+                -- The version that actually fired used VirtualUser. 
+                -- We use WorldToScreenPoint to fix the aim, and remove CaptureController to fix the sticking!
                 local cam = workspace.CurrentCamera
                 if cam then
                     local screenPos, onScreen = cam:WorldToScreenPoint(pos)
                     if onScreen then
+                        pcall(function()
+                            local vu = game:GetService("VirtualUser")
+                            -- Clicking the exact pixel of the NPC
+                            vu:Button1Down(Vector2.new(screenPos.X, screenPos.Y))
+                            task.wait(0.01)
+                            vu:Button1Up(Vector2.new(screenPos.X, screenPos.Y))
+                        end)
                         pcall(function()
                             local vim = game:GetService("VirtualInputManager")
                             vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, true, game, 1)
                             task.wait(0.01)
                             vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, false, game, 1)
                         end)
+                    else
+                        -- If they are off-screen, try shooting the remote
+                        local Net = game.ReplicatedStorage:FindFirstChild("Modules")
+                        Net = Net and Net:FindFirstChild("Net")
+                        local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
+                        if shoot then pcall(function() shoot:FireServer(pos) end) end
                     end
                 end
                 
                 pcall(function() tool:Activate() end)
                 
-                -- Fallback for specific guns
                 if tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar" then
                     if tool:FindFirstChild("RemoteEvent") then
                         tool.RemoteEvent:FireServer("TAP", pos)
