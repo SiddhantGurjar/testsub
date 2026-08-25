@@ -13325,7 +13325,7 @@ spawn(function()
                 if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
                 local closest = nil
-                local minDist = 75
+                local minDist = math.huge
                 for _, enemy in pairs(workspace.Enemies:GetChildren()) do
                     if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                         local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
@@ -13347,6 +13347,22 @@ spawn(function()
                 
                 pcall(function()
                     tool:Activate()
+                    if type(Click) == "function" then
+                        Click()
+                    end
+                    pcall(function()
+                        local vu = game:GetService("VirtualUser")
+                        vu:CaptureController()
+                        vu:ClickButton1(Vector2.new(1280, 672))
+                    end)
+                    local shoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot")
+                    if shoot then
+                        if shoot:IsA("RemoteFunction") then
+                            shoot:InvokeServer(pos)
+                        else
+                            shoot:FireServer(pos)
+                        end
+                    end
                 end)
             end)
         end
