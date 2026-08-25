@@ -3579,25 +3579,32 @@ spawn(function()
             v359.__namecall = newcclosure(function(...)
                 local v361 = getnamecallmethod()
                 local v362 = {...}
-                if tostring(v361) == "FireServer" and tostring(v362[1]) == "RemoteEvent" and _G.UseSkill then
-                    -- Only intercept calls where arg2 is a position type (CFrame or Vector3)
-                    -- This avoids breaking non-skill remotes (strings, booleans, numbers, etc.)
-                    local arg2 = v362[2]
-                    local arg2Type = typeof(arg2)
-                    if arg2Type == "CFrame" or arg2Type == "Vector3" then
-                        local targetPos = PosMon and PosMon.Position or nil
-                        if targetPos then
-                            if arg2Type == "CFrame" then
-                                v362[2] = CFrame.new(targetPos)
-                            else
-                                v362[2] = targetPos
+                if (tostring(v361) == "FireServer" or tostring(v361) == "InvokeServer") then
+                    local targetPos = nil
+                    if _G.UseSkill and PosMon then
+                        targetPos = PosMon.Position
+                    elseif _G.AutoShootGun and _G.ShootTargetPos then
+                        targetPos = _G.ShootTargetPos
+                    end
+                    
+                    if targetPos then
+                        local modified = false
+                        for i = 2, #v362 do
+                            local t = typeof(v362[i])
+                            if t == "CFrame" then
+                                v362[i] = CFrame.new(targetPos)
+                                modified = true
+                            elseif t == "Vector3" then
+                                v362[i] = targetPos
+                                modified = true
                             end
                         end
+                        if modified then
+                            return l___namecall_0(unpack(v362))
+                        end
                     end
-                    return l___namecall_0(unpack(v362))
-                else
-                    return l___namecall_0(...)
                 end
+                return l___namecall_0(...)
             end)
         end
     end)
@@ -12310,6 +12317,65 @@ v494:AddToggle({
 })
 
     v494:AddSection({"Visual"})
+v494:AddButton({
+	Name = "FPS Boost",
+	Callback = function()
+		-- Optimize Lighting & Post-Processing
+		local lighting = game:GetService("Lighting")
+		lighting.GlobalShadows = false
+		lighting.FogEnd = 1e10
+		lighting.Brightness = 0
+		
+		for _, effect in ipairs(lighting:GetChildren()) do
+			if effect:IsA("PostEffect") or effect:IsA("BloomEffect") or effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") or effect:IsA("ColorCorrectionEffect") or effect:IsA("DepthOfFieldEffect") then
+				pcall(function() effect.Enabled = false end)
+			end
+		end
+
+		-- Optimize Terrain Water
+		local terrain = game:GetService("Workspace"):FindFirstChildWhichIsA("Terrain")
+		if terrain then
+			terrain.WaterWaveSize = 0
+			terrain.WaterWaveSpeed = 0
+			terrain.WaterReflectance = 0
+			terrain.WaterTransparency = 0
+		end
+
+		-- Optimize Workspace Descendants
+		local function optimizeInstance(v)
+			pcall(function()
+				if v:IsA("BasePart") then
+					v.Material = Enum.Material.SmoothPlastic
+					v.Reflectance = 0
+				elseif v:IsA("Decal") or v:IsA("Texture") then
+					v:Destroy()
+				elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Sparkles") or v:IsA("Fire") or v:IsA("Smoke") then
+					v.Enabled = false
+				end
+			end)
+		end
+
+		for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
+			optimizeInstance(v)
+		end
+
+		-- Hook listener for newly streamed/added parts to prevent future lag
+		game:GetService("Workspace").DescendantAdded:Connect(optimizeInstance)
+
+		setfpscap(60)
+	end
+})
+v494:AddToggle({
+	Name = "White Screen",
+	Default = false,
+	Callback = function(Value)
+
+		_G.WhiteScreen = Value
+		RunService:Set3dRenderingEnabled(not Value)
+
+	end
+})
+
 vu14 = game.Players.LocalPlayer
 
 v494:AddButton({
@@ -13271,31 +13337,17 @@ spawn(function()
                 end
                 
                 local mob = closest
-                if not mob then return end
+                if not mob then 
+                    _G.ShootTargetPos = nil
+                    return 
+                end
                 
                 local pos = mob.HumanoidRootPart.Position
+                _G.ShootTargetPos = pos
                 
-                -- Pure Server Remote Firing (No VirtualUser, No Screen Taps, No Crosshair)
-                local Net = game.ReplicatedStorage:FindFirstChild("Modules")
-                Net = Net and Net:FindFirstChild("Net")
-                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
-                
-                if shoot then
-                    pcall(function() shoot:FireServer(pos) end)
-                end
-                
-                -- Universally trigger the tool's remotes directly (Perfect for Dragonstorm & Soul Guitar)
-                for _, v in pairs(tool:GetChildren()) do
-                    if v:IsA("RemoteFunction") then
-                        task.spawn(function()
-                            pcall(function() v:InvokeServer(pos) end)
-                        end)
-                    elseif v:IsA("RemoteEvent") then
-                        pcall(function() v:FireServer(pos) end)
-                        pcall(function() v:FireServer("TAP", pos) end)
-                        pcall(function() v:FireServer(mob) end)
-                    end
-                end
+                pcall(function()
+                    tool:Activate()
+                end)
             end)
         end
     end
@@ -13963,54 +14015,7 @@ spawn(function()
 end)
 
 
-v496:AddButton({
-	Name = "FPS Boost",
-	Callback = function()
-		-- Optimize Lighting & Post-Processing
-		local lighting = game:GetService("Lighting")
-		lighting.GlobalShadows = false
-		lighting.FogEnd = 1e10
-		lighting.Brightness = 0
-		
-		for _, effect in ipairs(lighting:GetChildren()) do
-			if effect:IsA("PostEffect") or effect:IsA("BloomEffect") or effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") or effect:IsA("ColorCorrectionEffect") or effect:IsA("DepthOfFieldEffect") then
-				pcall(function() effect.Enabled = false end)
-			end
-		end
 
-		-- Optimize Terrain Water
-		local terrain = game:GetService("Workspace"):FindFirstChildWhichIsA("Terrain")
-		if terrain then
-			terrain.WaterWaveSize = 0
-			terrain.WaterWaveSpeed = 0
-			terrain.WaterReflectance = 0
-			terrain.WaterTransparency = 0
-		end
-
-		-- Optimize Workspace Descendants
-		local function optimizeInstance(v)
-			pcall(function()
-				if v:IsA("BasePart") then
-					v.Material = Enum.Material.SmoothPlastic
-					v.Reflectance = 0
-				elseif v:IsA("Decal") or v:IsA("Texture") then
-					v:Destroy()
-				elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Sparkles") or v:IsA("Fire") or v:IsA("Smoke") then
-					v.Enabled = false
-				end
-			end)
-		end
-
-		for _, v in ipairs(game:GetService("Workspace"):GetDescendants()) do
-			optimizeInstance(v)
-		end
-
-		-- Hook listener for newly streamed/added parts to prevent future lag
-		game:GetService("Workspace").DescendantAdded:Connect(optimizeInstance)
-
-		setfpscap(60)
-	end
-})
 
 v1218 = {
     "NOMOREHACK",
@@ -14094,16 +14099,7 @@ v496:AddButton({
 })
 RunService = game:GetService("RunService")
 
-v496:AddToggle({
-	Name = "White Screen",
-	Default = false,
-	Callback = function(Value)
 
-		_G.WhiteScreen = Value
-		RunService:Set3dRenderingEnabled(not Value)
-
-	end
-})
 Players = game:GetService("Players")
 TweenService = game:GetService("TweenService")
 RunService = game:GetService("RunService")
