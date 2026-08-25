@@ -13193,11 +13193,16 @@ v496:AddTextBox({
         PlaceholderText = "Paste the Job ID here...",
         Callback = function(p215)
             if p215 ~= "" then
+                local jobId = p215
                 if string.match(p215, "^H2O2SERVER%|") then
-                    warn("NewRedzHub: H2O2SERVER tokens are encrypted by HoHo Hub and cannot be decrypted by Redz Hub. Please use a standard Roblox JobId (GUID).")
-                    return
+                    local split = string.split(p215, "|")
+                    if split[2] then
+                        jobId = split[2]
+                    end
                 end
-                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, p215)
+                pcall(function()
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, jobId)
+                end)
             end
         end
     })
@@ -13209,14 +13214,21 @@ v496:AddButton({
         local Players = game:GetService("Players")
         local LocalPlayer = Players.LocalPlayer
 
-        local jobId = tostring(getclipboard())
+        local success, clip = pcall(getclipboard)
+        if not success or not clip then return end
+        
+        local jobId = tostring(clip)
 
         if jobId and jobId ~= "" then
             if string.match(jobId, "^H2O2SERVER%|") then
-                warn("NewRedzHub: H2O2SERVER tokens are encrypted by HoHo Hub and cannot be decrypted by Redz Hub. Please use a standard Roblox JobId (GUID).")
-                return
+                local split = string.split(jobId, "|")
+                if split[2] then
+                    jobId = split[2]
+                end
             end
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, LocalPlayer)
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, LocalPlayer)
+            end)
         else
             warn("Clipboard vazio ou inválido")
         end
@@ -13274,12 +13286,14 @@ spawn(function()
                 
                 -- Universally trigger the tool's remotes directly (Perfect for Dragonstorm & Soul Guitar)
                 for _, v in pairs(tool:GetChildren()) do
-                    if v:IsA("RemoteEvent") then
+                    if v:IsA("RemoteFunction") then
+                        task.spawn(function()
+                            pcall(function() v:InvokeServer(pos) end)
+                        end)
+                    elseif v:IsA("RemoteEvent") then
                         pcall(function() v:FireServer(pos) end)
                         pcall(function() v:FireServer("TAP", pos) end)
                         pcall(function() v:FireServer(mob) end)
-                    elseif v:IsA("RemoteFunction") then
-                        pcall(function() v:InvokeServer(pos) end)
                     end
                 end
             end)
@@ -13913,6 +13927,24 @@ v496:AddToggle({
     Default = true,
     Callback = function(v1188)
         _G.WalkWater = v1188
+    end
+})
+
+v496:AddToggle({
+    Title = "Smooth Mode",
+    Description = "Reduces calculation speed to improve FPS",
+    Default = false,
+    Callback = function(v)
+       Settings.SmoothMode = v
+    end
+})
+
+v496:AddToggle({
+    Title = "Remove Notifications",
+    Description = "Completely hide the screen notifications",
+    Default = false,
+    Callback = function(v)
+        game:GetService("Players").LocalPlayer.PlayerGui.Notifications.Enabled = not v
     end
 })
 
