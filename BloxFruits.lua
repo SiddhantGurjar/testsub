@@ -13380,7 +13380,7 @@ spawn(function()
                         vu:CaptureController()
                         vu:ClickButton1(Vector2.new(1280, 672))
                     end)
-                    local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot")
+                    local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot") or tool:FindFirstChild("RemoteFunction") or tool:FindFirstChild("RemoteEvent")
                     if oldShoot then
                         if oldShoot:IsA("RemoteFunction") then
                             oldShoot:InvokeServer(pos)
