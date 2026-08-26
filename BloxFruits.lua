@@ -10422,16 +10422,8 @@ v498:AddToggle({
     Title = "Esp Kitsune Island",
     Value = false,
     Callback = function(v945)
-        KitsuneIslandEsp = v945
-        if KitsuneIslandEsp then
-            task.spawn(function()
-                while KitsuneIslandEsp do
-                    UpdateIslandKisuneESP()
-                    task.wait(1)
-                end
-            end)
-        else
-            UpdateIslandKisuneESP()
+        if getgenv().KitsuneManager then
+            getgenv().KitsuneManager.Enabled = v945
         end
     end
 })
@@ -10536,16 +10528,8 @@ v498:AddToggle({
     Description = "",
     Value = false,
     Callback = function(v988)
-        MirageIslandESP = v988
-        if MirageIslandESP then
-            task.spawn(function()
-                while MirageIslandESP do
-                    UpdateIslandMirageESP()
-                    task.wait(1)
-                end
-            end)
-        else
-            UpdateIslandMirageESP()
+        if getgenv().MirageManager then
+            getgenv().MirageManager.Enabled = v988
         end
     end
 })
@@ -12196,6 +12180,30 @@ LSDESP:SetCustomEspDisplay(function(NPC, Distance)
     )
 end)
 
+
+getgenv().KitsuneManager = Managers.EspManager.new("KitsuneIslandESP")
+getgenv().KitsuneManager:SetObjects(function()
+    return game:GetService("Workspace")._WorldOrigin.Locations:GetChildren()
+end)
+getgenv().KitsuneManager:Validator(function(Island)
+    return Island.Name == "Kitsune Island"
+end)
+getgenv().KitsuneManager:SetEspColor(Color3.fromRGB(80, 245, 245))
+getgenv().KitsuneManager:SetCustomEspDisplay(function(Island, Distance)
+    return Island.Name .. "   \n" .. Distance .. " M"
+end)
+
+getgenv().MirageManager = Managers.EspManager.new("MirageIslandESP")
+getgenv().MirageManager:SetObjects(function()
+    return game:GetService("Workspace")._WorldOrigin.Locations:GetChildren()
+end)
+getgenv().MirageManager:Validator(function(Island)
+    return Island.Name == "Mirage Island"
+end)
+getgenv().MirageManager:SetEspColor(Color3.fromRGB(80, 245, 245))
+getgenv().MirageManager:SetCustomEspDisplay(function(Island, Distance)
+    return Island.Name .. "   \n" .. Distance .. " M"
+end)
 local FlowerESPManager = Managers.EspManager.new("FlowerESP")
 
 FlowerESPManager:SetObjects(function()
@@ -12236,7 +12244,7 @@ v494:AddSlider({
 })
 if World2 then
 v494:AddToggle({
-    Name = "ESP Flowers",
+
     Description = "Display Flowers",
     Flag = "S-ESPFlowers",
     Default = false,
@@ -13314,7 +13322,7 @@ v496:AddToggle({
 })
 
 spawn(function()
-    while task.wait(0.25) do
+    while task.wait() do
         if _G.AutoShootGun then
             pcall(function()
                 local plr = game.Players.LocalPlayer
@@ -13324,19 +13332,26 @@ spawn(function()
                 local tool = char:FindFirstChildOfClass("Tool")
                 if not tool or (tool.ToolTip ~= "Gun" and tool:GetAttribute("WeaponType") ~= "Gun" and not string.find(string.lower(tool.Name), "gun") and not string.find(string.lower(tool.Name), "dragonstorm")) then return end
 
-                local closest = nil
-                local minDist = math.huge
-                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                    if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                        local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
-                        if dist < minDist then
-                            minDist = dist
-                            closest = enemy
-                        end
-                    end
+                local mob = nil
+                if MonFarm then
+                    mob = workspace.Enemies:FindFirstChild(MonFarm)
                 end
                 
-                local mob = closest
+                if not mob or not mob:FindFirstChild("HumanoidRootPart") or mob.Humanoid.Health <= 0 then
+                    local closest = nil
+                    local minDist = math.huge
+                    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                        if enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                            local dist = (enemy.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
+                            if dist < minDist then
+                                minDist = dist
+                                closest = enemy
+                            end
+                        end
+                    end
+                    mob = closest
+                end
+                
                 if not mob then 
                     _G.ShootTargetPos = nil
                     return 
@@ -13345,8 +13360,18 @@ spawn(function()
                 local pos = mob.HumanoidRootPart.Position
                 _G.ShootTargetPos = pos
                 
-                pcall(function()
+                local Net = game:GetService("ReplicatedStorage"):FindFirstChild("Modules")
+                Net = Net and Net:FindFirstChild("Net")
+                local shoot = Net and Net:FindFirstChild("RE/ShootGunEvent")
+
+                if (tool.Name == "Soul Guitar" or tool.Name == "Skull Guitar") and tool:FindFirstChild("RemoteEvent") then
+                    tool.RemoteEvent:FireServer("TAP", pos)
+                else
+                    if shoot then
+                        shoot:FireServer(pos)
+                    end
                     tool:Activate()
+                    
                     if type(Click) == "function" then
                         Click()
                     end
@@ -13355,15 +13380,15 @@ spawn(function()
                         vu:CaptureController()
                         vu:ClickButton1(Vector2.new(1280, 672))
                     end)
-                    local shoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot")
-                    if shoot then
-                        if shoot:IsA("RemoteFunction") then
-                            shoot:InvokeServer(pos)
+                    local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot")
+                    if oldShoot then
+                        if oldShoot:IsA("RemoteFunction") then
+                            oldShoot:InvokeServer(pos)
                         else
-                            shoot:FireServer(pos)
+                            oldShoot:FireServer(pos)
                         end
                     end
-                end)
+                end
             end)
         end
     end
