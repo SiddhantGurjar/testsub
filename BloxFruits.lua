@@ -13370,26 +13370,13 @@ spawn(function()
                     if shoot then
                         shoot:FireServer(pos)
                     end
-                    tool:Activate()
                     
-                    if type(Click) == "function" then
-                        Click()
-                    end
-                    pcall(function()
-                        local vu = game:GetService("VirtualUser")
-                        vu:CaptureController()
-                        vu:ClickButton1(Vector2.new(1280, 672))
-                    end)
                     local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot") or tool:FindFirstChild("RemoteFunction") or tool:FindFirstChild("RemoteEvent")
                     if oldShoot then
                         if oldShoot:IsA("RemoteFunction") then
-                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos) end) end)
-                            task.spawn(function() pcall(function() oldShoot:InvokeServer("TAP", pos) end) end)
-                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos, "TAP") end) end)
+                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos, 100) end) end)
                         else
-                            task.spawn(function() pcall(function() oldShoot:FireServer(pos) end) end)
-                            task.spawn(function() pcall(function() oldShoot:FireServer("TAP", pos) end) end)
-                            task.spawn(function() pcall(function() oldShoot:FireServer(pos, "TAP") end) end)
+                            task.spawn(function() pcall(function() oldShoot:FireServer(pos, 100) end) end)
                         end
                     end
                 end
