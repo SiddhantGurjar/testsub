@@ -13383,9 +13383,13 @@ spawn(function()
                     local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot") or tool:FindFirstChild("RemoteFunction") or tool:FindFirstChild("RemoteEvent")
                     if oldShoot then
                         if oldShoot:IsA("RemoteFunction") then
-                            oldShoot:InvokeServer(pos)
+                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos) end) end)
+                            task.spawn(function() pcall(function() oldShoot:InvokeServer("TAP", pos) end) end)
+                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos, "TAP") end) end)
                         else
-                            oldShoot:FireServer(pos)
+                            task.spawn(function() pcall(function() oldShoot:FireServer(pos) end) end)
+                            task.spawn(function() pcall(function() oldShoot:FireServer("TAP", pos) end) end)
+                            task.spawn(function() pcall(function() oldShoot:FireServer(pos, "TAP") end) end)
                         end
                     end
                 end
