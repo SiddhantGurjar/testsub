@@ -4692,7 +4692,17 @@ spawn(function()
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
                             task.wait(1.5)
                         else
+                            local validMobs = {}
                             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
+                                    table.insert(validMobs, mob)
+                                end
+                            end
+                            local myPos = HRP() and HRP().Position or Vector3.zero
+                            table.sort(validMobs, function(a, b)
+                                return (a.HumanoidRootPart.Position - myPos).Magnitude < (b.HumanoidRootPart.Position - myPos).Magnitude
+                            end)
+                            for _, mob in ipairs(validMobs) do
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
                                     local startTime = os.time()
                                     local lastHealth = mob.Humanoid.Health
@@ -4778,7 +4788,17 @@ spawn(function()
                         if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
+                                    local validMobs2 = {}
                                     for _, v512 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
+                                            table.insert(validMobs2, v512)
+                                        end
+                                    end
+                                    local myPos2 = HRP() and HRP().Position or Vector3.zero
+                                    table.sort(validMobs2, function(a, b)
+                                        return (a.HumanoidRootPart.Position - myPos2).Magnitude < (b.HumanoidRootPart.Position - myPos2).Magnitude
+                                    end)
+                                    for _, v512 in ipairs(validMobs2) do
                                         if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
                                             if not string.find(l_Text_0, NameMon) then
                                                 StartBring = false
@@ -14618,9 +14638,13 @@ end)
 
 
 spawn(function()
+    local lastQuestCheck = 0
     while task.wait() do
         pcall(function()
-            if type(CheckQuest) == "function" then CheckQuest() end
+            if type(CheckQuest) == "function" and tick() - lastQuestCheck > 1 then 
+                CheckQuest()
+                lastQuestCheck = tick()
+            end
             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                 if StartBring
                 and (mob.Name == MonFarm or mob.Name == Mon)
