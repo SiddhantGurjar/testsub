@@ -6172,7 +6172,7 @@ end)
 task.spawn(function()
     while task.wait() do
         if _G.AutoFishing then
-            pcall(function()
+            local s, e = pcall(function()
                 local plr = game.Players.LocalPlayer
                 local char = plr.Character or plr.CharacterAdded:Wait()
                 local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -6202,13 +6202,9 @@ task.spawn(function()
                             waterHeight = GetWaterHeight(hrp.Position)
                         end)
 
-                        local rayOrigin = head.Position
-                        local rayDirection = hrp.CFrame.LookVector * maxLaunch
-
-                        local ignore = {char, workspace:FindFirstChild("Characters"), workspace:FindFirstChild("Enemies")}
-                        local _, hitPos = workspace:FindPartOnRayWithIgnoreList(Ray.new(rayOrigin, rayDirection), ignore)
-
-                        local targetPos = hitPos and Vector3.new(hitPos.X, math.max(hitPos.Y, waterHeight), hitPos.Z)
+                        -- Fix: Replaced flaky raycast with guaranteed forward water target
+                        local forwardVector = hrp.CFrame.LookVector * (type(maxLaunch) == "number" and math.min(maxLaunch, 50) or 50)
+                        local targetPos = Vector3.new(hrp.Position.X + forwardVector.X, waterHeight, hrp.Position.Z + forwardVector.Z)
 
                         local state = equippedTool:GetAttribute("State")
                         local serverState = equippedTool:GetAttribute("ServerState")
@@ -6225,6 +6221,7 @@ task.spawn(function()
                     end
                 end
             end)
+            if not s then warn("Fishing Error: ", e) end
         end
     end
 end)
