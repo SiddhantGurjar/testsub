@@ -449,11 +449,15 @@ function AttackAllSkills()
     end
 end
 
-hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function()
-    -- empty block
+pcall(function()
+    hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function()
+        -- empty block
+    end)
 end)
-hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function()
-    -- empty block
+pcall(function()
+    hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function()
+        -- empty block
+    end)
 end)
 if game.PlaceId == 2753915549 or game.PlaceId == 85211729168715 then
     World1 = true
@@ -3919,7 +3923,7 @@ spawn(function()
     local l_LocalPlayer_3 = game.Players.LocalPlayer
     while task.wait() do
         pcall(function()
-            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 100 then
+            if l_LocalPlayer_3.Character:FindFirstChild("PartTele") and (l_LocalPlayer_3.Character.HumanoidRootPart.Position - l_LocalPlayer_3.Character.PartTele.Position).Magnitude >= 500 then
                 stopTeleport()
             end
         end)
@@ -4509,7 +4513,6 @@ local function TweenTo(cf)
         part.CFrame = hrp.CFrame
         part:GetPropertyChangedSignal("CFrame"):Connect(function()
             if not v391 then return end
-            task.wait()
             if character and character:FindFirstChild("HumanoidRootPart") then
                 character.HumanoidRootPart.CFrame = part.CFrame
             end
@@ -5788,7 +5791,7 @@ _ = v485:AddSection({" Material "})
 v664 = {}
 if not World1 then
     if World2 then
-        v664 = {"Radioactive", "Mystic Droplet", "Magma Ore", "Leather", "Ectoplasm", "Scrap Metal"}
+        v664 = {"Radioactive", "Mystic Droplet", "Magma Ore", "Leather", "Ectoplasm", "Scrap Metal", "Vampire Fang"}
     elseif World3 then
         v664 = {"Leather", "Scrap Metal", "Conjured Cocoa", "Dragon Scale", "Gunpowder", "Fish Tail", "Mini Tusk"}
     end
@@ -5796,6 +5799,11 @@ else
     v664 = {"Magma Ore", "Angel Wings", "Leather", "Scrap Metal"}
 end
 function getConfigMaterial(v665)
+    if v665 == "Vampire Fang" and World2 then
+        MaterialMon = {"Vampire"}
+        MaterialPos = CFrame.new(-6132.39, 9.00, -1466.16)
+        return
+    end
     if v665 ~= "Radioactive" or not World2 then
         if v665 ~= "Mystic Droplet" or not World2 then
             if v665 == "Magma Ore" and World1 then
@@ -6024,64 +6032,308 @@ task.spawn(function()
 end)
 
 _ = v486:AddSection({" Auto Fishing "})
+
+local rs = game:GetService("ReplicatedStorage")
+local netModules = rs:WaitForChild("Modules"):WaitForChild("Net")
+local CraftRemote = netModules:WaitForChild("RF/Craft")
+local JobsRemote = netModules:WaitForChild("RF/JobsRemoteFunction")
+local ToolAbilities = netModules:WaitForChild("RF/JobToolAbilities")
+local FishReplicated = rs:WaitForChild("FishReplicated")
+local FishingRequest = FishReplicated:WaitForChild("FishingRequest")
+local FishingClientConfig = require(FishReplicated:WaitForChild("FishingClient"):WaitForChild("Config"))
+local GetWaterHeight = require(rs:WaitForChild("Util"):WaitForChild("GetWaterHeightAtLocation"))
+
 v486:AddToggle({
-    Title = "Auto Fishing",
+    Title = "Auto Fish",
     Description = "",
     Default = false,
-    Callback = function(v673)
-        _G.AutoFishing = v673
+    Callback = function(v)
+       _G.AutoFishing = v
     end
 })
-_ = workspace
-l_LocalPlayer_10 = game.Players.LocalPlayer
-l_FishReplicated_0 = game.ReplicatedStorage:WaitForChild("FishReplicated")
-l_FishingRequest_0 = l_FishReplicated_0:WaitForChild("FishingRequest")
-l_MaxLaunchDistance_0 = require(l_FishReplicated_0.FishingClient.Config).Rod.MaxLaunchDistance
-v679 = require(game.ReplicatedStorage.Util.GetWaterHeightAtLocation)
+
+v486:AddToggle({
+    Name = "Auto use skill of the rod",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoSkillZ = Value
+    end
+})
+
 task.spawn(function()
-    while task.wait() do
-        if _G.AutoFishing then
-            local l_Character_6 = l_LocalPlayer_10.Character
-            local v681 = l_Character_6 and l_Character_6:FindFirstChild("HumanoidRootPart")
-            local v682 = l_Character_6 and l_Character_6:FindFirstChildOfClass("Tool")
-            if _G.SelectedRod and (not v682 or v682.Name ~= _G.SelectedRod) then
-                local l_FirstChild_2 = l_LocalPlayer_10.Backpack:FindFirstChild(_G.SelectedRod)
-                if l_FirstChild_2 then
-                    l_LocalPlayer_10.Character.Humanoid:EquipTool(l_FirstChild_2)
-                    v682 = l_FirstChild_2
-                end
-            end
-            if l_Character_6 and v681 and v682 then
-                local v684 = v679(v681.Position)
-                local _, v686 = workspace:FindPartOnRayWithIgnoreList(Ray.new(l_Character_6.Head.Position, v681.CFrame.LookVector * l_MaxLaunchDistance_0), {l_Character_6, workspace.Characters, workspace.Enemies})
-                local v687 = v686 and Vector3.new(v686.X, math.max(v686.Y, v684), v686.Z)
-                local v688 = v682.GetAttribute(v682, "State")
-                local v689 = v682.GetAttribute(v682, "ServerState")
-                if v688 ~= "ReeledIn" and v689 ~= "ReeledIn" or not v687 then
-                    if v689 == "Biting" then
-                        l_FishingRequest_0:InvokeServer("Catching", true)
-                        task.wait(0.1)
-                        l_FishingRequest_0:InvokeServer("Catch", 1)
-                    end
-                else
-                    l_FishingRequest_0:InvokeServer("StartCasting")
-                    task.wait()
-                    l_FishingRequest_0:InvokeServer("CastLineAtLocation", v687, 100, true)
-                end
-            end
+    while task.wait(0.5) do
+        if _G.AutoSkillZ then
+            pcall(function()
+                ToolAbilities:InvokeServer("Z", true)
+            end)
         end
     end
 end)
+
+v486:AddButton({
+    Name = "Save Fish Position",
+    Callback = function()
+        local plr = game.Players.LocalPlayer
+        local char = plr.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            _G.SavedFishPosition = char.HumanoidRootPart.CFrame
+        end
+    end
+})
+
+_ = v486:AddSection({" Bait "})
+
 v486:AddDropdown({
-    Name = "Select Fishing Lure",
+    Name = "Select Bait",
     Description = "",
     Options = {"Basic Bait", "Kelp Bait", "Good Bait", "Abyssal Bait", "Frozen Bait", "Epic Bait", "Carnivore Bait"},
     Default = "Basic Bait",
-    Callback = function(v690)
-        _G.SelectedBait = v690
-        l_FishingRequest_0:InvokeServer("SelectBait", v690)
+    Callback = function(v)
+        _G.SelectedBait = v
     end
 })
+
+v486:AddSlider({
+    Name = "Max Baits",
+    Min = 1,
+    Max = 90,
+    Default = 10,
+    Callback = function(v)
+        _G.MaxBaits = v
+    end
+})
+
+v486:AddToggle({
+    Name = "Auto Buy Baits",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        _G.AutoBuyBait = v
+    end
+})
+
+v486:AddButton({
+    Name = "Buy Bait",
+    Callback = function()
+        pcall(function()
+            if _G.SelectedBait then
+                CraftRemote:InvokeServer("Craft", _G.SelectedBait, {})
+            end
+        end)
+    end
+})
+
+task.spawn(function()
+    while task.wait(2) do
+        if _G.AutoBuyBait then
+            pcall(function()
+                if _G.SelectedBait then
+                    for i = 1, _G.MaxBaits or 1 do
+                        CraftRemote:InvokeServer("Craft", _G.SelectedBait, {})
+                        task.wait(0.1)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if _G.AutoFishing then
+            pcall(function()
+                local plr = game.Players.LocalPlayer
+                local char = plr.Character or plr.CharacterAdded:Wait()
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                local head = char:FindFirstChild("Head")
+
+                if hrp and hum and head then
+                    if _G.SavedFishPosition then
+                        hrp.CFrame = _G.SavedFishPosition
+                    end
+
+                    local equippedTool = char:FindFirstChildOfClass("Tool")
+
+                    if _G.SelectedRod and (not equippedTool or equippedTool.Name ~= _G.SelectedRod) then
+                        local rod = plr.Backpack:FindFirstChild(_G.SelectedRod)
+                        if rod then
+                            hum:EquipTool(rod)
+                            equippedTool = rod
+                        end
+                    end
+
+                    if equippedTool and equippedTool.Name == _G.SelectedRod then
+                        local maxLaunch = FishingClientConfig.Rod.MaxLaunchDistance
+                        local waterHeight = 0
+
+                        pcall(function()
+                            waterHeight = GetWaterHeight(hrp.Position)
+                        end)
+
+                        local rayOrigin = head.Position
+                        local rayDirection = hrp.CFrame.LookVector * maxLaunch
+
+                        local ignore = {char, workspace:FindFirstChild("Characters"), workspace:FindFirstChild("Enemies")}
+                        local _, hitPos = workspace:FindPartOnRayWithIgnoreList(Ray.new(rayOrigin, rayDirection), ignore)
+
+                        local targetPos = hitPos and Vector3.new(hitPos.X, math.max(hitPos.Y, waterHeight), hitPos.Z)
+
+                        local state = equippedTool:GetAttribute("State")
+                        local serverState = equippedTool:GetAttribute("ServerState")
+
+                        if targetPos and (state == "ReeledIn" or serverState == "ReeledIn") then
+                            FishingRequest:InvokeServer("StartCasting")
+                            task.wait()
+                            FishingRequest:InvokeServer("CastLineAtLocation", targetPos, 100, true)
+                        elseif serverState == "Biting" then
+                            FishingRequest:InvokeServer("Catching", true)
+                            task.wait(0.1)
+                            FishingRequest:InvokeServer("Catch", 1)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+_ = v486:AddSection({" Quest "})
+
+v486:AddDropdown({
+    Name = "Skip Quests",
+    Description = "",
+    Options = {"None", "Skip Get", "Skip Complete", "Skip Get, Complete"},
+    Default = "None",
+    Callback = function(v)
+        _G.SkipQuestMode = v
+    end
+})
+
+v486:AddToggle({
+    Name = "Auto Quest [Skip Get, Complete]",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        _G.AutoFishingQuest = v
+    end
+})
+
+v486:AddToggle({
+    Name = "Take Quest Only When Fishing",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        _G.TakeQuestOnlyWhenFishing = v
+    end
+})
+
+local function HasQuest()
+    local playerGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        local questGui = playerGui:FindFirstChild("Quest") or playerGui:FindFirstChild("QuestGui")
+        if questGui and questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") then
+            return true
+        end
+    end
+    return false
+end
+
+task.spawn(function()
+    while task.wait(1) do
+        if _G.AutoFishingQuest then
+            pcall(function()
+                if _G.TakeQuestOnlyWhenFishing and not _G.AutoFishing then return end
+                if not HasQuest() then
+                    if _G.SkipQuestMode ~= "Skip Get" and _G.SkipQuestMode ~= "Skip Get, Complete" then
+                        JobsRemote:InvokeServer("FishingNPC","Angler","AskQuest")
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(5) do
+        if _G.AutoFishingQuest then
+            pcall(function()
+                if _G.SkipQuestMode ~= "Skip Complete" and _G.SkipQuestMode ~= "Skip Get, Complete" then
+                    JobsRemote:InvokeServer("FishingNPC","FinishQuest")
+                end
+            end)
+        end
+    end
+end)
+
+_ = v486:AddSection({" Sell "})
+
+v486:AddDropdown({
+    Name = "Select Fish Kind",
+    Description = "",
+    Options = {"All Fish", "Common", "Rare", "Legendary"},
+    Default = "All Fish",
+    Callback = function(v)
+        _G.SelectedFishKind = v
+    end
+})
+
+v486:AddToggle({
+    Name = "Auto Sell Fish",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        _G.AutoSellFish = v
+    end
+})
+
+task.spawn(function()
+    while task.wait(5) do
+        if _G.AutoSellFish then
+            pcall(function()
+                if _G.SelectedFishKind == "All Fish" then
+                    JobsRemote:InvokeServer("FishingNPC","SellFish")
+                else
+                    JobsRemote:InvokeServer("FishingNPC","SellFishByKind", _G.SelectedFishKind)
+                end
+            end)
+        end
+    end
+end)
+
+_ = v486:AddSection({" Manual "})
+
+v486:AddToggle({
+    Name = "Instant Catch",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        _G.InstantCatch = v
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if _G.InstantCatch then
+            pcall(function()
+                local plr = game.Players.LocalPlayer
+                local char = plr.Character
+                if char then
+                    local tool = char:FindFirstChildOfClass("Tool")
+                    if tool and tool:GetAttribute("ServerState") == "Casted" then
+                        FishingRequest:InvokeServer("Catching", true)
+                        task.wait(0.1)
+                        FishingRequest:InvokeServer("Catch", 1)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+_ = v486:AddSection({" Settings "})
+
 v486:AddDropdown({
     Name = "Select Fishing Rod",
     Description = "",
@@ -10591,10 +10843,38 @@ v491:AddToggle({
     end
 })
 spawn(function()
-    while task.wait(1) do
+    _G.LastGachaCheck = 0
+    while task.wait(5) do
         if _G.RandomAuto then
             pcall(function()
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+                if os.time() - _G.LastGachaCheck > 60 then -- Don't spam remote
+                    local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "GetPrice")
+                    if type(res) == "number" or res == 1 or type(res) == "table" then
+                        local gachaCFrame
+                        if game.PlaceId == 2753915549 then
+                            gachaCFrame = CFrame.new(-1261, 41, 1061)
+                        elseif game.PlaceId == 4442272183 then
+                            gachaCFrame = CFrame.new(-380.479, 77.22, 255.826)
+                        else
+                            gachaCFrame = CFrame.new(-5036, 315, -3179)
+                        end
+                        
+                        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and (hrp.Position - gachaCFrame.Position).Magnitude > 25 then
+                            local oldAutoFarm = _G.AutoFarm
+                            _G.AutoFarm = false -- Smart Pause
+                            topos(gachaCFrame)
+                            task.wait(1.5)
+                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+                            task.wait(0.5)
+                            _G.AutoFarm = oldAutoFarm -- Resume
+                            _G.LastGachaCheck = os.time() + 7200 -- 2 Hour Cooldown
+                        else
+                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+                            _G.LastGachaCheck = os.time() + 7200
+                        end
+                    end
+                end
             end)
         end
     end
@@ -13374,9 +13654,9 @@ spawn(function()
                     local oldShoot = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChild("RemoteEventShoot") or tool:FindFirstChild("RemoteFunction") or tool:FindFirstChild("RemoteEvent")
                     if oldShoot then
                         if oldShoot:IsA("RemoteFunction") then
-                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos, 100) end) end)
+                            task.spawn(function() pcall(function() oldShoot:InvokeServer(pos) end) end)
                         else
-                            task.spawn(function() pcall(function() oldShoot:FireServer(pos, 100) end) end)
+                            task.spawn(function() pcall(function() oldShoot:FireServer(pos) end) end)
                         end
                     end
                 end
