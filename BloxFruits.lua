@@ -3874,7 +3874,7 @@ function topos(v405)
                         return 
                     else
                         if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
-                            local hrp = WaitHRP(l_LocalPlayer_1)
+                            local hrp = l_LocalPlayer_1.Character.HumanoidRootPart
                             hrp.CFrame = l_v409_0.CFrame
                             hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                             hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
@@ -3892,7 +3892,7 @@ function topos(v405)
         _G.LastToposTarget = v405
 
         v391 = true
-        local v411 = game:GetService("TweenService"):Create(l_LocalPlayer_1.Character.PartTele, TweenInfo.new(l_Magnitude_2 / 360, Enum.EasingStyle.Linear), {CFrame = v405})
+        local v411 = game:GetService("TweenService"):Create(l_LocalPlayer_1.Character.PartTele, TweenInfo.new(l_Magnitude_2 / 275, Enum.EasingStyle.Linear), {CFrame = v405})
         _G.CurrentToposTween = v411
         v411:Play()
         v411.Completed:Connect(function(v412)
@@ -4046,7 +4046,7 @@ end
 function TPP(v436)
     if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health > 0 and game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") then
         local v437 = game:service("TweenService")
-        local v438 = TweenInfo.new((game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - v436.Position).Magnitude / 325, Enum.EasingStyle.Linear)
+        local v438 = TweenInfo.new((game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - v436.Position).Magnitude / 275, Enum.EasingStyle.Linear)
         tween = v437:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v438, {CFrame = v436})
         tween:Play()
         return {Stop = function(_)
@@ -6031,6 +6031,13 @@ task.spawn(function()
     end
 end)
 
+
+_G.SelectedRod = _G.SelectedRod or "Fishing Rod"
+_G.SelectedBait = _G.SelectedBait or "Basic Bait"
+_G.MaxBaits = _G.MaxBaits or 10
+_G.SkipQuestMode = _G.SkipQuestMode or "None"
+_G.SelectedFishKind = _G.SelectedFishKind or "All Fish"
+
 _ = v486:AddSection({" Auto Fishing "})
 
 local rs = game:GetService("ReplicatedStorage")
@@ -6091,6 +6098,9 @@ v486:AddDropdown({
     Default = "Basic Bait",
     Callback = function(v)
         _G.SelectedBait = v
+        pcall(function()
+            game:GetService("ReplicatedStorage"):WaitForChild("FishReplicated"):WaitForChild("FishingRequest"):InvokeServer("SelectBait", v)
+        end)
     end
 })
 
