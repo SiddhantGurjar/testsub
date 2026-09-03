@@ -215,6 +215,15 @@ function isFruitOrGun(toolName)
     return false
 end
 
+function ModernFastAttack()
+    pcall(function()
+        local CombatFramework = require(game:GetService("Players").LocalPlayer.PlayerScripts:WaitForChild("CombatFramework"))
+        if CombatFramework and CombatFramework.activeController then
+            CombatFramework.activeController:attack()
+        end
+    end)
+end
+
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
@@ -4712,6 +4721,7 @@ spawn(function()
                                     _G.MobStartTime = os.time()
                                     _G.LastMobHealth = targetMob.Humanoid.Health
                                     _G.LastHealthTime = os.time()
+                                    _G.MobOriginalPos = targetMob.HumanoidRootPart.Position
                                 else
                                     local now = os.time()
                                     if targetMob.Humanoid.Health < _G.LastMobHealth then
@@ -4733,9 +4743,9 @@ spawn(function()
                                 
                                 local myHrp = HRP()
                                 if myHrp then
-                                    -- Calculate stable position 15 studs above the mob (WORLD SPACE)
-                                    local tPos = targetMob.HumanoidRootPart.Position
-                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                                    -- Ultimate Fix: Sky Magnet + CombatFramework Hook
+                                    local tPos = _G.MobOriginalPos or targetMob.HumanoidRootPart.Position
+                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
                                     
                                     local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                                     if dist > 5 then
@@ -4746,8 +4756,8 @@ spawn(function()
                                         myHrp.CFrame = targetCFrame
                                         if type(stopTeleport) == "function" then pcall(stopTeleport) end
                                         
-                                        -- Crucial Fix: Set PosMon 15 studs below us to prevent infinite ascending! (WORLD SPACE)
-                                        PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                                        -- Pull mob EXACTLY into the player in the sky
+                                        PosMon = targetCFrame
                                         StartBring = true
                                         MonFarm = targetMob.Name
                                         
@@ -4759,9 +4769,7 @@ spawn(function()
                                         pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
                                         
                                         if not isFruitOrGun(targetTool) then
-                                            game:GetService("VirtualUser"):CaptureController()
-                                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                            game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                                            ModernFastAttack()
                                         end
                                         spamCombatSkills(targetMob)
                                     end
@@ -5094,6 +5102,7 @@ spawn(function()
                         _G.CurrentMobNear = targetMob
                         _G.LastMobHealthNear = targetMob.Humanoid.Health
                         _G.LastHealthTimeNear = os.time()
+                        _G.MobOriginalPosNear = targetMob.HumanoidRootPart.Position
                     else
                         local now = os.time()
                         if targetMob.Humanoid.Health < _G.LastMobHealthNear then
@@ -5116,8 +5125,8 @@ spawn(function()
                     
                     local myHrp = HRP()
                     if myHrp then
-                        local tPos = targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local tPos = _G.MobOriginalPosNear or targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
@@ -5128,7 +5137,7 @@ spawn(function()
                             myHrp.CFrame = targetCFrame
                             if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
-                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                            PosMon = targetCFrame
                             MonFarm = targetMob.Name
                             
                             targetMob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
@@ -5140,9 +5149,7 @@ spawn(function()
                             pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
                             
                             if not isFruitOrGun(targetTool) then
-                                game:GetService("VirtualUser"):CaptureController()
-                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                                ModernFastAttack()
                             end
                             spamCombatSkills(targetMob)
                         end
@@ -6067,6 +6074,7 @@ task.spawn(function()
                         _G.CurrentMobMat = targetMob
                         _G.LastMobHealthMat = targetMob.Humanoid.Health
                         _G.LastHealthTimeMat = os.time()
+                        _G.MobOriginalPosMat = targetMob.HumanoidRootPart.Position
                     else
                         local now = os.time()
                         if targetMob.Humanoid.Health < _G.LastMobHealthMat then
@@ -6087,8 +6095,8 @@ task.spawn(function()
                     
                     local myHrp = HRP()
                     if myHrp then
-                        local tPos = targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local tPos = _G.MobOriginalPosMat or targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
@@ -6099,7 +6107,7 @@ task.spawn(function()
                             myHrp.CFrame = targetCFrame
                             if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
-                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                            PosMon = targetCFrame
                             StartBring = true
                             MonFarm = targetMob.Name
                             
@@ -6110,9 +6118,7 @@ task.spawn(function()
                             
                             pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
                             
-                            game:GetService("VirtualUser"):CaptureController()
-                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                            game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                            ModernFastAttack()
                             spamCombatSkills(targetMob)
                         end
                     end
