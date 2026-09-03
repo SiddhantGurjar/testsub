@@ -5073,45 +5073,80 @@ spawn(function()
     while wait() do
         if _G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest") then
             pcall(function()
-                for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
-                        repeat
-                            wait(_G.Fast_Delay)
-                            StartBring = true
-                            AutoHaki()
-                            local targetTool = getToolToEquip(v522)
-                            EquipWeapon(targetTool)
+                local myPos = HRP() and HRP().Position or Vector3.zero
+                local targetMob = nil
+                local shortestDist = math.huge
+                
+                for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 and (mob.HumanoidRootPart.Position - myPos).Magnitude <= 5000 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
+                        local dist = (mob.HumanoidRootPart.Position - myPos).Magnitude
+                        if dist < shortestDist then
+                            shortestDist = dist
+                            targetMob = mob
+                        end
+                    end
+                end
+                
+                if targetMob then
+                    if _G.CurrentMobNear ~= targetMob then
+                        _G.CurrentMobNear = targetMob
+                        _G.LastMobHealthNear = targetMob.Humanoid.Health
+                        _G.LastHealthTimeNear = os.time()
+                    else
+                        local now = os.time()
+                        if targetMob.Humanoid.Health < _G.LastMobHealthNear then
+                            _G.LastMobHealthNear = targetMob.Humanoid.Health
+                            _G.LastHealthTimeNear = now
+                        elseif now - _G.LastHealthTimeNear > 8 then
+                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
+                            _G.GlitchedMobs[targetMob] = true
+                            StartBring = false
+                            targetMob = nil
+                        end
+                    end
+                end
+                
+                if targetMob then
+                    StartBring = true
+                    AutoHaki()
+                    local targetTool = getToolToEquip(targetMob)
+                    EquipWeapon(targetTool)
+                    
+                    local myHrp = HRP()
+                    if myHrp then
+                        local tPos = targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                        
+                        if dist > 5 then
+                            myHrp.Anchored = false
+                            topos(targetCFrame)
+                        else
+                            myHrp.Anchored = true
+                            myHrp.CFrame = targetCFrame
                             
-                            local targetCFrame = v522.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
-                            local myHrp = HRP()
-                            if myHrp then
-                                local dist = (myHrp.Position - targetCFrame.Position).Magnitude
-                                if dist > 5 then
-                                    myHrp.Anchored = false
-                                    topos(targetCFrame)
-                                else
-                                    myHrp.Anchored = true
-                                    myHrp.CFrame = targetCFrame
-                                end
-                            end
+                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                            MonFarm = targetMob.Name
                             
-                            v522.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
-                            v522.HumanoidRootPart.Transparency = 1
-                            v522.Humanoid.JumpPower = 0
-                            v522.Humanoid.WalkSpeed = 0
-                            v522.HumanoidRootPart.CanCollide = false
-                            FarmPos = v522.HumanoidRootPart.CFrame
-                            MonFarm = v522.Name
+                            targetMob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            targetMob.HumanoidRootPart.Transparency = 1
+                            targetMob.Humanoid.JumpPower = 0
+                            targetMob.Humanoid.WalkSpeed = 0
+                            targetMob.HumanoidRootPart.CanCollide = false
+                            
+                            pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
+                            
                             if not isFruitOrGun(targetTool) then
                                 game:GetService("VirtualUser"):CaptureController()
                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                                game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                             end
-                            spamCombatSkills(v522)
-                        until not (_G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest")) or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
-                        pcall(function() HRP().Anchored = false end)
-                        StartBring = false
+                            spamCombatSkills(targetMob)
+                        end
                     end
+                else
+                    pcall(function() HRP().Anchored = false end)
+                    StartBring = false
                 end
             end)
         end
@@ -6006,31 +6041,81 @@ task.spawn(function()
         if _G.AutoFarmMaterial and _G.SelectMaterial then
             pcall(function()
                 getConfigMaterial(_G.SelectMaterial)
+                local myPos = HRP() and HRP().Position or Vector3.zero
+                local targetMob = nil
+                local shortestDist = math.huge
+                local targetMobName = nil
+                
                 for _, v669 in pairs(MaterialMon) do
-                    if workspace.Enemies:FindFirstChild(v669) then
-                        for _, v671 in pairs(workspace.Enemies:GetChildren()) do
-                            if v671.Name == v669 and v671:FindFirstChild("Humanoid") and v671:FindFirstChild("HumanoidRootPart") and v671.Humanoid.Health > 0 then
-                                repeat
-                                    task.wait()
-                                    AutoHaki()
-                                    EquipWeapon(_G.SelectWeapon)
-                                    PosMon = v671.HumanoidRootPart.CFrame
-                                    MonFarm = v671.Name
-                                    topos(v671.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0))
-                                    v671.HumanoidRootPart.CanCollide = false
-                                    v671.Humanoid.WalkSpeed = 0
-                                    v671.Head.CanCollide = false
-                                    v671.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
-                                    StartBring = true
-                                    game:GetService("VirtualUser"):CaptureController()
-                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
-                                until not _G.AutoFarmMaterial or not v671.Parent or v671.Humanoid.Health <= 0
-                                StartBring = false
+                    for _, mob in pairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == v669 and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
+                            local dist = (mob.HumanoidRootPart.Position - myPos).Magnitude
+                            if dist < shortestDist then
+                                shortestDist = dist
+                                targetMob = mob
+                                targetMobName = v669
                             end
                         end
+                    end
+                end
+                
+                if targetMob then
+                    if _G.CurrentMobMat ~= targetMob then
+                        _G.CurrentMobMat = targetMob
+                        _G.LastMobHealthMat = targetMob.Humanoid.Health
+                        _G.LastHealthTimeMat = os.time()
                     else
-                        UnEquipWeapon(_G.SelectWeapon)
+                        local now = os.time()
+                        if targetMob.Humanoid.Health < _G.LastMobHealthMat then
+                            _G.LastMobHealthMat = targetMob.Humanoid.Health
+                            _G.LastHealthTimeMat = now
+                        elseif now - _G.LastHealthTimeMat > 8 then
+                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
+                            _G.GlitchedMobs[targetMob] = true
+                            StartBring = false
+                            targetMob = nil
+                        end
+                    end
+                end
+                
+                if targetMob then
+                    AutoHaki()
+                    EquipWeapon(_G.SelectWeapon)
+                    
+                    local myHrp = HRP()
+                    if myHrp then
+                        local tPos = targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                        
+                        if dist > 5 then
+                            myHrp.Anchored = false
+                            topos(targetCFrame)
+                        else
+                            myHrp.Anchored = true
+                            myHrp.CFrame = targetCFrame
+                            
+                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                            StartBring = true
+                            MonFarm = targetMob.Name
+                            
+                            targetMob.HumanoidRootPart.CanCollide = false
+                            targetMob.Humanoid.WalkSpeed = 0
+                            targetMob.Head.CanCollide = false
+                            targetMob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            
+                            pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
+                            
+                            game:GetService("VirtualUser"):CaptureController()
+                            game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+                            game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                            spamCombatSkills(targetMob)
+                        end
+                    end
+                else
+                    UnEquipWeapon(_G.SelectWeapon)
+                    pcall(function() HRP().Anchored = false end)
+                    StartBring = false
                         if _G.SelectMaterial == "Ectoplasm" and (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 18000 then
                             game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.21, 126.97, 32852.83))
                         end
@@ -6041,7 +6126,6 @@ task.spawn(function()
                         if (MaterialPos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 100 then
                             topos(MaterialPos)
                         end
-                    end
                 end
             end)
         end
