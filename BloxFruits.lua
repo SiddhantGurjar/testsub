@@ -3853,6 +3853,7 @@ function topos(v405)
         end
         local l_Magnitude_2 = (v405.Position - l_LocalPlayer_1.Character.HumanoidRootPart.Position).Magnitude
         if l_Magnitude_2 < 5 then
+            if type(stopTeleport) == "function" then pcall(stopTeleport) end
             return
         end
         local v408 = CheckNearestTeleporter(v405)
@@ -4743,6 +4744,7 @@ spawn(function()
                                     else
                                         myHrp.Anchored = true
                                         myHrp.CFrame = targetCFrame
+                                        if type(stopTeleport) == "function" then pcall(stopTeleport) end
                                         
                                         -- Crucial Fix: Set PosMon 15 studs below us to prevent infinite ascending! (WORLD SPACE)
                                         PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
@@ -5124,6 +5126,7 @@ spawn(function()
                         else
                             myHrp.Anchored = true
                             myHrp.CFrame = targetCFrame
+                            if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
                             PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                             MonFarm = targetMob.Name
@@ -6094,6 +6097,7 @@ task.spawn(function()
                         else
                             myHrp.Anchored = true
                             myHrp.CFrame = targetCFrame
+                            if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
                             PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                             StartBring = true
