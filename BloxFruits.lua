@@ -4692,80 +4692,77 @@ spawn(function()
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
                             task.wait(1.5)
                         else
-                            local validMobs = {}
+                            local myPos = HRP() and HRP().Position or Vector3.zero
+                            local targetMob = nil
+                            local shortestDist = math.huge
                             for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                                 if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
-                                    table.insert(validMobs, mob)
+                                    local dist = (mob.HumanoidRootPart.Position - myPos).Magnitude
+                                    if dist < shortestDist then
+                                        shortestDist = dist
+                                        targetMob = mob
+                                    end
                                 end
                             end
-                            local myPos = HRP() and HRP().Position or Vector3.zero
-                            table.sort(validMobs, function(a, b)
-                                return (a.HumanoidRootPart.Position - myPos).Magnitude < (b.HumanoidRootPart.Position - myPos).Magnitude
-                            end)
-                            for _, mob in ipairs(validMobs) do
-                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
-                                    local startTime = os.time()
-                                    local lastHealth = mob.Humanoid.Health
-                                    local lastHealthTime = os.time()
-                                    repeat
-                                        task.wait()
-                                        -- Break if player is dead (prevents acting at respawn)
-                                        local myChar = game.Players.LocalPlayer.Character
-                                        if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
-                                            StartBring = false
-                                            break
-                                        end
 
-                                        local now = os.time()
-                                        if mob.Humanoid.Health < lastHealth then
-                                            lastHealth = mob.Humanoid.Health
-                                            lastHealthTime = now
-                                        elseif now - lastHealthTime > 8 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                            _G.GlitchedMobs[mob] = true
-                                            StartBring = false
-                                            break
-                                        end
-                                        if now - startTime > 25 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                            _G.GlitchedMobs[mob] = true
-                                            StartBring = false
-                                            break
-                                        end
+                            if targetMob then
+                                if _G.CurrentMob ~= targetMob then
+                                    _G.CurrentMob = targetMob
+                                    _G.MobStartTime = os.time()
+                                    _G.LastMobHealth = targetMob.Humanoid.Health
+                                    _G.LastHealthTime = os.time()
+                                else
+                                    local now = os.time()
+                                    if targetMob.Humanoid.Health < _G.LastMobHealth then
+                                        _G.LastMobHealth = targetMob.Humanoid.Health
+                                        _G.LastHealthTime = now
+                                    elseif now - _G.LastHealthTime > 8 then
+                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
+                                        _G.GlitchedMobs[targetMob] = true
+                                        StartBring = false
+                                        targetMob = nil
+                                    end
+                                end
+                            end
 
-                                        local targetTool = getToolToEquip(mob)
-                                        EquipWeapon(targetTool)
-                                        AutoHaki()
-                                        PosMon = mob.HumanoidRootPart.CFrame
+                            if targetMob then
+                                local targetTool = getToolToEquip(targetMob)
+                                EquipWeapon(targetTool)
+                                AutoHaki()
+                                
+                                local myHrp = HRP()
+                                if myHrp then
+                                    -- Calculate stable position 15 studs above the mob (WORLD SPACE)
+                                    local tPos = targetMob.HumanoidRootPart.Position
+                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                                    
+                                    local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                    if dist > 5 then
+                                        myHrp.Anchored = false
+                                        topos(targetCFrame)
+                                    else
+                                        myHrp.Anchored = true
+                                        myHrp.CFrame = targetCFrame
                                         
-                                        local targetCFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
-                                        local myHrp = HRP()
-                                        if myHrp then
-                                            local dist = (myHrp.Position - targetCFrame.Position).Magnitude
-                                            if dist > 5 then
-                                                myHrp.Anchored = false
-                                                topos(targetCFrame)
-                                            else
-                                                myHrp.Anchored = true
-                                                myHrp.CFrame = targetCFrame
-                                            end
-                                        end
-                                        
-                                        mob.HumanoidRootPart.CanCollide = false
-                                        mob.Humanoid.WalkSpeed = 0
-                                        mob.Head.CanCollide = false
-                                        mob.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
+                                        -- Crucial Fix: Set PosMon 15 studs below us to prevent infinite ascending! (WORLD SPACE)
+                                        PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                                         StartBring = true
-                                        MonFarm = mob.Name
-                                        sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+                                        MonFarm = targetMob.Name
+                                        
+                                        targetMob.HumanoidRootPart.CanCollide = false
+                                        targetMob.Humanoid.WalkSpeed = 0
+                                        targetMob.Head.CanCollide = false
+                                        targetMob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                        
+                                        pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
+                                        
                                         if not isFruitOrGun(targetTool) then
                                             game:GetService("VirtualUser"):CaptureController()
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+                                            game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         end
-                                        spamCombatSkills(mob)
-                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
-                                    pcall(function() HRP().Anchored = false end)
+                                        spamCombatSkills(targetMob)
+                                    end
                                 end
                             end
                             
