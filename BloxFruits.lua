@@ -4741,9 +4741,9 @@ v485:AddToggle({
     Description = "Farm Level",
     Default = false,
     Callback = function(state)
-        _G.state = AutoFarm
-        StopTween(_G.state)
-        if not AutoFarm then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoFarm = state
+        StopTween(_G.AutoFarm)
+        if not state then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         if not state then
             StartBring = false
             pcall(function()
@@ -5078,9 +5078,9 @@ v485:AddToggle({
     Description = "Farm Raid Pirate",
     Default = false,
     Callback = function(v543)
-        _G.v543 = AutoRaidPirate
-        StopTween(_G.v543)
-        if not AutoRaidPirate then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoRaidPirate = v543
+        StopTween(_G.AutoRaidPirate)
+        if not v543 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5121,9 +5121,9 @@ if World2 then
         Description = "Spawns Every 1:30 [hours, Minutes]",
         Default = false,
         Callback = function(v732)
-            _G.v732 = AutoFactory
-        StopTween(_G.v732)
-        if not AutoFactory then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoFactory = v732
+        StopTween(_G.AutoFactory)
+        if not v732 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -5167,9 +5167,9 @@ v485:AddToggle({
     Description = "Auto Farm Nearest Mobs",
     Default = false,
     Callback = function(v520)
-        _G.v520 = AutoNear
-        StopTween(_G.v520)
-        if not AutoNear then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoNear = v520
+        StopTween(_G.AutoNear)
+        if not v520 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5277,9 +5277,9 @@ v485:AddToggle({
     Description = "",
     Value = false,
     Callback = function(v1127)
-        _G.v1127 = AutoPlayerHunter
-        StopTween(_G.v1127)
-        if not AutoPlayerHunter then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoPlayerHunter = v1127
+        StopTween(_G.AutoPlayerHunter)
+        if not v1127 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5333,9 +5333,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v1130)
-        _G.v1130 = SafeMode
-        StopTween(_G.v1130)
-        if not SafeMode then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.SafeMode = v1130
+        StopTween(_G.SafeMode)
+        if not v1130 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5364,9 +5364,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v591)
-        _G.v591 = FarmBone
-        StopTween(_G.v591)
-        if not FarmBone then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.FarmBone = v591
+        StopTween(_G.FarmBone)
+        if not v591 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         if not v591 then
             StartBring = false
             pcall(function()
@@ -5470,9 +5470,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v599)
-        _G.v599 = Hallow
-        StopTween(_G.v599)
-        if not Hallow then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Hallow = v599
+        StopTween(_G.Hallow)
+        if not v599 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5515,9 +5515,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v602)
-        _G.v602 = Rdbone
-        StopTween(_G.v602)
-        if not Rdbone then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Rdbone = v602
+        StopTween(_G.Rdbone)
+        if not v602 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5532,9 +5532,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v603)
-        _G.v603 = Pray
-        StopTween(_G.v603)
-        if not Pray then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Pray = v603
+        StopTween(_G.Pray)
+        if not v603 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5553,9 +5553,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v604)
-        _G.v604 = Trylux
-        StopTween(_G.v604)
-        if not Trylux then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Trylux = v604
+        StopTween(_G.Trylux)
+        if not v604 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5576,9 +5576,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v628)
-        _G.v628 = CollectBerry
-        StopTween(_G.v628)
-        if not CollectBerry then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.CollectBerry = v628
+        StopTween(_G.CollectBerry)
+        if not v628 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5666,9 +5666,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v644)
-        _G.v644 = FarmChest
-        StopTween(_G.v644)
-        if not FarmChest then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.FarmChest = v644
+        StopTween(_G.FarmChest)
+        if not v644 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -5858,9 +5858,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v660)
-        _G.v660 = AutoBoss
-        StopTween(_G.v660)
-        if not AutoBoss then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoBoss = v660
+        StopTween(_G.AutoBoss)
+        if not v660 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 BossQuests = {
@@ -6066,9 +6066,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v667)
-        _G.v667 = AutoFarmMaterial
-        StopTween(_G.v667)
-        if not AutoFarmMaterial then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoFarmMaterial = v667
+        StopTween(_G.AutoFarmMaterial)
+        if not v667 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 
@@ -6154,9 +6154,9 @@ v485:AddToggle({
     Description = "",
     Default = false,
     Callback = function(state)
-        _G.state = AutoFarmMastery
-        StopTween(_G.state)
-        if not AutoFarmMastery then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoFarmMastery = state
+        StopTween(_G.AutoFarmMastery)
+        if not state then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 task.spawn(function()
@@ -6583,9 +6583,9 @@ if World1 then
         Description = "",
         Default = false,
         Callback = function(v693)
-            _G.v693 = AutoSecondSea
-        StopTween(_G.v693)
-        if not AutoSecondSea then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoSecondSea = v693
+        StopTween(_G.AutoSecondSea)
+        if not v693 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -6643,9 +6643,9 @@ if World1 then
         Description = "",
         Default = false,
         Callback = function(v698)
-            _G.v698 = Greybeard
-        StopTween(_G.v698)
-        if not Greybeard then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Greybeard = v698
+        StopTween(_G.Greybeard)
+        if not v698 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -6690,9 +6690,9 @@ if World1 then
         Description = "",
         Default = false,
         Callback = function(v702)
-            _G.v702 = AutoSaber
-        StopTween(_G.v702)
-        if not AutoSaber then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoSaber = v702
+        StopTween(_G.AutoSaber)
+        if not v702 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -6800,9 +6800,9 @@ if World1 then
         Description = "",
         Default = false,
         Callback = function(v707)
-            _G.v707 = Autopole
-        StopTween(_G.v707)
-        if not Autopole then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Autopole = v707
+        StopTween(_G.Autopole)
+        if not v707 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -6837,9 +6837,9 @@ if World1 then
         Description = "",
         Default = false,
         Callback = function(v710)
-            _G.v710 = Autosaw
-        StopTween(_G.v710)
-        if not Autosaw then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Autosaw = v710
+        StopTween(_G.Autosaw)
+        if not v710 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     local v711 = CFrame.new(-690.33081054688, 15.09425163269, 1582.2380371094)
@@ -6889,9 +6889,9 @@ if World1 then
             Description = "",
             Default = false,
             Callback = function(v715)
-                _G.v715 = ChiefWarden
-        StopTween(_G.v715)
-        if not ChiefWarden then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.ChiefWarden = v715
+        StopTween(_G.ChiefWarden)
+        if not v715 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -6926,9 +6926,9 @@ if World1 then
             Description = "",
             Default = false,
             Callback = function(v718)
-                _G.v718 = Trident
-        StopTween(_G.v718)
-        if not Trident then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.Trident = v718
+        StopTween(_G.Trident)
+        if not v718 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -6967,9 +6967,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v722)
-            _G.v722 = AutoBartilo
-        StopTween(_G.v722)
-        if not AutoBartilo then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoBartilo = v722
+        StopTween(_G.AutoBartilo)
+        if not v722 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7111,9 +7111,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v728)
-            _G.v728 = ThirdSea
-        StopTween(_G.v728)
-        if not ThirdSea then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.ThirdSea = v728
+        StopTween(_G.ThirdSea)
+        if not v728 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7166,9 +7166,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v736)
-            _G.v736 = AutoDarkBoss
-        StopTween(_G.v736)
-        if not AutoDarkBoss then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoDarkBoss = v736
+        StopTween(_G.AutoDarkBoss)
+        if not v736 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7205,9 +7205,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v739)
-            _G.v739 = CursedCaptain
-        StopTween(_G.v739)
-        if not CursedCaptain then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.CursedCaptain = v739
+        StopTween(_G.CursedCaptain)
+        if not v739 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7245,9 +7245,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v743)
-            _G.v743 = AutoBuyEnchancementColour
-        StopTween(_G.v743)
-        if not AutoBuyEnchancementColour then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoBuyEnchancementColour = v743
+        StopTween(_G.AutoBuyEnchancementColour)
+        if not v743 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7285,9 +7285,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v750)
-            _G.v750 = Longsword
-        StopTween(_G.v750)
-        if not Longsword then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Longsword = v750
+        StopTween(_G.Longsword)
+        if not v750 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7322,9 +7322,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v753)
-            _G.v753 = GravityBlade
-        StopTween(_G.v753)
-        if not GravityBlade then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.GravityBlade = v753
+        StopTween(_G.GravityBlade)
+        if not v753 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7361,9 +7361,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v756)
-            _G.v756 = SwodsFlail
-        StopTween(_G.v756)
-        if not SwodsFlail then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.SwodsFlail = v756
+        StopTween(_G.SwodsFlail)
+        if not v756 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7398,9 +7398,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v759)
-            _G.v759 = AutoRengoku
-        StopTween(_G.v759)
-        if not AutoRengoku then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoRengoku = v759
+        StopTween(_G.AutoRengoku)
+        if not v759 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7441,9 +7441,9 @@ if World2 then
         Description = "",
         Default = false,
         Callback = function(v762)
-            _G.v762 = SwodsDRTrident
-        StopTween(_G.v762)
-        if not SwodsDRTrident then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.SwodsDRTrident = v762
+        StopTween(_G.SwodsDRTrident)
+        if not v762 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     spawn(function()
@@ -7482,9 +7482,9 @@ if World3 then
         Description = "",
         Default = false,
         Callback = function(v767)
-            _G.v767 = RipIndraKill
-        StopTween(_G.v767)
-        if not RipIndraKill then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.RipIndraKill = v767
+        StopTween(_G.RipIndraKill)
+        if not v767 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     local v768 = CFrame.new(-5344.822265625, 423.98541259766, -2725.0930175781)
@@ -7544,9 +7544,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v775)
-                _G.v775 = RipIndraKill
-        StopTween(_G.v775)
-        if not RipIndraKill then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.RipIndraKill = v775
+        StopTween(_G.RipIndraKill)
+        if not v775 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -7892,9 +7892,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v807)
-                _G.v807 = AutoYama
-        StopTween(_G.v807)
-        if not AutoYama then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.AutoYama = v807
+        StopTween(_G.AutoYama)
+        if not v807 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -7912,9 +7912,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v808)
-                _G.v808 = AutoHolyTorch
-        StopTween(_G.v808)
-        if not AutoHolyTorch then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.AutoHolyTorch = v808
+        StopTween(_G.AutoHolyTorch)
+        if not v808 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -7959,9 +7959,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v809)
-                _G.v809 = AutoGetTushita
-        StopTween(_G.v809)
-        if not AutoGetTushita then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.AutoGetTushita = v809
+        StopTween(_G.AutoGetTushita)
+        if not v809 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -8026,9 +8026,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v553)
-                _G.v553 = FarmDaiBan
-        StopTween(_G.v553)
-        if not FarmDaiBan then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.FarmDaiBan = v553
+        StopTween(_G.FarmDaiBan)
+        if not v553 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         local v554 = CFrame.new(-16194.0048828125, 155.21844482421875, 1420.719970703125)
@@ -8134,9 +8134,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v564)
-                _G.v564 = Farm8Binhs
-        StopTween(_G.v564)
-        if not Farm8Binhs then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.Farm8Binhs = v564
+        StopTween(_G.Farm8Binhs)
+        if not v564 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         local v565 = {
@@ -8250,9 +8250,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v608)
-                _G.v608 = FarmCake
-        StopTween(_G.v608)
-        if not FarmCake then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.FarmCake = v608
+        StopTween(_G.FarmCake)
+        if not v608 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         local v609 = CFrame.new(-2130.80712890625, 69.95634460449219, -12327.83984375)
@@ -8354,9 +8354,9 @@ if World3 then
         Description = "",
         Default = false,
         Callback = function(v619)
-            _G.v619 = Fullykatakuri
-        StopTween(_G.v619)
-        if not Fullykatakuri then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Fullykatakuri = v619
+        StopTween(_G.Fullykatakuri)
+        if not v619 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
     task.spawn(function()
@@ -8470,9 +8470,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v813)
-                _G.v813 = SwodTwinHooks
-        StopTween(_G.v813)
-        if not SwodTwinHooks then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.SwodTwinHooks = v813
+        StopTween(_G.SwodTwinHooks)
+        if not v813 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -8509,9 +8509,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v816)
-                _G.v816 = SwodCanvander
-        StopTween(_G.v816)
-        if not SwodCanvander then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.SwodCanvander = v816
+        StopTween(_G.SwodCanvander)
+        if not v816 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -8546,9 +8546,9 @@ if World3 then
             Description = "",
             Default = false,
             Callback = function(v819)
-                _G.v819 = SwodsBuddy
-        StopTween(_G.v819)
-        if not SwodsBuddy then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                _G.SwodsBuddy = v819
+        StopTween(_G.SwodsBuddy)
+        if not v819 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             end
         })
         spawn(function()
@@ -9110,9 +9110,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v948)
-            _G.v948 = SailBoat
-        StopTween(_G.v948)
-        if not SailBoat then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.SailBoat = v948
+        StopTween(_G.SailBoat)
+        if not v948 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
             if not v948 then
                 stopBoatTween()
                 stopTeleport()
@@ -9176,9 +9176,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v)
-            _G.v = AutoFarmSeaBeast
-        StopTween(_G.v)
-        if not AutoFarmSeaBeast then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.AutoFarmSeaBeast = v
+        StopTween(_G.AutoFarmSeaBeast)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
 
@@ -9187,9 +9187,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v)
-            _G.v = KillShark
-        StopTween(_G.v)
-        if not KillShark then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.KillShark = v
+        StopTween(_G.KillShark)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
 
@@ -9198,9 +9198,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v)
-            _G.v = KillPiranha
-        StopTween(_G.v)
-        if not KillPiranha then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.KillPiranha = v
+        StopTween(_G.KillPiranha)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
 
@@ -9209,9 +9209,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v)
-            _G.v = KillFishCrew
-        StopTween(_G.v)
-        if not KillFishCrew then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.KillFishCrew = v
+        StopTween(_G.KillFishCrew)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
 
@@ -9220,9 +9220,9 @@ do
         Description = "",
         Default = false,
         Callback = function(v952)
-            _G.v952 = Autoterrorshark
-        StopTween(_G.v952)
-        if not Autoterrorshark then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+            _G.Autoterrorshark = v952
+        StopTween(_G.Autoterrorshark)
+        if not v952 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
         end
     })
 
@@ -9831,9 +9831,9 @@ v490:AddToggle({
     Description = "Automates Flower quest (V2) and Arrow NPC quest (V3)",
     Default = false,
     Callback = function(Value)
-        _G.Value = AutoUpgradeRace
-        StopTween(_G.Value)
-        if not AutoUpgradeRace then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoUpgradeRace = Value
+        StopTween(_G.AutoUpgradeRace)
+        if not Value then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10163,9 +10163,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v998)
-        _G.v998 = Kill_Aura
-        StopTween(_G.v998)
-        if not Kill_Aura then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Kill_Aura = v998
+        StopTween(_G.Kill_Aura)
+        if not v998 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 v490:AddToggle({
@@ -10173,9 +10173,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v999)
-        _G.v999 = AutoQuestRace
-        StopTween(_G.v999)
-        if not AutoQuestRace then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoQuestRace = v999
+        StopTween(_G.AutoQuestRace)
+        if not v999 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10228,9 +10228,9 @@ spawn(function()
                         for _, v1009 in pairs(game:GetService("Workspace"):GetDescendants()) do
                             if v1009.Name == "StartPoint" then
                                 topos(v1009.CFrame * CFrame.new(0, 3, 0))
-                                _G.false = AutoQuestRace
-        StopTween(_G.false)
-        if not AutoQuestRace then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+                                _G.AutoQuestRace = false
+        StopTween(_G.AutoQuestRace)
+        if not false then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
                             end
                         end
                     end
@@ -10308,9 +10308,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v1020)
-        _G.v1020 = AutoKillV4
-        StopTween(_G.v1020)
-        if not AutoKillV4 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoKillV4 = v1020
+        StopTween(_G.AutoKillV4)
+        if not v1020 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10353,9 +10353,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v1024)
-        _G.v1024 = XaiSkillZ
-        StopTween(_G.v1024)
-        if not XaiSkillZ then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.XaiSkillZ = v1024
+        StopTween(_G.XaiSkillZ)
+        if not v1024 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 v490:AddToggle({
@@ -10363,9 +10363,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v1025)
-        _G.v1025 = XaiSkillX
-        StopTween(_G.v1025)
-        if not XaiSkillX then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.XaiSkillX = v1025
+        StopTween(_G.XaiSkillX)
+        if not v1025 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 v490:AddToggle({
@@ -10373,9 +10373,9 @@ v490:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v1026)
-        _G.v1026 = XaiSkillC
-        StopTween(_G.v1026)
-        if not XaiSkillC then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.XaiSkillC = v1026
+        StopTween(_G.XaiSkillC)
+        if not v1026 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 
@@ -10485,9 +10485,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(Value)
-        _G.Value = TweenToFrozenDimension
-        StopTween(_G.Value)
-        if not TweenToFrozenDimension then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.TweenToFrozenDimension = Value
+        StopTween(_G.TweenToFrozenDimension)
+        if not Value then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10666,9 +10666,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v882)
-        _G.v882 = TweenVolcano
-        StopTween(_G.v882)
-        if not TweenVolcano then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.TweenVolcano = v882
+        StopTween(_G.TweenVolcano)
+        if not v882 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10716,9 +10716,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v887)
-        _G.v887 = DefendVolcano
-        StopTween(_G.v887)
-        if not DefendVolcano then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.DefendVolcano = v887
+        StopTween(_G.DefendVolcano)
+        if not v887 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 local function v889(v888)
@@ -10824,9 +10824,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v922)
-        _G.v922 = KillGolem
-        StopTween(_G.v922)
-        if not KillGolem then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.KillGolem = v922
+        StopTween(_G.KillGolem)
+        if not v922 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10863,9 +10863,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v925)
-        _G.v925 = Kill_Aura
-        StopTween(_G.v925)
-        if not Kill_Aura then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Kill_Aura = v925
+        StopTween(_G.Kill_Aura)
+        if not v925 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10905,9 +10905,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v934)
-        _G.v934 = AutoCollectBone
-        StopTween(_G.v934)
-        if not AutoCollectBone then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoCollectBone = v934
+        StopTween(_G.AutoCollectBone)
+        if not v934 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10926,9 +10926,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v937)
-        _G.v937 = CollectEgg
-        StopTween(_G.v937)
-        if not CollectEgg then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.CollectEgg = v937
+        StopTween(_G.CollectEgg)
+        if not v937 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -10967,9 +10967,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(Value)
-        _G.Value = TweenToKitsune
-        StopTween(_G.Value)
-        if not TweenToKitsune then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.TweenToKitsune = Value
+        StopTween(_G.TweenToKitsune)
+        if not Value then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -11003,9 +11003,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v946)
-        _G.v946 = AutoAzuerEmber
-        StopTween(_G.v946)
-        if not AutoAzuerEmber then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoAzuerEmber = v946
+        StopTween(_G.AutoAzuerEmber)
+        if not v946 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -11043,9 +11043,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v985)
-        _G.v985 = AutoMysticIsland
-        StopTween(_G.v985)
-        if not AutoMysticIsland then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoMysticIsland = v985
+        StopTween(_G.AutoMysticIsland)
+        if not v985 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -11076,9 +11076,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v989)
-        _G.v989 = AutoDooHee
-        StopTween(_G.v989)
-        if not AutoDooHee then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.AutoDooHee = v989
+        StopTween(_G.AutoDooHee)
+        if not v989 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 l_VirtualInputManager_4 = game:GetService("VirtualInputManager")
@@ -11102,9 +11102,9 @@ v498:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v993)
-        _G.v993 = TweenMGear
-        StopTween(_G.v993)
-        if not TweenMGear then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.TweenMGear = v993
+        StopTween(_G.TweenMGear)
+        if not v993 then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 spawn(function()
@@ -11566,9 +11566,9 @@ v491:AddToggle({
     Name = "Auto Awakening",
     Default = false,
     Callback = function(v)
-        _G.v = Auto_Awakener
-        StopTween(_G.v)
-        if not Auto_Awakener then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.Auto_Awakener = v
+        StopTween(_G.Auto_Awakener)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 
@@ -11738,9 +11738,9 @@ TeleportIslandToggle = v493:AddToggle({
     Description = "",
     Default = false,
     Callback = function(v)
-        _G.v = TeleportIsland
-        StopTween(_G.v)
-        if not TeleportIsland then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
+        _G.TeleportIsland = v
+        StopTween(_G.TeleportIsland)
+        if not v then pcall(function() if type(StopFarm) == "function" then StopFarm() end end) end
     end
 })
 
