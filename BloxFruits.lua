@@ -4751,6 +4751,7 @@ spawn(function()
                                     if dist > 5 then
                                         myHrp.Anchored = false
                                         topos(targetCFrame)
+                                        StartBring = false
                                     else
                                         myHrp.Anchored = true
                                         myHrp.CFrame = targetCFrame
@@ -5132,6 +5133,7 @@ spawn(function()
                         if dist > 5 then
                             myHrp.Anchored = false
                             topos(targetCFrame)
+                            StartBring = false
                         else
                             myHrp.Anchored = true
                             myHrp.CFrame = targetCFrame
@@ -6102,6 +6104,7 @@ task.spawn(function()
                         if dist > 5 then
                             myHrp.Anchored = false
                             topos(targetCFrame)
+                            StartBring = false
                         else
                             myHrp.Anchored = true
                             myHrp.CFrame = targetCFrame
