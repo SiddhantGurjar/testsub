@@ -4745,7 +4745,8 @@ spawn(function()
                                 if myHrp then
                                     -- Ground Magnet + CombatFramework Hook
                                     local tPos = targetMob.HumanoidRootPart.Position
-                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                                    local playerPos = Vector3.new(tPos.X, tPos.Y + 15, tPos.Z)
+                                    local targetCFrame = CFrame.lookAt(playerPos, tPos)
                                     
                                     local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                                     if dist > 5 then
@@ -5127,7 +5128,8 @@ spawn(function()
                     local myHrp = HRP()
                     if myHrp then
                         local tPos = targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local playerPos = Vector3.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local targetCFrame = CFrame.lookAt(playerPos, tPos)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
@@ -6098,7 +6100,8 @@ task.spawn(function()
                     local myHrp = HRP()
                     if myHrp then
                         local tPos = targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local playerPos = Vector3.new(tPos.X, tPos.Y + 15, tPos.Z)
+                        local targetCFrame = CFrame.lookAt(playerPos, tPos)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
