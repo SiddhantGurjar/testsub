@@ -4674,6 +4674,55 @@ local function CheckQuestNew()
         CFrameMonNew = CFrame.new(10965.1025, -2158.8842, 9177.2597)
     end
 end
+local function IsQuestActive()
+    local p = game:GetService("Players").LocalPlayer
+    if not p or not p.Character then return false end
+    local qGui = p.PlayerGui.Main:FindFirstChild("Quest")
+    if not qGui or not qGui.Visible then return false end
+    local cont = qGui:FindFirstChild("Container")
+    if not cont or not cont.Visible then return false end
+    local qt = cont:FindFirstChild("QuestTitle")
+    if not qt or not qt.Visible then return false end
+    return true
+end
+
+local function TweenToNextSpawn(mobName, fallbackCFrame)
+    local spawns = {}
+    pcall(function()
+        if workspace:FindFirstChild("_WorldOrigin") and workspace._WorldOrigin:FindFirstChild("EnemySpawns") then
+            for _, v in pairs(workspace._WorldOrigin.EnemySpawns:GetChildren()) do
+                if string.find(v.Name, mobName) or mobName == v.Name then
+                    table.insert(spawns, v.CFrame)
+                end
+            end
+        end
+    end)
+    if #spawns > 0 then
+        local myPos = HRP() and HRP().Position or Vector3.zero
+        for _, sp in ipairs(spawns) do
+            if (sp.Position - myPos).Magnitude > 150 then
+                if type(TP1) == "function" then
+                    TP1(sp)
+                else
+                    TweenTo(sp)
+                end
+                return
+            end
+        end
+        if type(TP1) == "function" then
+            TP1(spawns[1])
+        else
+            TweenTo(spawns[1])
+        end
+    else
+        if type(TP1) == "function" then
+            TP1(fallbackCFrame)
+        else
+            TweenTo(fallbackCFrame)
+        end
+    end
+end
+
 v485:AddToggle({
     Name = "Auto Farm Level",
     Description = "Farm Level",
@@ -4703,7 +4752,7 @@ spawn(function()
                     CheckQuestNew()
                     
                     local questGui = LocalPlayer.PlayerGui.Main.Quest
-                    if not questGui.Visible then
+                    if not IsQuestActive() then
                         StartBring = false
                         if (HRP().Position - CFrameQuestNew.Position).Magnitude > 20 then
                             TweenTo(CFrameQuestNew)
@@ -4796,23 +4845,27 @@ spawn(function()
                                 end
                             end
                             
-                            if not game:GetService("Workspace").Enemies:FindFirstChild(MonNew) then
-                                TweenTo(CFrameMonNew)
+                            if not targetMob then
+                                TweenToNextSpawn(MonNew, CFrameMonNew)
                                 StartBring = false
                             end
                         end
                     end
                 else
                     -- Farm Antigo (1-2599)
-                    local l_Text_0 = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
                     CheckQuest()
-                    if not string.find(l_Text_0, NameMon) then
-                        StartBring = false
-                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
-                        task.wait(1.5)
+                    local l_Text_0 = ""
+                    if IsQuestActive() then
+                        l_Text_0 = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+                        if not string.find(l_Text_0, NameMon) then
+                            StartBring = false
+                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                            task.wait(1.5)
+                        end
                     end
-                    if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible ~= false then
-                        if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+                    if IsQuestActive() then
+                        if IsQuestActive() then
+                            l_Text_0 = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
                                     local myPos2 = HRP() and HRP().Position or Vector3.zero
@@ -4892,9 +4945,12 @@ spawn(function()
                                                 spamCombatSkills(targetMob2)
                                             end
                                         end
+                                    else
+                                        TweenToNextSpawn(Mon, CFrameMon)
+                                        StartBring = false
                                     end
                                  else
-                                     TP1(CFrameMon)
+                                     TweenToNextSpawn(Mon, CFrameMon)
                                      StartBring = false
                                  end
                             else
@@ -5826,7 +5882,7 @@ task.spawn(function()
                             local qInfo = BossQuests[_G.SelectBoss]
                             if qInfo then
                                 local questGui = game.Players.LocalPlayer.PlayerGui.Main.Quest
-                                if not questGui.Visible then
+                                if not IsQuestActive() then
                                     StartBring = false
                                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - qInfo.CFrame.Position).Magnitude > 20 then
                                         topos(qInfo.CFrame)
