@@ -4626,6 +4626,13 @@ local function CheckQuestNew()
         CFrameQuestNew = CFrame.new(10882.264, -2086.322, 10034.226)
         CFrameMonNew = CFrame.new(10736.6191, -2087.8439, 9338.4882)
 
+    elseif lvl >= 2625 and lvl <= 2649 then
+        MonNew = "Fishman Raider"
+        LevelQuestNew = 2
+        NameQuestNew = "SubmergedQuest1"
+        NameMonNew = "Fishman Raider"
+        CFrameQuestNew = CFrame.new(10882.264, -2086.322, 10034.226)
+        CFrameMonNew = CFrame.new(10860, -2087, 9500)
     elseif lvl >= 2650 and lvl <= 2674 then
         MonNew = "Sea Chanter"
         LevelQuestNew = 1
@@ -4674,6 +4681,12 @@ v485:AddToggle({
     Callback = function(state)
         _G.AutoFarm = state
         StopTween(_G.AutoFarm)
+        if not state then
+            StartBring = false
+            pcall(function()
+                if HRP() then HRP().Anchored = false end
+            end)
+        end
     end
 })
 spawn(function()
@@ -4967,11 +4980,14 @@ spawn(function()
                         StartBring = false
                         if BypassTP then
                             if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 1500 then
+                                StartBring = false
                                 TP1(CFrameQuest)
                             else
+                                StartBring = false
                                 TP1(CFrameQuest)
                             end
                         else
+                            StartBring = false
                             TP1(CFrameQuest)
                         end
                         if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 20 then
@@ -5275,6 +5291,12 @@ v485:AddToggle({
     Callback = function(v591)
         _G.FarmBone = v591
         StopTween(_G.FarmBone)
+        if not v591 then
+            StartBring = false
+            pcall(function()
+                if HRP() then HRP().Anchored = false end
+            end)
+        end
     end
 })
 spawn(function()
