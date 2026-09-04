@@ -222,6 +222,11 @@ function ModernFastAttack()
             CombatFramework.activeController:attack()
         end
     end)
+    pcall(function()
+        game:GetService("VirtualUser"):CaptureController()
+        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
+        game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
+    end)
 end
 
 function getToolToEquip(mob)
