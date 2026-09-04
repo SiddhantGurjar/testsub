@@ -4797,84 +4797,81 @@ spawn(function()
                         if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
-                                    local validMobs2 = {}
+                                    local myPos2 = HRP() and HRP().Position or Vector3.zero
+                                    local targetMob2 = nil
+                                    local shortestDist2 = math.huge
                                     for _, v512 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                                         if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
-                                            table.insert(validMobs2, v512)
+                                            local dist = (v512.HumanoidRootPart.Position - myPos2).Magnitude
+                                            if dist < shortestDist2 then
+                                                shortestDist2 = dist
+                                                targetMob2 = v512
+                                            end
                                         end
                                     end
-                                    local myPos2 = HRP() and HRP().Position or Vector3.zero
-                                    table.sort(validMobs2, function(a, b)
-                                        return (a.HumanoidRootPart.Position - myPos2).Magnitude < (b.HumanoidRootPart.Position - myPos2).Magnitude
-                                    end)
-                                    for _, v512 in ipairs(validMobs2) do
-                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
-                                            if not string.find(l_Text_0, NameMon) then
-                                                StartBring = false
-                                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
-                                                task.wait(1.5)
+
+                                    if targetMob2 then
+                                        if not string.find(l_Text_0, NameMon) then
+                                            StartBring = false
+                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                            task.wait(1.5)
+                                        else
+                                            if _G.CurrentMob2 ~= targetMob2 then
+                                                _G.CurrentMob2 = targetMob2
+                                                _G.MobStartTime2 = os.time()
+                                                _G.LastMobHealth2 = targetMob2.Humanoid.Health
+                                                _G.LastHealthTime2 = os.time()
                                             else
-                                                local startTime = os.time()
-                                                local lastHealth = v512.Humanoid.Health
-                                                local lastHealthTime = os.time()
-                                                repeat
-                                                    task.wait()
-                                                    -- Break if player is dead (prevents acting at respawn)
-                                                    local myChar = game.Players.LocalPlayer.Character
-                                                    if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
-                                                        StartBring = false
-                                                        break
-                                                    end
+                                                local now = os.time()
+                                                if targetMob2.Humanoid.Health < _G.LastMobHealth2 then
+                                                    _G.LastMobHealth2 = targetMob2.Humanoid.Health
+                                                    _G.LastHealthTime2 = now
+                                                elseif now - _G.LastHealthTime2 > 8 then
+                                                    _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
+                                                    _G.GlitchedMobs[targetMob2] = true
+                                                    StartBring = false
+                                                    targetMob2 = nil
+                                                end
+                                            end
+                                        end
+                                    end
 
-                                                    local now = os.time()
-                                                    if v512.Humanoid.Health < lastHealth then
-                                                        lastHealth = v512.Humanoid.Health
-                                                        lastHealthTime = now
-                                                    elseif now - lastHealthTime > 8 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v512] = true
-                                                        StartBring = false
-                                                        break
-                                                    end
-                                                    if now - startTime > 25 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v512] = true
-                                                        StartBring = false
-                                                        break
-                                                    end
-
-                                                    local targetTool = getToolToEquip(v512)
-                                                    EquipWeapon(targetTool)
-                                                    AutoHaki()
-                                                    PosMon = v512.HumanoidRootPart.CFrame
-                                                    
-                                                    local targetCFrame = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
-                                                    local myHrp = HRP()
-                                                    if myHrp then
-                                                        local dist = (myHrp.Position - targetCFrame.Position).Magnitude
-                                                        if dist > 5 then
-                                                            myHrp.Anchored = false
-                                                            topos(targetCFrame)
-                                                        else
-                                                            myHrp.Anchored = true
-                                                            myHrp.CFrame = targetCFrame
-                                                        end
-                                                    end
-                                                    
-                                                    v512.HumanoidRootPart.CanCollide = false
-                                                    v512.Humanoid.WalkSpeed = 0
-                                                    v512.Head.CanCollide = false
-                                                    v512.HumanoidRootPart.Size = Vector3.new(70, 70, 70)
-                                                    StartBring = true
-                                                    MonFarm = v512.Name
-                                                    if not isFruitOrGun(targetTool) then
-                                                        game:GetService("VirtualUser"):CaptureController()
-                                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                                    game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
-                                                    end
-                                                    spamCombatSkills(v512)
-                                                until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
-                                                pcall(function() HRP().Anchored = false end)
+                                    if targetMob2 then
+                                        local targetTool = getToolToEquip(targetMob2)
+                                        EquipWeapon(targetTool)
+                                        AutoHaki()
+                                        
+                                        local myHrp = HRP()
+                                        if myHrp then
+                                            local tPos = targetMob2.HumanoidRootPart.Position
+                                            local playerPos = Vector3.new(tPos.X, tPos.Y + 15, tPos.Z)
+                                            local targetCFrame = CFrame.lookAt(playerPos, tPos)
+                                            local dist = (myHrp.Position - targetCFrame.Position).Magnitude
+                                            
+                                            if dist > 5 then
+                                                myHrp.Anchored = false
+                                                topos(targetCFrame)
+                                                StartBring = false
+                                            else
+                                                myHrp.Anchored = true
+                                                myHrp.CFrame = targetCFrame
+                                                if type(stopTeleport) == "function" then pcall(stopTeleport) end
+                                                
+                                                PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
+                                                StartBring = true
+                                                MonFarm = targetMob2.Name
+                                                
+                                                targetMob2.HumanoidRootPart.CanCollide = false
+                                                targetMob2.Humanoid.WalkSpeed = 0
+                                                targetMob2.Head.CanCollide = false
+                                                targetMob2.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                                
+                                                pcall(function() sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge) end)
+                                                
+                                                if not isFruitOrGun(targetTool) then
+                                                    ModernFastAttack()
+                                                end
+                                                spamCombatSkills(targetMob2)
                                             end
                                         end
                                     end
