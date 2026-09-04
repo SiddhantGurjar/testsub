@@ -4743,9 +4743,9 @@ spawn(function()
                                 
                                 local myHrp = HRP()
                                 if myHrp then
-                                    -- Ultimate Fix: Sky Magnet + CombatFramework Hook
-                                    local tPos = _G.MobOriginalPos or targetMob.HumanoidRootPart.Position
-                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
+                                    -- Ground Magnet + CombatFramework Hook
+                                    local tPos = targetMob.HumanoidRootPart.Position
+                                    local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
                                     
                                     local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                                     if dist > 5 then
@@ -4756,8 +4756,8 @@ spawn(function()
                                         myHrp.CFrame = targetCFrame
                                         if type(stopTeleport) == "function" then pcall(stopTeleport) end
                                         
-                                        -- Pull mob EXACTLY into the player in the sky
-                                        PosMon = targetCFrame
+                                        -- Ground positioning to prevent sky magnet
+                                        PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                                         StartBring = true
                                         MonFarm = targetMob.Name
                                         
@@ -5125,8 +5125,8 @@ spawn(function()
                     
                     local myHrp = HRP()
                     if myHrp then
-                        local tPos = _G.MobOriginalPosNear or targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
+                        local tPos = targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
@@ -5137,7 +5137,7 @@ spawn(function()
                             myHrp.CFrame = targetCFrame
                             if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
-                            PosMon = targetCFrame
+                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                             MonFarm = targetMob.Name
                             
                             targetMob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
@@ -6095,8 +6095,8 @@ task.spawn(function()
                     
                     local myHrp = HRP()
                     if myHrp then
-                        local tPos = _G.MobOriginalPosMat or targetMob.HumanoidRootPart.Position
-                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 25, tPos.Z)
+                        local tPos = targetMob.HumanoidRootPart.Position
+                        local targetCFrame = CFrame.new(tPos.X, tPos.Y + 15, tPos.Z)
                         local dist = (myHrp.Position - targetCFrame.Position).Magnitude
                         
                         if dist > 5 then
@@ -6107,7 +6107,7 @@ task.spawn(function()
                             myHrp.CFrame = targetCFrame
                             if type(stopTeleport) == "function" then pcall(stopTeleport) end
                             
-                            PosMon = targetCFrame
+                            PosMon = CFrame.new(myHrp.Position.X, myHrp.Position.Y - 15, myHrp.Position.Z)
                             StartBring = true
                             MonFarm = targetMob.Name
                             
