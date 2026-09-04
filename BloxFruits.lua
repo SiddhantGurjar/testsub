@@ -4685,6 +4685,8 @@ local function IsQuestActive()
     if not cont or not cont.Visible then return false end
     local qt = cont:FindFirstChild("QuestTitle")
     if not qt or not qt.Visible then return false end
+    local titleObj = qt:FindFirstChild("Title")
+    if titleObj and string.find(titleObj.Text, "Completed") then return false end
     return true
 end
 
@@ -4700,7 +4702,7 @@ local function TweenToNextSpawn(mobName, fallbackCFrame)
         end
     end)
     if #spawns > 0 then
-        local myPos = HRP() and HRP().Position or Vector3.zero
+        local myPos = (game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) and game.Players.LocalPlayer.Character.HumanoidRootPart.Position or Vector3.zero
         for _, sp in ipairs(spawns) do
             if (sp.Position - myPos).Magnitude > 150 then
                 if type(TP1) == "function" then
@@ -4717,10 +4719,14 @@ local function TweenToNextSpawn(mobName, fallbackCFrame)
             TweenTo(spawns[1])
         end
     else
+        -- Dynamic Sweeping to bypass StreamingEnabled blindspots
+        local t = tick()
+        local sweepOffset = Vector3.new(math.sin(t) * 150, 50, math.cos(t) * 150)
+        local patrolCFrame = fallbackCFrame + sweepOffset
         if type(TP1) == "function" then
-            TP1(fallbackCFrame)
+            TP1(patrolCFrame)
         else
-            TweenTo(fallbackCFrame)
+            TweenTo(patrolCFrame)
         end
     end
 end
