@@ -4675,7 +4675,19 @@ spawn(function()
                     CheckQuestNew()
                     
                     local questGui = LocalPlayer.PlayerGui.Main.Quest
-                    if not questGui.Visible then
+                    
+                    local isQuestReallyActive = false
+                    if questGui.Visible then
+                        local qtObj = questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and questGui.Container.QuestTitle:FindFirstChild("Title")
+                        if qtObj then
+                            if not string.find(qtObj.Text, "Completed") then
+                                isQuestReallyActive = true
+                            end
+                        end
+                    end
+
+                    if not isQuestReallyActive then
+
                         StartBring = false
                         if (HRP().Position - CFrameQuestNew.Position).Magnitude > 20 then
                             TweenTo(CFrameQuestNew)
@@ -4761,7 +4773,7 @@ spawn(function()
                             
                             if not game:GetService("Workspace").Enemies:FindFirstChild(MonNew) then
                                 local sweepOffset = Vector3.new(math.sin(tick()) * 150, 50, math.cos(tick()) * 150)
-                                TweenTo(CFrameMonNew + sweepOffset)
+                                TweenTo(CFrameMonNew * CFrame.new(sweepOffset))
                                 StartBring = false
                             end
                         end
@@ -5737,7 +5749,19 @@ task.spawn(function()
                             local qInfo = BossQuests[_G.SelectBoss]
                             if qInfo then
                                 local questGui = game.Players.LocalPlayer.PlayerGui.Main.Quest
-                                if not questGui.Visible then
+                                
+                    local isQuestReallyActive = false
+                    if questGui.Visible then
+                        local qtObj = questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and questGui.Container.QuestTitle:FindFirstChild("Title")
+                        if qtObj then
+                            if not string.find(qtObj.Text, "Completed") then
+                                isQuestReallyActive = true
+                            end
+                        end
+                    end
+
+                    if not isQuestReallyActive then
+
                                     StartBring = false
                                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - qInfo.CFrame.Position).Magnitude > 20 then
                                         topos(qInfo.CFrame)
