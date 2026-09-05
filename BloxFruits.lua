@@ -4754,13 +4754,14 @@ spawn(function()
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         end
                                         spamCombatSkills(mob)
-                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
+                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible or (questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and string.find(questGui.Container.QuestTitle.Title.Text, "Completed"))
                                     pcall(function() HRP().Anchored = false end)
                                 end
                             end
                             
                             if not game:GetService("Workspace").Enemies:FindFirstChild(MonNew) then
-                                TweenTo(CFrameMonNew)
+                                local sweepOffset = Vector3.new(math.sin(tick()) * 150, 50, math.cos(tick()) * 150)
+                                TweenTo(CFrameMonNew + sweepOffset)
                                 StartBring = false
                             end
                         end
@@ -4917,7 +4918,7 @@ spawn(function()
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v514)
-                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Completed")
                                                  pcall(function() HRP().Anchored = false end)
                                             else
                                                 StartBring = false
