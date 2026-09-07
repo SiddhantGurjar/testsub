@@ -554,8 +554,8 @@ function CheckQuest()
             LevelQuest = 1
             NameQuest = "BanditQuest1"
             NameMon = "Bandit"
-            CFrameQuest = CFrame.new(1059.37195, 15.4495068, 1550.4231, 0.939700544, -0, -0.341998369, -0, 1, -0, 0.341998369, -0, 0.939700544)
-            CFrameMon = CFrame.new(1045.962646484375, 27.00250816345215, 1560.8203125)
+            CFrameQuest = CFrame.new(1051.8, 14.5, 1557.7)
+            CFrameMon = CFrame.new(1310.7, 13.5, 1593.1)
         elseif (MyLevel < 10 or MyLevel > 14) and SelectMonster ~= "Monkey" then
             if (MyLevel < 15 or MyLevel > 29) and SelectMonster ~= "Gorilla" then
                 if (MyLevel < 30 or MyLevel > 39) and SelectMonster ~= "Pirate" then
