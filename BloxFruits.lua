@@ -10877,7 +10877,7 @@ spawn(function()
                     if type(res) == "number" or res == 1 or type(res) == "table" then
                         local gachaCFrame
                         if game.PlaceId == 2753915549 then
-                            gachaCFrame = CFrame.new(-1261, 41, 1061)
+                            gachaCFrame = CFrame.new(-690.331, 15.094, 1582.238)
                         elseif game.PlaceId == 4442272183 then
                             gachaCFrame = CFrame.new(-380.479, 77.22, 255.826)
                         else
@@ -14647,23 +14647,25 @@ spawn(function()
                     if _G.BringDistance and PosMon and (hrp.Position - PosMon.Position).Magnitude <= _G.BringDistance then
                         hrp.CFrame = PosMon
                         hrp.Anchored = false
-                        hrp.Size = Vector3.new(60,60,60)
-                        hrp.Transparency = 1
-                        hrp.CanCollide = false
-                        mob.Head.CanCollide = false
-                        hum.JumpPower = 0
-                        hum.WalkSpeed = 0
-                        hum:ChangeState(11)
-                        hum:ChangeState(14)
+                        if hrp.Size.X ~= 60 then
+                            hrp.Size = Vector3.new(60,60,60)
+                            hrp.Transparency = 1
+                            hrp.CanCollide = false
+                            if mob:FindFirstChild("Head") then mob.Head.CanCollide = false end
+                            hum.JumpPower = 0
+                            hum.WalkSpeed = 0
+                            hum:ChangeState(11)
+                            hum:ChangeState(14)
+                        end
                         local anim = hum:FindFirstChild("Animator")
                         if anim then
                             anim:Destroy()
                         end
-                        if sethiddenproperty then
-                            sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
-                        end
                     end
                 end
+            end
+            if sethiddenproperty and StartBring and PosMon then
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
             end
         end)
     end
