@@ -4720,14 +4720,22 @@ spawn(function()
 
                     if not isQuestReallyActive then
 
+
                         StartBring = false
                         if (HRP().Position - CFrameQuestNew.Position).Magnitude > 20 then
                             TweenTo(CFrameQuestNew)
                         else
                             if os.time() - (_G.LastQuestTime or 0) >= 1 then
                                 _G.LastQuestTime = os.time()
-                                ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestNew, LevelQuestNew)
+                                local success = ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestNew, LevelQuestNew)
+                                if success == "Already accepted!" or success == true then
+                                    -- accepted
+                                else
+                                    -- Wait for dialogue or retry
+                                end
                             end
+                        end
+
                         end
                     else
                         local questText = questGui.Container.QuestTitle.Title.Text
