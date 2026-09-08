@@ -4741,8 +4741,6 @@ spawn(function()
                                 end
                             end
                         end
-
-                        end
                     else
                         local questText = questGui.Container.QuestTitle.Title.Text
                         if not string.find(questText, NameMonNew) then
