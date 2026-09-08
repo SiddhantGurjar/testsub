@@ -10953,7 +10953,7 @@ spawn(function()
             pcall(function()
                 if os.time() - _G.LastGachaCheck > 60 then -- Don't spam remote
                     local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "GetPrice")
-                    if type(res) == "number" or res == 1 or type(res) == "table" then
+                    if type(res) == "number" or res == 1 or type(res) == "table" or game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true) then
                         local gachaCFrame
                         if game.PlaceId == 2753915549 then
                             gachaCFrame = CFrame.new(-1005.4, 8.4, 1725.7)
@@ -10969,12 +10969,14 @@ spawn(function()
                             _G.AutoFarm = false -- Smart Pause
                             topos(gachaCFrame)
                             task.wait(1.5)
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+                            local rf = game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true)
+                            if rf then rf:InvokeServer({["Context"]="Purchase", ["BoxName"]="ZiolesGacha"}) else game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy") end
                             task.wait(0.5)
                             _G.AutoFarm = oldAutoFarm -- Resume
                             _G.LastGachaCheck = os.time() + 7200 -- 2 Hour Cooldown
                         else
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy")
+                            local rf = game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true)
+                            if rf then rf:InvokeServer({["Context"]="Purchase", ["BoxName"]="ZiolesGacha"}) else game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Cousin", "Buy") end
                             _G.LastGachaCheck = os.time() + 7200
                         end
                     end
@@ -11047,6 +11049,42 @@ spawn(function()
                     if v1083 then
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", v1082, v1083)
                         break
+                    end
+                end
+            end)
+        end
+    end
+end)
+v491:AddToggle({
+    Name = "Auto Drop Fruits",
+    Description = "",
+    Default = false,
+    Callback = function(state)
+        getgenv().AutoDropFruit = state
+    end
+})
+spawn(function()
+    while task.wait(0.5) do
+        if getgenv().AutoDropFruit then
+            pcall(function()
+                local l_LocalPlayer = game:GetService("Players").LocalPlayer
+                local char = l_LocalPlayer.Character
+                if char then
+                    for _, tool in pairs(char:GetChildren()) do
+                        if tool:IsA("Tool") and string.find(tool.Name, "Fruit") then
+                            game:GetService("ReplicatedStorage"):FindFirstChild("EatRemote", true):InvokeServer("Drop")
+                        end
+                    end
+                end
+                
+                local backpack = l_LocalPlayer:FindFirstChild("Backpack")
+                if backpack then
+                    for _, tool in pairs(backpack:GetChildren()) do
+                        if tool:IsA("Tool") and string.find(tool.Name, "Fruit") then
+                            char.Humanoid:EquipTool(tool)
+                            task.wait(0.1)
+                            game:GetService("ReplicatedStorage"):FindFirstChild("EatRemote", true):InvokeServer("Drop")
+                        end
                     end
                 end
             end)
