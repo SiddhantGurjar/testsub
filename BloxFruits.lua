@@ -4726,8 +4726,14 @@ spawn(function()
                             TweenTo(CFrameQuestNew)
                         else
                             if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                
                                 _G.LastQuestTime = os.time()
+                                pcall(function()
+                                    local rf = game:GetService("ReplicatedStorage"):FindFirstChild("RF/BonusMomentsGuide", true)
+                                    if rf then rf:InvokeServer("InteractQuestGiver", NameQuestNew) end
+                                end)
                                 local success = ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestNew, LevelQuestNew)
+
                                 if success == "Already accepted!" or success == true then
                                     -- accepted
                                 else
@@ -4998,8 +5004,14 @@ spawn(function()
                         end
                         if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 20 then
                             if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                
                                 _G.LastQuestTime = os.time()
+                                pcall(function()
+                                    local rf = game:GetService("ReplicatedStorage"):FindFirstChild("RF/BonusMomentsGuide", true)
+                                    if rf then rf:InvokeServer("InteractQuestGiver", NameQuest) end
+                                end)
                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
+
                             end
                         end
                     end
@@ -5807,8 +5819,14 @@ task.spawn(function()
                                         topos(qInfo.CFrame)
                                     else
                                         if os.time() - (_G.LastQuestTime or 0) >= 1 then
+                                            
                                             _G.LastQuestTime = os.time()
+                                            pcall(function()
+                                                local rf = game:GetService("ReplicatedStorage"):FindFirstChild("RF/BonusMomentsGuide", true)
+                                                if rf then rf:InvokeServer("InteractQuestGiver", qInfo.QuestName) end
+                                            end)
                                             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", qInfo.QuestName, qInfo.Level)
+
                                         end
                                     end
                                     return
