@@ -1,3 +1,30 @@
+
+-- UI HELPERS
+function GetQuestActive()
+    local p = game.Players.LocalPlayer
+    local tqf = p.PlayerGui:FindFirstChild("TrackedQuestFrame")
+    if tqf and tqf.Enabled then return true end
+    local mq = p.PlayerGui.Main:FindFirstChild("Quest")
+    if mq and mq.Visible then return true end
+    return false
+end
+
+function GetQuestText()
+    local p = game.Players.LocalPlayer
+    local tqf = p.PlayerGui:FindFirstChild("TrackedQuestFrame")
+    if tqf and tqf.Enabled then
+        local header = tqf:FindFirstChild("Frame") and tqf.Frame:FindFirstChild("header")
+        local lbl = header and header:FindFirstChild("textLabel")
+        if lbl then return lbl.Text end
+    end
+    local mq = p.PlayerGui.Main:FindFirstChild("Quest")
+    if mq and mq.Visible then
+        local qtObj = mq:FindFirstChild("Container") and mq.Container:FindFirstChild("QuestTitle") and mq.Container.QuestTitle:FindFirstChild("Title")
+        if qtObj then return qtObj.Text end
+    end
+    return ""
+end
+--
 local wait = task.wait
 
 -- Executor Compatibility and Polyfill Layer
@@ -4706,15 +4733,11 @@ spawn(function()
                 if currentLevel >= 2600 and World3 and IsInSubmerged() then
                     CheckQuestNew()
                     
-                    local questGui = LocalPlayer.PlayerGui.Main.Quest
-                    
                     local isQuestReallyActive = false
-                    if questGui.Visible then
-                        local qtObj = questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and questGui.Container.QuestTitle:FindFirstChild("Title")
-                        if qtObj then
-                            if not string.find(qtObj.Text, "Completed") then
-                                isQuestReallyActive = true
-                            end
+                    if GetQuestActive() then
+                        local qtStr = GetQuestText()
+                        if not string.find(qtStr, "Completed") then
+                            isQuestReallyActive = true
                         end
                     end
 
@@ -4742,7 +4765,7 @@ spawn(function()
                             end
                         end
                     else
-                        local questText = questGui.Container.QuestTitle.Title.Text
+                        local questText = GetQuestText()
                         if not string.find(questText, NameMonNew) then
                             StartBring = false
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4810,7 +4833,7 @@ spawn(function()
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                         end
                                         spamCombatSkills(mob)
-                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible or (questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and string.find(questGui.Container.QuestTitle.Title.Text, "Completed"))
+                                    until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or mob.Humanoid.Health <= 0 or not mob.Parent or not GetQuestActive() or string.find(GetQuestText(), "Completed")
                                     pcall(function() HRP().Anchored = false end)
                                 end
                             end
@@ -4824,15 +4847,15 @@ spawn(function()
                     end
                 else
                     -- Farm Antigo (1-2599)
-                    local l_Text_0 = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+                    local l_Text_0 = GetQuestText()
                     CheckQuest()
                     if not string.find(l_Text_0, NameMon) then
                         StartBring = false
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                         task.wait(1.5)
                     end
-                    if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible ~= false then
-                        if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+                    if GetQuestActive() ~= false then
+                        if GetQuestActive() == true then
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
                                     for _, v512 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
@@ -4901,7 +4924,7 @@ spawn(function()
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v512)
-                                                until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                                until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v512.Humanoid.Health <= 0 or not v512.Parent or GetQuestActive() == false
                                                 pcall(function() HRP().Anchored = false end)
                                             end
                                         end
@@ -4974,7 +4997,7 @@ spawn(function()
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                     end
                                                     spamCombatSkills(v514)
-                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Completed")
+                                                 until not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) or v514.Humanoid.Health <= 0 or not v514.Parent or GetQuestActive() == false or string.find(GetQuestText(), "Completed")
                                                  pcall(function() HRP().Anchored = false end)
                                             else
                                                 StartBring = false
@@ -5208,12 +5231,12 @@ end)
 spawn(function()
     while wait() do
         if _G.AutoPlayerHunter then
-            if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
+            if GetQuestActive() == false then
                 wait(0.5)
                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("PlayerHunter")
             else
                 for _, v1129 in pairs(game:GetService("Workspace").Characters:GetChildren()) do
-                    if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, v1129.Name) then
+                    if string.find(GetQuestText(), v1129.Name) then
                         repeat
                             wait()
                             AutoHaki()
@@ -6817,7 +6840,7 @@ if World2 then
             while wait(0.1) do
                 if _G.AutoBartilo then
                     if game:GetService("Players").LocalPlayer.Data.Level.Value >= 800 and game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BartiloQuestProgress", "Bartilo") == 0 then
-                        if not string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Swan Pirates") or not string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "50") or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible ~= true then
+                        if not string.find(GetQuestText(), "Swan Pirates") or not string.find(GetQuestText(), "50") or GetQuestActive() ~= true then
                             repeat
                                 topos(CFrame.new(-456.28952, 73.0200958, 299.895966))
                                 wait()
@@ -6845,7 +6868,7 @@ if World2 then
                                                 game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
                                                     game:GetService("VirtualUser"):Button1Up(Vector2.new(1280, 672))
                                                 StartBring = true
-                                            until not l_v724_0.Parent or l_v724_0.Humanoid.Health <= 0 or _G.AutoBartilo == false or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                            until not l_v724_0.Parent or l_v724_0.Humanoid.Health <= 0 or _G.AutoBartilo == false or GetQuestActive() == false
                                             StartBring = false
                                         end)
                                     end
@@ -8239,10 +8262,10 @@ if World3 then
                         elseif game.Players.LocalPlayer.Backpack:FindFirstChild("Red Key") or game.Players.LocalPlayer.Character:FindFirstChild("Red Key") then
                             local v624 = {[1] = "CakeScientist", [2] = "Check"}
                             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(v624))
-                        elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible ~= true then
+                        elseif GetQuestActive() ~= true then
                             wait(0.5)
                             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter")
-                        elseif string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Diablo") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Deandre") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Urban") then
+                        elseif string.find(GetQuestText(), "Diablo") or string.find(GetQuestText(), "Deandre") or string.find(GetQuestText(), "Urban") then
                             if not game:GetService("Workspace").Enemies:FindFirstChild("Diablo") and not game:GetService("Workspace").Enemies:FindFirstChild("Deandre") and not game:GetService("Workspace").Enemies:FindFirstChild("Urban") then
                                 if game:GetService("ReplicatedStorage"):FindFirstChild("Diablo") then
                                     topos(game:GetService("ReplicatedStorage"):FindFirstChild("Diablo").HumanoidRootPart.CFrame * CFrame.new(2, 20, 2))
