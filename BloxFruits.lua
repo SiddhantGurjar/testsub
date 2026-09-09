@@ -14051,7 +14051,76 @@ end)
 
 _ = v496:AddSection({" Local-Player "})
 
-Movement = loadstring(game:HttpGet("https://pastefy.app/AUTo6O5h/raw"))()
+Movement = (function()
+    local self = {}
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local UserInputService = game:GetService("UserInputService")
+    local LocalPlayer = Players.LocalPlayer
+
+    local MovementEnabled = false
+    local WalkSpeedValue = 58
+    local JumpValue = 58
+    local DashEnabled = false
+    local DashMultiplier = 2
+    local MoveLoop = nil
+
+    function self:Toggle(v)
+        MovementEnabled = v
+        if v then
+            if not MoveLoop then
+                MoveLoop = RunService.RenderStepped:Connect(function()
+                    local char = LocalPlayer.Character
+                    if char then
+                        local hum = char:FindFirstChild("Humanoid")
+                        if hum then
+                            if hum.WalkSpeed > 0 and hum.WalkSpeed ~= WalkSpeedValue then
+                                hum.WalkSpeed = WalkSpeedValue
+                            end
+                            if hum.JumpPower > 0 and hum.JumpPower ~= JumpValue then
+                                hum.JumpPower = JumpValue
+                            end
+                        end
+                    end
+                end)
+            end
+        else
+            if MoveLoop then
+                MoveLoop:Disconnect()
+                MoveLoop = nil
+            end
+            local char = LocalPlayer.Character
+            if char then
+                local hum = char:FindFirstChild("Humanoid")
+                if hum and hum.WalkSpeed > 0 then
+                    hum.WalkSpeed = 16
+                    hum.JumpPower = 50
+                end
+            end
+        end
+    end
+
+    function self:SetSpeed(v) WalkSpeedValue = v end
+    function self:SetJump(v) JumpValue = v end
+    function self:DashModifier(v) DashEnabled = v end
+    function self:SetDashMultiplier(v) DashMultiplier = v end
+
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.Q and DashEnabled then
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                local bv = Instance.new("BodyVelocity")
+                bv.MaxForce = Vector3.new(1e6, 0, 1e6)
+                bv.Velocity = hrp.CFrame.LookVector * (80 * DashMultiplier)
+                bv.Parent = hrp
+                task.delay(0.2, function() if bv then bv:Destroy() end end)
+            end
+        end
+    end)
+    return self
+end)()
 
 v496:AddToggle({
     Title = "Enable Speed and Jump",
