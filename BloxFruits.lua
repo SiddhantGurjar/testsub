@@ -5251,10 +5251,8 @@ spawn(function()
     local IslandKeys = nil
     while task.wait() do
         if _G.AutoMagnetEvent then
-            local currentMinute = tonumber(os.date("!*t").min)
-            if currentMinute >= 0 and currentMinute < 10 then
-                pcall(function()
-                    local found = false
+            pcall(function()
+                local found = false
                 for _, v in pairs(workspace.Enemies:GetChildren()) do
                     if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                         local isMagnet = false
@@ -5333,9 +5331,6 @@ spawn(function()
                     end
                 end
             end)
-            else
-                task.wait(2)
-            end
         end
     end
 end)
@@ -5956,7 +5951,7 @@ BossQuests = {
     ["Stone"] = {QuestName = "PiratePortQuest", Level = 3, CFrame = CFrame.new(-450.104645, 107.681458, 5950.72607)},
     ["Island Empress"] = {QuestName = "VenomCrewQuest", Level = 3, CFrame = CFrame.new(5206.40185546875, 1004.10498046875, 748.3504638671875)},
     ["Kilo Admiral"] = {QuestName = "MarineTreeQuest", Level = 1, CFrame = CFrame.new(2182.26, 27.81, -9519.86)},
-    ["Captain Elephant"] = {QuestName = "DeepForestIslandQuest", Level = 3, CFrame = CFrame.new(-10581.6563, 330.872955, -8761.18652)},
+    ["Captain Elephant"] = {QuestName = "DeepForestIslandQuest", Level = 3, CFrame = CFrame.new(-13392.833, 318.528, -8423.861)},
     ["Beautiful Pirate"] = {QuestName = "BeautifulPirateQuest", Level = 1, CFrame = CFrame.new(-12469.76, 391.47, -9856.81)},
     ["Cake Queen"] = {QuestName = "CakeQuest1", Level = 3, CFrame = CFrame.new(-2021.32007, 37.7982254, -12028.7295)}
 }
