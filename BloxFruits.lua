@@ -5187,6 +5187,117 @@ spawn(function()
     end
 end)
 
+_ = v485:AddSection({" Magnet Event "})
+v485:AddToggle({
+    Name = "Auto Magnet Event",
+    Description = "Hunt [Magnetized] enemies (Update 30)",
+    Default = false,
+    Callback = function(state)
+        _G.AutoMagnetEvent = state
+    end
+})
+
+local magnetParagraph = v485:AddParagraph({Title = "Check Magnet Tokens", Content = "Loading..."})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local count = 0
+            local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
+            if inv then
+                for _, v in pairs(inv) do
+                    if type(v) == "table" and (v.Name == "Magnet Token" or v.Name == "Magnet Tokens" or v.Name == "Magnet") then
+                        count = v.Count or 0
+                    end
+                end
+            end
+            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
+        end)
+    end
+end)
+
+v485:AddToggle({
+    Name = "Auto Magnet Gacha",
+    Description = "Automatically rolls Magnet Event Gacha",
+    Default = false,
+    Callback = function(state)
+        _G.AutoMagnetGacha = state
+    end
+})
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.AutoMagnetGacha then
+            pcall(function()
+                local commF = game:GetService("ReplicatedStorage").Remotes.CommF_
+                commF:InvokeServer("Magnet", "Buy", 1, 1)
+                commF:InvokeServer("MagnetTokens", "Buy", 1, 1)
+                commF:InvokeServer("Magnet Tokens", "Buy", 1, 1)
+                commF:InvokeServer("Volcanic", "Buy", 1, 1)
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    local islandIndex = 1
+    local IslandKeys = nil
+    while task.wait() do
+        if _G.AutoMagnetEvent then
+            pcall(function()
+                local found = false
+                for _, v in pairs(workspace.Enemies:GetChildren()) do
+                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and string.find(v.Name, "Magnet") then
+                        local root = v:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            TweenTo(root.CFrame * CFrame.new(0, 5, 0))
+                            if type(EquipWeapon) == "function" then EquipWeapon(_G.SelectWeapon) end
+                            Click()
+                            found = true
+                        end
+                        break
+                    end
+                end
+                if not found then
+                    if not IslandKeys then
+                        IslandKeys = {}
+                        local skipIslands = {
+                            ["Middle Town"] = true,
+                            ["Castle On The Sea"] = true,
+                            ["Ussop Island"] = true
+                        }
+                        -- First try dynamic locations from the game
+                        local success, locs = pcall(function() return workspace._WorldOrigin.Locations:GetChildren() end)
+                        if success and locs and #locs > 0 then
+                            for _, loc in pairs(locs) do
+                                if not skipIslands[loc.Name] and (loc:IsA("Part") or loc:IsA("Model")) then
+                                    local pos = loc:IsA("Model") and loc:GetPivot() or loc.CFrame
+                                    table.insert(IslandKeys, {Name = loc.Name, CF = pos})
+                                end
+                            end
+                        elseif type(Islands) == "table" then
+                            -- Fallback to script's hardcoded Islands table
+                            for k, v in pairs(Islands) do 
+                                if not skipIslands[k] then
+                                    table.insert(IslandKeys, {Name = k, CF = v}) 
+                                end
+                            end
+                        end
+                    end
+                    
+                    if IslandKeys and #IslandKeys > 0 then
+                        local islandData = IslandKeys[islandIndex]
+                        if islandData and islandData.CF then
+                            TweenTo(islandData.CF * CFrame.new(0, 100, 0))
+                            task.wait(3)
+                        end
+                        islandIndex = islandIndex + 1
+                        if islandIndex > #IslandKeys then islandIndex = 1 end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
 if World3 then
 _ = v485:AddSection({" Kill Player "})
 v1123 = {}
