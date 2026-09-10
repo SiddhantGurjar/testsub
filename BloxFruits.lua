@@ -4517,7 +4517,7 @@ end
 
 local function TweenTo(cf)
     if _G.PlayerRespawning then return end
-    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") or _G.AutoMagnetEvent) then return end
     local hrp = HRP()
     if not hrp then return end
 
@@ -5224,14 +5224,20 @@ v485:AddToggle({
     end
 })
 task.spawn(function()
-    while task.wait(0.5) do
+    local gachaRemote = nil
+    while task.wait(2) do
         if _G.AutoMagnetGacha then
             pcall(function()
-                local commF = game:GetService("ReplicatedStorage").Remotes.CommF_
-                commF:InvokeServer("Magnet", "Buy", 1, 1)
-                commF:InvokeServer("MagnetTokens", "Buy", 1, 1)
-                commF:InvokeServer("Magnet Tokens", "Buy", 1, 1)
-                commF:InvokeServer("Volcanic", "Buy", 1, 1)
+                if not gachaRemote then
+                    gachaRemote = game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true)
+                end
+                
+                if gachaRemote then
+                    gachaRemote:InvokeServer({
+                        ["Context"] = "Purchase",
+                        ["BoxName"] = "MagnetEventGacha26"
+                    })
+                end
             end)
         end
     end
@@ -5245,15 +5251,34 @@ spawn(function()
             pcall(function()
                 local found = false
                 for _, v in pairs(workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and string.find(v.Name, "Magnet") then
-                        local root = v:FindFirstChild("HumanoidRootPart")
-                        if root then
-                            TweenTo(root.CFrame * CFrame.new(0, 5, 0))
-                            if type(EquipWeapon) == "function" then EquipWeapon(_G.SelectWeapon) end
-                            Click()
-                            found = true
+                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                        local isMagnet = false
+                        
+                        -- Check 1: Name
+                        if string.find(v.Name, "Magnet") then
+                            isMagnet = true
                         end
-                        break
+                        
+                        -- Check 2: BillboardGuis (Often used for tags like [Magnetized])
+                        if not isMagnet and v:FindFirstChild("Head") then
+                            for _, child in pairs(v.Head:GetDescendants()) do
+                                if child:IsA("TextLabel") and child.Text:match("Magnet") then
+                                    isMagnet = true
+                                    break
+                                end
+                            end
+                        end
+                        
+                        if isMagnet then
+                            local root = v:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                TweenTo(root.CFrame * CFrame.new(0, 5, 0))
+                                if type(EquipWeapon) == "function" then EquipWeapon(_G.SelectWeapon) end
+                                Click()
+                                found = true
+                            end
+                            break
+                        end
                     end
                 end
                 if not found then
