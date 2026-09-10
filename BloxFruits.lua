@@ -5259,10 +5259,19 @@ spawn(function()
                             isMagnet = true
                         end
                         
-                        -- Check 2: BillboardGuis (Often used for tags like [Magnetized])
-                        if not isMagnet and v:FindFirstChild("Head") then
-                            for _, child in pairs(v.Head:GetDescendants()) do
-                                if child:IsA("TextLabel") and child.Text:match("Magnet") then
+                        -- Check 2: Attributes
+                        if not isMagnet then
+                            pcall(function()
+                                if v:GetAttribute("Magnetized") or v:GetAttribute("Magnet") then
+                                    isMagnet = true
+                                end
+                            end)
+                        end
+                        
+                        -- Check 3: All Descendants (BillboardGuis, ParticleEmitters, Highlights)
+                        if not isMagnet then
+                            for _, child in pairs(v:GetDescendants()) do
+                                if string.find(child.Name, "Magnet") or (child:IsA("TextLabel") and child.Text:match("Magnet")) then
                                     isMagnet = true
                                     break
                                 end
@@ -11092,7 +11101,7 @@ spawn(function()
                     if type(res) == "number" or res == 1 or type(res) == "table" or game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true) then
                         local gachaCFrame
                         if game.PlaceId == 2753915549 then
-                            gachaCFrame = CFrame.new(-1005.4, 8.4, 1725.7)
+                            gachaCFrame = CFrame.new(-690.3, 15.1, 1582.2) -- Middletown Gacha Dealer
                         elseif game.PlaceId == 4442272183 then
                             gachaCFrame = CFrame.new(-380.479, 77.22, 255.826)
                         else
