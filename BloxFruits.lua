@@ -5205,12 +5205,15 @@ task.spawn(function()
             local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
             if inv then
                 for _, v in pairs(inv) do
-                    if type(v) == "table" and (v.Name == "Magnet Token" or v.Name == "Magnet Tokens" or v.Name == "Magnet") then
-                        count = v.Count or 0
+                    if type(v) == "table" and v.Name then
+                        local nameLower = v.Name:lower()
+                        if string.find(nameLower, "magnet") or (string.find(nameLower, "scrap") and nameLower ~= "scrap metal") then
+                            count = v.Count or 0
+                        end
                     end
                 end
             end
-            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
+            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens (or Scrap)")
         end)
     end
 end)
@@ -5248,8 +5251,10 @@ spawn(function()
     local IslandKeys = nil
     while task.wait() do
         if _G.AutoMagnetEvent then
-            pcall(function()
-                local found = false
+            local currentMinute = tonumber(os.date("!*t").min)
+            if currentMinute >= 0 and currentMinute < 10 then
+                pcall(function()
+                    local found = false
                 for _, v in pairs(workspace.Enemies:GetChildren()) do
                     if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                         local isMagnet = false
@@ -5328,6 +5333,9 @@ spawn(function()
                     end
                 end
             end)
+            else
+                task.wait(2)
+            end
         end
     end
 end)
