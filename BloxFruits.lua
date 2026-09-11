@@ -5298,27 +5298,42 @@ spawn(function()
                         IslandKeys = {}
                         local visitedNames = {}
                         
-                        -- First try dynamic EnemySpawns from the game (best for finding NPCs)
+                        -- Helper to prioritize certain islands based on enemy spawn names
+                        local function GetPriority(n)
+                            n = n:lower()
+                            -- Haunted Castle
+                            if n:find("reborn") or n:find("zombie") or n:find("demonic") or n:find("mummy") then return 1 end
+                            -- Hydra Island
+                            if n:find("dragon crew") or n:find("islander") then return 2 end
+                            -- Port Town
+                            if n:find("millionaire") or n:find("billionaire") then return 3 end
+                            -- Tiki Outpost
+                            if n:find("isle champion") or n:find("sun-kissed") or n:find("sea rough") then return 4 end
+                            -- Floating Turtle / Mansion
+                            if n:find("fishman") or n:find("mythological") or n:find("jungle") or n:find("musketeer") then return 5 end
+                            -- Sea 1 / 2 common names (default high priority if matches sea 2 favorites)
+                            if n:find("swan") or n:find("factory") then return 6 end
+                            -- Great Tree (exclude/deprioritize as it doesn't spawn magnetized)
+                            if n:find("marine") or n:find("commodore") or n:find("admiral") then return 99 end
+                            return 10
+                        end
+                        
                         local success, spawns = pcall(function() return workspace._WorldOrigin.EnemySpawns:GetChildren() end)
                         if success and spawns and #spawns > 0 then
                             for _, spawn in pairs(spawns) do
                                 if spawn:IsA("Part") or spawn:IsA("Model") then
                                     local name = spawn.Name
-                                    -- Only store one spawn point per enemy type to save time
                                     if not visitedNames[name] then
                                         visitedNames[name] = true
                                         local pos = spawn:IsA("Model") and spawn:GetPivot() or spawn.CFrame
-                                        table.insert(IslandKeys, {Name = name, CF = pos})
+                                        table.insert(IslandKeys, {Name = name, CF = pos, Priority = GetPriority(name)})
                                     end
                                 end
                             end
+                            -- Sort by priority
+                            table.sort(IslandKeys, function(a, b) return a.Priority < b.Priority end)
                         else
-                            -- Fallback to Locations
-                            local skipIslands = {
-                                ["Middle Town"] = true,
-                                ["Castle On The Sea"] = true,
-                                ["Ussop Island"] = true
-                            }
+                            local skipIslands = { ["Middle Town"] = true, ["Castle On The Sea"] = true, ["Ussop Island"] = true }
                             local success2, locs = pcall(function() return workspace._WorldOrigin.Locations:GetChildren() end)
                             if success2 and locs and #locs > 0 then
                                 for _, loc in pairs(locs) do
@@ -5329,9 +5344,7 @@ spawn(function()
                                 end
                             elseif type(Islands) == "table" then
                                 for k, v in pairs(Islands) do 
-                                    if not skipIslands[k] then
-                                        table.insert(IslandKeys, {Name = k, CF = v}) 
-                                    end
+                                    if not skipIslands[k] then table.insert(IslandKeys, {Name = k, CF = v}) end
                                 end
                             end
                         end
@@ -5343,13 +5356,39 @@ spawn(function()
                             local player = game:GetService("Players").LocalPlayer
                             local char = player.Character
                             if char and char:FindFirstChild("HumanoidRootPart") then
-                                local dist = (char.HumanoidRootPart.Position - islandData.CF.Position).Magnitude
+                                local targetPos = islandData.CF.Position
+                                local myPos = char.HumanoidRootPart.Position
+                                local dist = (myPos - targetPos).Magnitude
+                                
                                 if dist > 300 then
+                                    -- Fast Travel (Portal Bypass) Logic
+                                    if dist > 3000 then
+                                        local portals = {
+                                            Vector3.new(-5083.26, 314.606, -3175.673), -- Castle
+                                            Vector3.new(-12471.17, 374.94, -7551.678), -- Mansion
+                                            Vector3.new(5749.17, 610.42, -253.92)      -- Hydra
+                                        }
+                                        local bestDist = dist
+                                        local bestPortal = nil
+                                        for _, pPos in pairs(portals) do
+                                            local d = (targetPos - pPos).Magnitude
+                                            if d < bestDist - 1000 then
+                                                bestDist = d
+                                                bestPortal = pPos
+                                            end
+                                        end
+                                        if bestPortal then
+                                            pcall(function()
+                                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", bestPortal)
+                                            end)
+                                            task.wait(0.5)
+                                        end
+                                    end
                                     TweenTo(islandData.CF * CFrame.new(0, 100, 0))
                                 else
                                     islandIndex = islandIndex + 1
                                     if islandIndex > #IslandKeys then islandIndex = 1 end
-                                    task.wait(0.5) -- small wait before switching fully
+                                    task.wait(0.5)
                                 end
                             end
                         end
