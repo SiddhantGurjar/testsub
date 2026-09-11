@@ -5394,26 +5394,32 @@ spawn(function()
                                     end
 
                                     -- Fast Travel (Portal Bypass) Logic
-                                    if dist > 3000 then
-                                        local portals = {
-                                            Vector3.new(-5083.26, 314.606, -3175.673), -- Castle
-                                            Vector3.new(-12471.17, 374.94, -7551.678), -- Mansion
-                                            Vector3.new(5749.17, 610.42, -253.92)      -- Hydra
-                                        }
+                                    if World3 and dist > 3000 then
+                                        local castlePos = Vector3.new(-5083.26, 314.606, -3175.673)
+                                        local mansionPos = Vector3.new(-12471.17, 374.94, -7551.678)
+                                        
+                                        local distToCastle = (targetPos - castlePos).Magnitude
+                                        local distToMansion = (targetPos - mansionPos).Magnitude
+                                        
                                         local bestDist = dist
                                         local bestPortal = nil
-                                        for _, pPos in pairs(portals) do
-                                            local d = (targetPos - pPos).Magnitude
-                                            if d < bestDist - 1000 then
-                                                bestDist = d
-                                                bestPortal = pPos
-                                            end
+                                        
+                                        if distToCastle < bestDist - 1000 then
+                                            bestDist = distToCastle
+                                            bestPortal = castlePos
                                         end
+                                        if distToMansion < bestDist - 1000 then
+                                            bestDist = distToMansion
+                                            bestPortal = mansionPos
+                                        end
+                                        
                                         if bestPortal then
+                                            local oldPos = char.HumanoidRootPart.Position
                                             pcall(function()
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", bestPortal)
                                             end)
-                                            task.wait(0.5)
+                                            task.wait(1)
+                                            -- If it failed to teleport, it will just fall back to normal tweening below
                                         end
                                     end
                                     TweenTo(islandData.CF * CFrame.new(0, 100, 0))
