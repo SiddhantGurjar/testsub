@@ -5190,7 +5190,7 @@ end)
 _ = v485:AddSection({" Magnet Event "})
 v485:AddToggle({
     Name = "Auto Magnet Event",
-    Description = "Hunt [Magnetized] enemies (Update 30)",
+    Description = "Auto Farm Magnet Token (Update 30)",
     Default = false,
     Callback = function(state)
         _G.AutoMagnetEvent = state
