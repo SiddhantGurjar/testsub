@@ -5199,16 +5199,16 @@ v485:AddToggle({
 
 local magnetParagraph = v485:AddParagraph({Title = "Check Magnet Tokens", Content = "Loading..."})
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(5) do
         pcall(function()
             local count = 0
             local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
             if inv then
                 for _, v in pairs(inv) do
                     if type(v) == "table" and v.Name then
-                        local nameLower = v.Name:lower()
-                        if string.find(nameLower, "magnet") then
-                            count = v.Count or 0
+                        if v.Name == "Magnet Token" or string.find(v.Name, "Magnet Token") then
+                            count = v.Count or v.Value or 0
+                            break
                         end
                     end
                 end
