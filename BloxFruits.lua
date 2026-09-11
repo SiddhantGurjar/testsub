@@ -5202,17 +5202,43 @@ task.spawn(function()
     while task.wait(5) do
         pcall(function()
             local count = 0
-            local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
-            if inv then
-                for _, v in pairs(inv) do
-                    if type(v) == "table" and v.Name then
-                        if v.Name == "Magnet Token" or string.find(v.Name, "Magnet Token") then
-                            count = v.Count or v.Value or 0
-                            break
+            
+            -- Method 1: Check Player Data (Event Currencies are often here)
+            local data = game.Players.LocalPlayer:FindFirstChild("Data")
+            if data then
+                local mag = data:FindFirstChild("Magnet") or data:FindFirstChild("MagnetTokens") or data:FindFirstChild("MagnetToken") or data:FindFirstChild("Magnet Token")
+                if mag then count = mag.Value end
+            end
+            
+            -- Method 2: Check Remote Event Check (Like Bones)
+            if count == 0 then
+                pcall(function()
+                    local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MagnetTokens", "Check")
+                    if type(res) == "number" then count = res end
+                end)
+            end
+            if count == 0 then
+                pcall(function()
+                    local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Magnet", "Check")
+                    if type(res) == "number" then count = res end
+                end)
+            end
+            
+            -- Method 3: Check Standard Inventory Materials (Fallback)
+            if count == 0 then
+                local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
+                if inv then
+                    for _, v in pairs(inv) do
+                        if type(v) == "table" and v.Name then
+                            if v.Name == "Magnet Token" or v.Name == "Magnet Tokens" or string.find(v.Name, "Magnet Token") then
+                                count = v.Count or v.Value or v.Quantity or 0
+                                break
+                            end
                         end
                     end
                 end
             end
+            
             magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
         end)
     end
@@ -11206,11 +11232,11 @@ spawn(function()
                     if type(res) == "number" or res == 1 or type(res) == "table" or game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true) then
                         local gachaCFrame
                         if game.PlaceId == 2753915549 then
-                            gachaCFrame = CFrame.new(-690.3, 15.1, 1582.2) -- Middletown Gacha Dealer
+                            gachaCFrame = CFrame.new(-1612.8, 36.8, 149.1) -- Jungle Gacha Dealer
                         elseif game.PlaceId == 4442272183 then
-                            gachaCFrame = CFrame.new(-380.479, 77.22, 255.826)
+                            gachaCFrame = CFrame.new(-380.479, 77.22, 255.826) -- Cafe
                         else
-                            gachaCFrame = CFrame.new(-5036, 315, -3179)
+                            gachaCFrame = CFrame.new(-5036, 315, -3179) -- Castle on the Sea
                         end
                         
                         local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
