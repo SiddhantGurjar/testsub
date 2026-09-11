@@ -4563,7 +4563,7 @@ local function TweenTo(cf)
         end
     end)
 
-    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
+    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") or _G.AutoMagnetEvent) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
         task.wait()
     end
 
@@ -5207,13 +5207,13 @@ task.spawn(function()
                 for _, v in pairs(inv) do
                     if type(v) == "table" and v.Name then
                         local nameLower = v.Name:lower()
-                        if string.find(nameLower, "magnet") or (string.find(nameLower, "scrap") and nameLower ~= "scrap metal") then
+                        if string.find(nameLower, "magnet") then
                             count = v.Count or 0
                         end
                     end
                 end
             end
-            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens (or Scrap)")
+            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
         end)
     end
 end)
