@@ -5296,25 +5296,42 @@ spawn(function()
                 if not found then
                     if not IslandKeys then
                         IslandKeys = {}
-                        local skipIslands = {
-                            ["Middle Town"] = true,
-                            ["Castle On The Sea"] = true,
-                            ["Ussop Island"] = true
-                        }
-                        -- First try dynamic locations from the game
-                        local success, locs = pcall(function() return workspace._WorldOrigin.Locations:GetChildren() end)
-                        if success and locs and #locs > 0 then
-                            for _, loc in pairs(locs) do
-                                if not skipIslands[loc.Name] and (loc:IsA("Part") or loc:IsA("Model")) then
-                                    local pos = loc:IsA("Model") and loc:GetPivot() or loc.CFrame
-                                    table.insert(IslandKeys, {Name = loc.Name, CF = pos})
+                        local visitedNames = {}
+                        
+                        -- First try dynamic EnemySpawns from the game (best for finding NPCs)
+                        local success, spawns = pcall(function() return workspace._WorldOrigin.EnemySpawns:GetChildren() end)
+                        if success and spawns and #spawns > 0 then
+                            for _, spawn in pairs(spawns) do
+                                if spawn:IsA("Part") or spawn:IsA("Model") then
+                                    local name = spawn.Name
+                                    -- Only store one spawn point per enemy type to save time
+                                    if not visitedNames[name] then
+                                        visitedNames[name] = true
+                                        local pos = spawn:IsA("Model") and spawn:GetPivot() or spawn.CFrame
+                                        table.insert(IslandKeys, {Name = name, CF = pos})
+                                    end
                                 end
                             end
-                        elseif type(Islands) == "table" then
-                            -- Fallback to script's hardcoded Islands table
-                            for k, v in pairs(Islands) do 
-                                if not skipIslands[k] then
-                                    table.insert(IslandKeys, {Name = k, CF = v}) 
+                        else
+                            -- Fallback to Locations
+                            local skipIslands = {
+                                ["Middle Town"] = true,
+                                ["Castle On The Sea"] = true,
+                                ["Ussop Island"] = true
+                            }
+                            local success2, locs = pcall(function() return workspace._WorldOrigin.Locations:GetChildren() end)
+                            if success2 and locs and #locs > 0 then
+                                for _, loc in pairs(locs) do
+                                    if not skipIslands[loc.Name] and (loc:IsA("Part") or loc:IsA("Model")) then
+                                        local pos = loc:IsA("Model") and loc:GetPivot() or loc.CFrame
+                                        table.insert(IslandKeys, {Name = loc.Name, CF = pos})
+                                    end
+                                end
+                            elseif type(Islands) == "table" then
+                                for k, v in pairs(Islands) do 
+                                    if not skipIslands[k] then
+                                        table.insert(IslandKeys, {Name = k, CF = v}) 
+                                    end
                                 end
                             end
                         end
@@ -5323,11 +5340,19 @@ spawn(function()
                     if IslandKeys and #IslandKeys > 0 then
                         local islandData = IslandKeys[islandIndex]
                         if islandData and islandData.CF then
-                            TweenTo(islandData.CF * CFrame.new(0, 100, 0))
-                            task.wait(3)
+                            local player = game:GetService("Players").LocalPlayer
+                            local char = player.Character
+                            if char and char:FindFirstChild("HumanoidRootPart") then
+                                local dist = (char.HumanoidRootPart.Position - islandData.CF.Position).Magnitude
+                                if dist > 300 then
+                                    TweenTo(islandData.CF * CFrame.new(0, 100, 0))
+                                else
+                                    islandIndex = islandIndex + 1
+                                    if islandIndex > #IslandKeys then islandIndex = 1 end
+                                    task.wait(0.5) -- small wait before switching fully
+                                end
+                            end
                         end
-                        islandIndex = islandIndex + 1
-                        if islandIndex > #IslandKeys then islandIndex = 1 end
                     end
                 end
             end)
