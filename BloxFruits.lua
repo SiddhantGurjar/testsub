@@ -5361,6 +5361,38 @@ spawn(function()
                                 local dist = (myPos - targetPos).Magnitude
                                 
                                 if dist > 300 then
+                                    -- Special handling for Underwater Islands to prevent dying in water
+                                    if World3 and targetPos.Y < -1000 then
+                                        local subNPC = Vector3.new(-16246.041, 38.48, 1376.539)
+                                        if myPos.Y > -500 then
+                                            local distToSub = (myPos - subNPC).Magnitude
+                                            if distToSub > 30 then
+                                                TweenTo(CFrame.new(subNPC) * CFrame.new(0, 50, 0))
+                                            else
+                                                pcall(function()
+                                                    game.ReplicatedStorage.Modules.Net["RF/SubmarineWorkerSpeak"]:InvokeServer("TravelToSubmergedIsland")
+                                                end)
+                                                task.wait(1)
+                                            end
+                                            return -- Skip normal tweening until we reach the island
+                                        end
+                                    elseif World1 and targetPos.Y < 50 and targetPos.X > 50000 then
+                                        local whirlpool = Vector3.new(61163.85, 11.68, 1819.78)
+                                        if myPos.Y > 50 or myPos.X < 50000 then
+                                            local distToPool = (myPos - whirlpool).Magnitude
+                                            if distToPool > 30 then
+                                                TweenTo(CFrame.new(whirlpool) * CFrame.new(0, 50, 0))
+                                            else
+                                                TweenTo(CFrame.new(whirlpool))
+                                                task.wait(1)
+                                                pcall(function()
+                                                    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", whirlpool)
+                                                end)
+                                            end
+                                            return -- Skip normal tweening until we reach the island
+                                        end
+                                    end
+
                                     -- Fast Travel (Portal Bypass) Logic
                                     if dist > 3000 then
                                         local portals = {
