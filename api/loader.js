@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   const userAgent = req.headers['user-agent'] || '';
   
   const isBrowser = /Mozilla|Chrome|Safari|Edge|Firefox/i.test(userAgent);
@@ -12,14 +12,12 @@ export default function handler(req, res) {
   }
 
   try {
-    // Dynamically read your unobfuscated script from the ROOT directory
     const scriptPath = path.join(process.cwd(), 'BloxFruits.lua');
     const luaScript = fs.readFileSync(scriptPath, 'utf8');
 
-    // Serve it to the executor
     res.setHeader('Content-Type', 'text/plain');
     res.status(200).send(luaScript);
   } catch (error) {
-    res.status(500).send("Error loading script.");
+    res.status(500).send("Error loading script: " + error.message);
   }
 }
