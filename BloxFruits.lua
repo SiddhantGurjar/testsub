@@ -4242,7 +4242,7 @@ function CheckItemBPCRBPCR(v463)
         end
     end
 end
-vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library/main/V5/Source.lua"))()
+vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz999/NewRedz/refs/heads/main/Library/main.lua"))()
 v466 = vu32:MakeWindow({
     Title = "redz hub : Blox Fruits",
     SubTitle = "by real_redz",
