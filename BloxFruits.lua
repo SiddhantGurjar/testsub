@@ -3703,6 +3703,8 @@ _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
 _G.LastStar = _G.LastStar or 0
 _G.BringDistance = _G.BringDistance or 50
+_G.NoDamageTimeout = _G.NoDamageTimeout or 2
+_G.StalledMobRetryDelay = _G.StalledMobRetryDelay or 1
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
@@ -4652,6 +4654,22 @@ local function AutoIslandSecrets()
     end
 end
 
+-- Roblox does not guarantee the order of Workspace.Enemies.  Sort each scan
+-- by distance so a live nearby quest NPC is always chosen before a spawn point.
+local function SortedFarmTargets()
+    local targets = game:GetService("Workspace").Enemies:GetChildren()
+    local playerRoot = HRP()
+    if not playerRoot then return targets end
+    table.sort(targets, function(a, b)
+        local aRoot = a:FindFirstChild("HumanoidRootPart")
+        local bRoot = b:FindFirstChild("HumanoidRootPart")
+        local aDistance = aRoot and (aRoot.Position - playerRoot.Position).Magnitude or math.huge
+        local bDistance = bRoot and (bRoot.Position - playerRoot.Position).Magnitude or math.huge
+        return aDistance < bDistance
+    end)
+    return targets
+end
+
 local function CheckQuestNew()
     local lvl = LocalPlayer.Data.Level.Value
 
@@ -4771,8 +4789,8 @@ spawn(function()
                             ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
                             task.wait(1.5)
                         else
-                            for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) then
+                            for _, mob in ipairs(SortedFarmTargets()) do
+                                if mob.Name == MonNew and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and not (_G.GlitchedMobs and _G.GlitchedMobs[mob]) and not (_G.StalledMobs and _G.StalledMobs[mob] and _G.StalledMobs[mob] > os.clock()) then
                                     local startTime = os.time()
                                     local lastHealth = mob.Humanoid.Health
                                     local lastHealthTime = os.time()
@@ -4789,15 +4807,9 @@ spawn(function()
                                         if mob.Humanoid.Health < lastHealth then
                                             lastHealth = mob.Humanoid.Health
                                             lastHealthTime = now
-                                        elseif now - lastHealthTime > 8 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                            _G.GlitchedMobs[mob] = true
-                                            StartBring = false
-                                            break
-                                        end
-                                        if now - startTime > 25 then
-                                            _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                            _G.GlitchedMobs[mob] = true
+                                        elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                            _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
+                                            _G.StalledMobs[mob] = os.clock() + _G.StalledMobRetryDelay
                                             StartBring = false
                                             break
                                         end
@@ -4847,8 +4859,8 @@ spawn(function()
                     end
                 else
                     -- Farm Antigo (1-2599)
-                    local l_Text_0 = GetQuestText()
                     CheckQuest()
+                    local l_Text_0 = GetQuestText()
                     if not string.find(l_Text_0, NameMon) then
                         StartBring = false
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4858,8 +4870,8 @@ spawn(function()
                         if GetQuestActive() == true then
                             if not string.find(l_Text_0, "kissed") then
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
-                                    for _, v512 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) then
+                                    for _, v512 in ipairs(SortedFarmTargets()) do
+                                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) and not (_G.StalledMobs and _G.StalledMobs[v512] and _G.StalledMobs[v512] > os.clock()) then
                                             if not string.find(l_Text_0, NameMon) then
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
@@ -4881,15 +4893,9 @@ spawn(function()
                                                     if v512.Humanoid.Health < lastHealth then
                                                         lastHealth = v512.Humanoid.Health
                                                         lastHealthTime = now
-                                                    elseif now - lastHealthTime > 8 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v512] = true
-                                                        StartBring = false
-                                                        break
-                                                    end
-                                                    if now - startTime > 25 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v512] = true
+                                                    elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                                        _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
+                                                        _G.StalledMobs[v512] = os.clock() + _G.StalledMobRetryDelay
                                                         StartBring = false
                                                         break
                                                     end
@@ -4934,8 +4940,8 @@ spawn(function()
                                      StartBring = false
                                  end
                             else
-                                for _, v514 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                    if string.find(v514.Name, "kissed Warrior") and not (_G.GlitchedMobs and _G.GlitchedMobs[v514]) then
+                                for _, v514 in ipairs(SortedFarmTargets()) do
+                                    if string.find(v514.Name, "kissed Warrior") and not (_G.GlitchedMobs and _G.GlitchedMobs[v514]) and not (_G.StalledMobs and _G.StalledMobs[v514] and _G.StalledMobs[v514] > os.clock()) then
                                         if v514:FindFirstChild("HumanoidRootPart") and v514:FindFirstChild("Humanoid") and v514.Humanoid.Health > 0 then
                                             if string.find(l_Text_0, NameMon) then
                                                 local startTime = os.time()
@@ -4954,15 +4960,9 @@ spawn(function()
                                                     if v514.Humanoid.Health < lastHealth then
                                                         lastHealth = v514.Humanoid.Health
                                                         lastHealthTime = now
-                                                    elseif now - lastHealthTime > 8 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v514] = true
-                                                        StartBring = false
-                                                        break
-                                                    end
-                                                    if now - startTime > 25 then
-                                                        _G.GlitchedMobs = _G.GlitchedMobs or setmetatable({}, {__mode = "k"})
-                                                        _G.GlitchedMobs[v514] = true
+                                                    elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                                        _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
+                                                        _G.StalledMobs[v514] = os.clock() + _G.StalledMobRetryDelay
                                                         StartBring = false
                                                         break
                                                     end
