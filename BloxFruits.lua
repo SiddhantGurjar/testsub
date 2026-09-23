@@ -3597,6 +3597,61 @@ function EquipWeapon(v358)
         game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool)
     end
 end
+
+-- Aim toggles previously had no consumer.  This resolver keeps the selected
+-- screen-nearest target current for the namecall hook below.
+local UserInputService = game:GetService("UserInputService")
+local function IsGunTool(tool)
+    if not tool then return false end
+    local name = string.lower(tool.Name)
+    return tool.ToolTip == "Gun" or tool:GetAttribute("WeaponType") == "Gun"
+        or name:find("gun") or name:find("guitar") or name:find("dragonstorm")
+end
+
+local function AimRedirectEnabled()
+    local character = game.Players.LocalPlayer.Character
+    local tool = character and character:FindFirstChildOfClass("Tool")
+    if _G.AimBot_Gun and IsGunTool(tool) then return true end
+    if _G.AimBot_Tap and tool and (string.lower(tool.Name):find("guitar") or tool:GetAttribute("TapWeapon") == true) then return true end
+    if _G.AimBot_Skills and tool and not IsGunTool(tool) then return true end
+    return false
+end
+
+local function GetClosestAimPosition()
+    local camera = workspace.CurrentCamera
+    local mousePosition = UserInputService:GetMouseLocation()
+    local closestPosition, closestDistance = nil, 300
+    local function consider(model)
+        local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+        local root = model and model:FindFirstChild("HumanoidRootPart")
+        if not humanoid or humanoid.Health <= 0 or not root then return end
+        local point, visible = camera:WorldToViewportPoint(root.Position)
+        if not visible then return end
+        local distance = (Vector2.new(point.X, point.Y) - mousePosition).Magnitude
+        if distance < closestDistance then
+            closestDistance = distance
+            closestPosition = root.Position + root.AssemblyLinearVelocity * 0.08
+        end
+    end
+
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then consider(player.Character) end
+    end
+    if not closestPosition and Settings.NoAimMobs == false then
+        for _, enemy in ipairs(workspace.Enemies:GetChildren()) do consider(enemy) end
+    end
+    return closestPosition
+end
+
+task.spawn(function()
+    while task.wait(0.05) do
+        if _G.AimBot_Gun or _G.AimBot_Tap or _G.AimBot_Skills then
+            _G.AimTargetPosition = GetClosestAimPosition()
+        else
+            _G.AimTargetPosition = nil
+        end
+    end
+end)
 spawn(function()
     pcall(function()
         if getrawmetatable and (setreadonly or make_writeable) and newcclosure then
@@ -3614,6 +3669,8 @@ spawn(function()
                     local targetPos = nil
                     if _G.UseSkill and PosMon then
                         targetPos = PosMon.Position
+                    elseif AimRedirectEnabled() and _G.AimTargetPosition then
+                        targetPos = _G.AimTargetPosition
                     elseif _G.AutoShootGun and _G.ShootTargetPos then
                         targetPos = _G.ShootTargetPos
                     end
@@ -13057,26 +13114,26 @@ v494:AddToggle({
 v494:AddSection({"Aim"})
 
 v494:AddToggle({
-    Name = "Aim Gun",
+    Name = "AimBot Gun",
     Default = false,
     Callback = function(v)
-        _ENV.AimBot_Gun = v
+        _G.AimBot_Gun = v
     end
 })
 
 v494:AddToggle({
-    Name = "Aim Tap",
+    Name = "AimBot Tap",
     Default = false,
     Callback = function(v)
-        _ENV.AimBot_Tap = v
+        _G.AimBot_Tap = v
     end
 })
 
 v494:AddToggle({
-    Name = "Aim Skills",
+    Name = "AimBot Skills",
     Default = false,
     Callback = function(v)
-        _ENV.AimBot_Skills = v
+        _G.AimBot_Skills = v
     end
 })
 
