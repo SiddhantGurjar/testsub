@@ -3598,6 +3598,7 @@ function EquipWeapon(v358)
     end
 end
 
+--[[ AimBot target resolver disabled while investigating client input errors.
 -- Aim toggles previously had no consumer.  This resolver keeps the selected
 -- screen-nearest target current for the namecall hook below.
 local UserInputService = game:GetService("UserInputService")
@@ -3652,6 +3653,7 @@ task.spawn(function()
         end
     end
 end)
+]]
 spawn(function()
     pcall(function()
         if getrawmetatable and (setreadonly or make_writeable) and newcclosure then
@@ -3669,8 +3671,6 @@ spawn(function()
                     local targetPos = nil
                     if _G.UseSkill and PosMon then
                         targetPos = PosMon.Position
-                    elseif AimRedirectEnabled() and _G.AimTargetPosition then
-                        targetPos = _G.AimTargetPosition
                     elseif _G.AutoShootGun and _G.ShootTargetPos then
                         targetPos = _G.ShootTargetPos
                     end
@@ -13015,6 +13015,7 @@ FlowerESPManager:SetEspColor(function(Flower)
 end)
 
 
+--[[ AimBot controls disabled during investigation.
 v494:AddSection({"Aim"})
 
 v494:AddToggle({
@@ -13048,6 +13049,7 @@ v494:AddToggle({
         Settings.NoAimMobs = v
     end
 })
+]]
 
 v494:AddSection({"ESP"})
 v494:AddSlider({
