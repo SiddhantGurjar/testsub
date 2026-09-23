@@ -13015,6 +13015,40 @@ FlowerESPManager:SetEspColor(function(Flower)
 end)
 
 
+v494:AddSection({"Aim"})
+
+v494:AddToggle({
+    Name = "AimBot Gun",
+    Default = false,
+    Callback = function(v)
+        _G.AimBot_Gun = v
+    end
+})
+
+v494:AddToggle({
+    Name = "AimBot Tap",
+    Default = false,
+    Callback = function(v)
+        _G.AimBot_Tap = v
+    end
+})
+
+v494:AddToggle({
+    Name = "AimBot Skills",
+    Default = false,
+    Callback = function(v)
+        _G.AimBot_Skills = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Ignore Mobs",
+    Default = true,
+    Callback = function(v)
+        Settings.NoAimMobs = v
+    end
+})
+
 v494:AddSection({"ESP"})
 v494:AddSlider({
 	Name = "ESP Size",
@@ -13108,40 +13142,6 @@ v494:AddToggle({
     Default = false,
     Callback = function(v)
         IslandsESP.Enabled = v
-    end
-})
-
-v494:AddSection({"Aim"})
-
-v494:AddToggle({
-    Name = "AimBot Gun",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Gun = v
-    end
-})
-
-v494:AddToggle({
-    Name = "AimBot Tap",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Tap = v
-    end
-})
-
-v494:AddToggle({
-    Name = "AimBot Skills",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Skills = v
-    end
-})
-
-v494:AddToggle({
-    Name = "Ignore Mobs",
-    Default = true,
-    Callback = function(v)
-        Settings.NoAimMobs = v
     end
 })
 
