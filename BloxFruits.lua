@@ -3702,7 +3702,7 @@ _G.OrbitSpeed = _G.OrbitSpeed or 4
 _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
 _G.LastStar = _G.LastStar or 0
-_G.BringDistance = _G.BringDistance or 320
+_G.BringDistance = _G.BringDistance or 50
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
@@ -5198,10 +5198,30 @@ v485:AddToggle({
 })
 
 local magnetParagraph = v485:AddParagraph({Title = "Check Magnet Tokens", Content = "Loading..."})
+local magnetStatus = v485:AddParagraph({Title = "Magnet Event Status", Content = "Waiting for the event..."})
+
+local function FindMagnetTokenValue()
+    local player = game:GetService("Players").LocalPlayer
+    local containers = {player, player:FindFirstChild("Data"), player:FindFirstChild("PlayerGui")}
+    for _, container in ipairs(containers) do
+        if container then
+            for _, item in ipairs(container:GetDescendants()) do
+                local name = string.lower(item.Name)
+                if name:find("magnet") and (name:find("token") or name:find("currency")) then
+                    if item:IsA("IntValue") or item:IsA("NumberValue") then return item.Value end
+                    if item:IsA("TextLabel") then
+                        local value = tonumber(item.Text:gsub("[^%d]", ""))
+                        if value then return value end
+                    end
+                end
+            end
+        end
+    end
+end
 task.spawn(function()
     while task.wait(5) do
         pcall(function()
-            local count = 0
+            local count = FindMagnetTokenValue()
             
             -- Method 1: Check Player Data (Event Currencies are often here)
             local data = game.Players.LocalPlayer:FindFirstChild("Data")
@@ -5211,13 +5231,13 @@ task.spawn(function()
             end
             
             -- Method 2: Check Remote Event Check (Like Bones)
-            if count == 0 then
+            if count == nil or count == 0 then
                 pcall(function()
                     local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MagnetTokens", "Check")
                     if type(res) == "number" then count = res end
                 end)
             end
-            if count == 0 then
+            if count == nil or count == 0 then
                 pcall(function()
                     local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Magnet", "Check")
                     if type(res) == "number" then count = res end
@@ -5225,7 +5245,7 @@ task.spawn(function()
             end
             
             -- Method 3: Check Standard Inventory Materials (Fallback)
-            if count == 0 then
+            if count == nil or count == 0 then
                 local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
                 if inv then
                     for _, v in pairs(inv) do
@@ -5239,7 +5259,11 @@ task.spawn(function()
                 end
             end
             
-            magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
+            if count == nil then
+                magnetParagraph:Set("Token count unavailable (event data not exposed yet)")
+            else
+                magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
+            end
         end)
     end
 end)
@@ -5284,14 +5308,14 @@ spawn(function()
                         local isMagnet = false
                         
                         -- Check 1: Name
-                        if string.find(v.Name, "Magnet") then
+                        if string.find(string.lower(v.Name), "magnet") or string.find(string.lower(v.Name), "magnetic") then
                             isMagnet = true
                         end
                         
                         -- Check 2: Attributes
                         if not isMagnet then
                             pcall(function()
-                                if v:GetAttribute("Magnetized") or v:GetAttribute("Magnet") then
+                                if v:GetAttribute("Magnetized") == true or v:GetAttribute("Magnet") == true or v:GetAttribute("IsMagnetEvent") == true then
                                     isMagnet = true
                                 end
                             end)
@@ -5300,7 +5324,7 @@ spawn(function()
                         -- Check 3: All Descendants (BillboardGuis, ParticleEmitters, Highlights)
                         if not isMagnet then
                             for _, child in pairs(v:GetDescendants()) do
-                                if string.find(child.Name, "Magnet") or (child:IsA("TextLabel") and child.Text:match("Magnet")) then
+                                if string.find(string.lower(child.Name), "magnet") or string.find(string.lower(child.Name), "magnetic") or (child:IsA("TextLabel") and string.lower(child.Text):match("magnet")) then
                                     isMagnet = true
                                     break
                                 end
@@ -5310,9 +5334,16 @@ spawn(function()
                         if isMagnet then
                             local root = v:FindFirstChild("HumanoidRootPart")
                             if root then
+                                magnetStatus:Set("Farming " .. v.Name)
                                 TweenTo(root.CFrame * CFrame.new(0, 5, 0))
-                                if type(EquipWeapon) == "function" then EquipWeapon(_G.SelectWeapon) end
-                                Click()
+                                local attackUntil = os.clock() + 20
+                                while _G.AutoMagnetEvent and v.Parent and v.Humanoid.Health > 0 and os.clock() < attackUntil do
+                                    local myRoot = HRP()
+                                    if not myRoot or (myRoot.Position - root.Position).Magnitude > 25 then break end
+                                    if type(EquipWeapon) == "function" then pcall(EquipWeapon, _G.SelectWeapon) end
+                                    pcall(function() Click() end)
+                                    task.wait(0.12)
+                                end
                                 found = true
                             end
                             break
@@ -5320,6 +5351,7 @@ spawn(function()
                     end
                 end
                 if not found then
+                    magnetStatus:Set("No Magnet event enemy found; searching islands...")
                     if not IslandKeys then
                         IslandKeys = {}
                         local visitedNames = {}
@@ -11232,7 +11264,7 @@ spawn(function()
                     if type(res) == "number" or res == 1 or type(res) == "table" or game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true) then
                         local gachaCFrame
                         if game.PlaceId == 2753915549 then
-                            gachaCFrame = CFrame.new(-1612.8, 36.8, 149.1) -- Jungle Gacha Dealer
+                            gachaCFrame = CFrame.new(-1005.4, 8.4, 1725.7) -- Middletown Gacha Dealer (Update 30)
                         elseif game.PlaceId == 4442272183 then
                             gachaCFrame = CFrame.new(-380.479, 77.22, 255.826) -- Cafe
                         else
@@ -13019,6 +13051,40 @@ v494:AddToggle({
     Default = false,
     Callback = function(v)
         IslandsESP.Enabled = v
+    end
+})
+
+v494:AddSection({"Aim"})
+
+v494:AddToggle({
+    Name = "Aim Gun",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Gun = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Aim Tap",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Tap = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Aim Skills",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Skills = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Ignore Mobs",
+    Default = true,
+    Callback = function(v)
+        Settings.NoAimMobs = v
     end
 })
 
