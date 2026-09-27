@@ -2,30 +2,22 @@
 -- UI HELPERS
 function GetQuestActive()
     local p = game.Players.LocalPlayer
-    if not p then return false end
-    local pg = p:FindFirstChild("PlayerGui")
-    if not pg then return false end
-    local tqf = pg:FindFirstChild("TrackedQuestFrame")
+    local tqf = p.PlayerGui:FindFirstChild("TrackedQuestFrame")
     if tqf and tqf.Enabled then return true end
-    local main = pg:FindFirstChild("Main")
-    local mq = main and main:FindFirstChild("Quest")
+    local mq = p.PlayerGui.Main:FindFirstChild("Quest")
     if mq and mq.Visible then return true end
     return false
 end
 
 function GetQuestText()
     local p = game.Players.LocalPlayer
-    if not p then return "" end
-    local pg = p:FindFirstChild("PlayerGui")
-    if not pg then return "" end
-    local tqf = pg:FindFirstChild("TrackedQuestFrame")
+    local tqf = p.PlayerGui:FindFirstChild("TrackedQuestFrame")
     if tqf and tqf.Enabled then
         local header = tqf:FindFirstChild("Frame") and tqf.Frame:FindFirstChild("header")
         local lbl = header and header:FindFirstChild("textLabel")
         if lbl then return lbl.Text end
     end
-    local main = pg:FindFirstChild("Main")
-    local mq = main and main:FindFirstChild("Quest")
+    local mq = p.PlayerGui.Main:FindFirstChild("Quest")
     if mq and mq.Visible then
         local qtObj = mq:FindFirstChild("Container") and mq.Container:FindFirstChild("QuestTitle") and mq.Container.QuestTitle:FindFirstChild("Title")
         if qtObj then return qtObj.Text end
@@ -231,21 +223,9 @@ function EquipWeapon(v579)
         return 
     else
         local l_LocalPlayer_7 = game.Players.LocalPlayer
-        if not l_LocalPlayer_7 then return end
-        local backpack = l_LocalPlayer_7:FindFirstChild("Backpack")
-        if not backpack then return end
-        local toolName = v579
-        if v579 == "Melee" and type(FindWeapon) == "function" then
-            toolName = FindWeapon("Melee") or "Combat"
-        end
-        local char = l_LocalPlayer_7.Character
-        if char and char:FindFirstChild(toolName) then return end -- already equipped
-        local l_FirstChild_1 = backpack:FindFirstChild(toolName)
-        if l_FirstChild_1 and char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                pcall(function() hum:EquipTool(l_FirstChild_1) end)
-            end
+        local l_FirstChild_1 = l_LocalPlayer_7:WaitForChild("Backpack"):FindFirstChild(v579)
+        if l_FirstChild_1 then
+            l_LocalPlayer_7.Character.Humanoid:EquipTool(l_FirstChild_1)
         end
         return 
     end
@@ -265,39 +245,22 @@ end
 function getToolToEquip(mob)
     if _G.AutoFarmMastery then
         local weaponType = _G.MasterySelectWeapon or "Melee"
-        -- Never return nil while any weapon exists: nil tool = M1 whiffs = no damage =
-        -- mob gets stalled-marked forever (mastery-Level "stuck", mastery-Nearest "no attack").
-        local function fallbackTool()
-            return FindWeapon("Melee") or FindWeapon("Sword") or "Combat"
-        end
         if weaponType == "Gun" or weaponType == "Blox Fruit" then
-            if mob and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("Humanoid").Health > 0 then
+            if mob and mob:FindFirstChild("Humanoid") then
                 local hpPercent = (mob.Humanoid.Health / mob.Humanoid.MaxHealth) * 100
                 if hpPercent > (_G.UseSkillHP or 20) then
                     local toolName = FindWeapon("Melee") or "Combat"
                     return toolName
                 else
                     local targetType = (weaponType == "Blox Fruit" and "Fruit" or "Gun")
-                    return FindWeapon(targetType) or fallbackTool()
+                    local toolName = FindWeapon(targetType)
+                    return toolName
                 end
             end
-            return fallbackTool()
         end
         local defaultTool = FindWeapon(weaponType == "Blox Fruit" and "Fruit" or weaponType)
-        return defaultTool or fallbackTool()
+        return defaultTool
     else
-        -- Resolve "Melee" -> actual tool name ("Combat" at Level 1). _G.SelectWeapon stays
-        -- as "Melee" when Combat is equipped (auto-resolve loop only scans Backpack),
-        -- and EquipWeapon("Melee") finds nothing -> no damage -> mob marked stalled.
-        if _G.SelectWeapon == "Melee" then
-            return FindWeapon("Melee") or "Combat"
-        elseif _G.SelectWeapon == "Sword" then
-            return FindWeapon("Sword") or _G.SelectWeapon
-        elseif _G.SelectWeapon == "Gun" then
-            return FindWeapon("Gun") or _G.SelectWeapon
-        elseif _G.SelectWeapon == "Fruit" or _G.SelectWeapon == "Blox Fruit" then
-            return FindWeapon("Fruit") or _G.SelectWeapon
-        end
         return _G.SelectWeapon
     end
 end
@@ -377,19 +340,6 @@ function spamCombatSkills(mob)
             end
             -- Check if farm toggles are active
             if not (_G.AutoFarm or _G.AutoFarmMastery or _G.AutoNear or _G.FarmBone or _G.AutoBoss or _G.AutoAllBoss) then
-                return false
-            end
-            -- Die when the main loop gave up on this mob: otherwise this orphan thread keeps
-            -- pinning the player to a stalled mob while the main loop tries to move on
-            -- (tug-of-war = player "stuck in place").
-            if _G.GlitchedMobs and _G.GlitchedMobs[mob] then
-                return false
-            end
-            if _G.StalledMobs and _G.StalledMobs[mob] and _G.StalledMobs[mob] > os.clock() then
-                return false
-            end
-            -- Die when the farm moved on to a different target (quest switch / mode switch).
-            if MonFarm and MonFarm ~= mob.Name then
                 return false
             end
             return mob and mob.Parent and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart")
@@ -542,13 +492,9 @@ elseif game.PlaceId == 4442272183 or game.PlaceId == 79091703265657 then
     World2 = true
 elseif game.PlaceId == 7449423635 or game.PlaceId == 100117331123089 then
     World3 = true
-else
-    -- Unknown sub-place (dungeon/raid/event): default to World1 so CheckQuest still assigns Mon
-    -- instead of leaving Mon/NameMon nil (which breaks string.find/FindFirstChild).
-    World1 = true
 end
 function MaterialMon()
-    if _G.SelectMaterial ~= "Radioactive Material" and _G.SelectMaterial ~= "Radiactive Material" then
+    if _G.SelectMaterial ~= "Radiactive Material" then
         if _G.SelectMaterial ~= "Leather + Scrap Metal" then
             if _G.SelectMaterial ~= "Magma Ore" then
                 if _G.SelectMaterial ~= "Fish Tail" then
@@ -628,57 +574,8 @@ function MaterialMon()
     end
 end
 function CheckQuest()
-    -- Safe Level read: Data/Level replicates a few seconds late on fresh Level-1 joins.
-    -- Old code indexed .Data.Level.Value directly -> error -> Mon stayed nil -> silent dead loop.
-    local ok, lvl = pcall(function()
-        local plr = game:GetService("Players").LocalPlayer
-        if not plr then return nil end
-        local data = plr:FindFirstChild("Data")
-        if not data then return nil end
-        local lv = data:FindFirstChild("Level")
-        if not lv then return nil end
-        return lv.Value
-    end)
-    if ok and lvl then
-        MyLevel = lvl
-    end
-    if not MyLevel then return end
+    MyLevel = game:GetService("Players").LocalPlayer.Data.Level.Value
     if World1 then
-        -- Update 30 new mobs (from Delta/Workspace/NewFirstSeaNPCs.txt dump, Sep 2026)
-        -- Manual SelectMonster overrides. Quest IDs are best-guess, verify in-game via Quest text.
-        if SelectMonster == "Ruthless Prisoner" then
-            Mon = "Ruthless Prisoner"
-            LevelQuest = 1
-            NameQuest = "ImpelQuest"
-            NameMon = "Ruthless Prisoner"
-            CFrameQuest = CFrame.new(5320.666015625, 18.885578155517578, 856.2814331054688)
-            CFrameMon = CFrame.new(5271.36962890625, 19.785165786743164, 799.6097412109375)
-            return
-        elseif SelectMonster == "Trainee" then
-            Mon = "Trainee"
-            LevelQuest = 1
-            NameQuest = "BanditQuest1"
-            NameMon = "Trainee"
-            CFrameQuest = CFrame.new(-2728.6, 30.4, 1966.2)
-            CFrameMon = CFrame.new(-2728.6, 30.4, 1966.2)
-            return
-        elseif SelectMonster == "Evil Slime" then
-            Mon = "Evil Slime"
-            LevelQuest = 1
-            NameQuest = "MagmaQuest"
-            NameMon = "Evil Slime"
-            CFrameQuest = CFrame.new(-5308.9, 17.0, 8482.7)
-            CFrameMon = CFrame.new(-5551.3, 20.4, 8257.0)
-            return
-        elseif SelectMonster == "Clam Mimic" then
-            Mon = "Clam Mimic"
-            LevelQuest = 1
-            NameQuest = "FishmanQuest"
-            NameMon = "Clam Mimic"
-            CFrameQuest = CFrame.new(61406.2, 24.5, 1626.8)
-            CFrameMon = CFrame.new(60786.9, 23.6, 1576.2)
-            return
-        end
         if MyLevel >= 1 and MyLevel <= 9 or SelectMonster == "Bandit" then
             Mon = "Bandit"
             LevelQuest = 1
@@ -716,7 +613,7 @@ function CheckQuest()
                                                 NameMon = "Prisoner"
                                                 CFrameQuest = CFrame.new(5208.3, 18.9, 736.6, -0.0894274712, -5.00292918E-9, -0.995993316, 1.60817859E-9, 1, -5.16744869E-9, 0.995993316, -2.06384709E-9, -0.0894274712)
                                                 CFrameMon = CFrame.new(5278.6, 8.0, 391.6)
-                                            elseif (MyLevel < 210 or MyLevel > 249) and SelectMonster ~= "Dangerous Prisoner" then
+                                            elseif (MyLevel < 210 or MyLevel > 249) and SelectMonster ~= "Dangerous Prisone" then
                                                 if MyLevel >= 250 and MyLevel <= 274 or SelectMonster == "Toga Warrior" then
                                                     Mon = "Toga Warrior"
                                                     LevelQuest = 1
@@ -734,51 +631,28 @@ function CheckQuest()
                                                                         LevelQuest = 1
                                                                         NameQuest = "SkyExp1Quest"
                                                                         NameMon = "God's Guard"
-                                                                        -- Dump-confirmed: Angel Guard NPC at this exact spot (NewFirstSeaNPCs.txt).
-                                                                        -- Do NOT move to Wysper L3 pos (-7859): live dump shows no NPC there.
                                                                         CFrameQuest = CFrame.new(-4820.9, 936.8, -1152.0, 0.996191859, -0, -0.0871884301, -0, 1, -0, 0.0871884301, -0, 0.996191859)
                                                                         CFrameMon = CFrame.new(-4227.3, 1088.0, -567.6)
-                                                                        if _G.AutoFarm then
-                                                                            pcall(function()
-                                                                                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                                                                if hrp and (CFrameQuest.Position - hrp.Position).Magnitude > 4000 then
-                                                                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-4607.82275, 872.54248, -1667.55688))
-                                                                                end
-                                                                            end)
+                                                                        if _G.AutoFarm and (CFrameQuest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 10000 then
+                                                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-4607.82275, 872.54248, -1667.55688))
                                                                         end
                                                                     elseif MyLevel >= 475 and MyLevel <= 524 or SelectMonster == "Shanda" then
                                                                         Mon = "Shanda"
                                                                         LevelQuest = 2
                                                                         NameQuest = "SkyExp1Quest"
                                                                         NameMon = "Shanda"
-                                                                        -- Dump-confirmed: Angel Guard NPC at this exact spot (NewFirstSeaNPCs.txt).
                                                                         CFrameQuest = CFrame.new(-4820.9, 936.8, -1152.0, -0.422592998, -0, 0.906319618, -0, 1, -0, -0.906319618, -0, -0.422592998)
                                                                         CFrameMon = CFrame.new(-5956.5, 5467.8, 1750.6)
-                                                                        if _G.AutoFarm then
-                                                                            pcall(function()
-                                                                                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                                                                if hrp and (CFrameQuest.Position - hrp.Position).Magnitude > 4000 then
-                                                                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894.6176757813, 5547.1416015625, -380.29119873047))
-                                                                                end
-                                                                            end)
+                                                                        if _G.AutoFarm and (CFrameQuest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 10000 then
+                                                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894.6176757813, 5547.1416015625, -380.29119873047))
                                                                         end
                                                                     elseif MyLevel >= 525 and MyLevel <= 549 or SelectMonster == "Royal Squad" then
                                                                         Mon = "Royal Squad"
                                                                         LevelQuest = 1
                                                                         NameQuest = "SkyExp2Quest"
                                                                         NameMon = "Royal Squad"
-                                                                        -- Dump-confirmed: Mole NPC at this exact spot (NewFirstSeaNPCs.txt).
-                                                                        -- Do NOT move to Thunder God L3 pos (-7906): live dump shows no NPC there.
                                                                         CFrameQuest = CFrame.new(-5949.1, 5467.9, 2086.5, -0, -0, -1, -0, 1, -0, 1, -0, -0)
                                                                         CFrameMon = CFrame.new(-6690.0, 5551.4, 1318.3)
-                                                                        if _G.AutoFarm then
-                                                                            pcall(function()
-                                                                                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                                                                if hrp and (CFrameQuest.Position - hrp.Position).Magnitude > 4000 then
-                                                                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894.6176757813, 5547.1416015625, -380.29119873047))
-                                                                                end
-                                                                            end)
-                                                                        end
                                                                     elseif (MyLevel < 550 or MyLevel > 624) and SelectMonster ~= "Royal Soldier" then
                                                                         if MyLevel >= 625 and MyLevel <= 649 or SelectMonster == "Galley Pirate" then
                                                                             Mon = "Galley Pirate"
@@ -800,17 +674,8 @@ function CheckQuest()
                                                                         LevelQuest = 2
                                                                         NameQuest = "SkyExp2Quest"
                                                                         NameMon = "Royal Soldier"
-                                                                        -- Dump-confirmed: Mole NPC at this exact spot (NewFirstSeaNPCs.txt).
                                                                         CFrameQuest = CFrame.new(-5949.1, 5467.9, 2086.5, -0, -0, -1, -0, 1, -0, 1, -0, -0)
                                                                         CFrameMon = CFrame.new(-7138.5, 5541.1, 1050.8)
-                                                                        if _G.AutoFarm then
-                                                                            pcall(function()
-                                                                                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                                                                if hrp and (CFrameQuest.Position - hrp.Position).Magnitude > 4000 then
-                                                                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-7894.6176757813, 5547.1416015625, -380.29119873047))
-                                                                                end
-                                                                            end)
-                                                                        end
                                                                     end
                                                                 else
                                                                     Mon = "Fishman Commando"
@@ -1005,11 +870,11 @@ function CheckQuest()
                                                     NameMon = "Demonic Soul"
                                                     CFrameQuest = CFrame.new(-9516.99316, 172.017181, 6078.46533, -0, -0, -1, -0, 1, -0, 1, -0, -0)
                                                     CFrameMon = CFrame.new(-9505.8720703125, 172.10482788085938, 6158.9931640625)
-                                                elseif MyLevel >= 2050 and MyLevel <= 2074 or SelectMonster == "Posessed Mummy" or SelectMonster == "Possessed Mummy" then
-                                                    Mon = "Possessed Mummy"
+                                                elseif MyLevel >= 2050 and MyLevel <= 2074 or SelectMonster == "Posessed Mummy" then
+                                                    Mon = "Posessed Mummy"
                                                     LevelQuest = 2
                                                     NameQuest = "HauntedQuest2"
-                                                    NameMon = "Possessed Mummy"
+                                                    NameMon = "Posessed Mummy"
                                                     CFrameQuest = CFrame.new(-9516.99316, 172.017181, 6078.46533, -0, -0, -1, -0, 1, -0, 1, -0, -0)
                                                     CFrameMon = CFrame.new(-9582.0224609375, 6.251527309417725, 6205.478515625)
                                                 elseif (MyLevel < 2075 or MyLevel > 2099) and SelectMonster ~= "Peanut Scout" then
@@ -3726,101 +3591,69 @@ function UnEquipWeapon(v357)
     end
 end
 function EquipWeapon(v358)
-    if _G.NotAutoEquip then return end
-    if not v358 then return end
-    -- Resolve category ("Melee") to the real tool name ("Combat" at Level 1).
-    local toolName = v358
-    if v358 == "Melee" and type(FindWeapon) == "function" then
-        toolName = FindWeapon("Melee") or "Combat"
-    end
-    local plr = game.Players.LocalPlayer
-    if not plr then return end
-    local char = plr.Character
-    if not char then return end
-    if char:FindFirstChild(toolName) then return end -- already equipped
-    local backpack = plr:FindFirstChild("Backpack")
-    local tool = backpack and backpack:FindFirstChild(toolName)
-    if tool then
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum and hum.Health > 0 then
-            pcall(function() hum:EquipTool(tool) end)
-        end
+    if not _G.NotAutoEquip and game.Players.LocalPlayer.Backpack:FindFirstChild(v358) then
+        Tool = game.Players.LocalPlayer.Backpack:FindFirstChild(v358)
+        wait(0.1)
+        game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool)
     end
 end
 
--- AimBot target resolver (re-enabled): keeps the screen-nearest target current for the namecall hook below.
+--[[ AimBot target resolver disabled while investigating client input errors.
+-- Aim toggles previously had no consumer.  This resolver keeps the selected
+-- screen-nearest target current for the namecall hook below.
 local UserInputService = game:GetService("UserInputService")
 local function IsGunTool(tool)
     if not tool then return false end
-    if tool.ToolTip == "Gun" then return true end
-    local okAttr, attr = pcall(function() return tool:GetAttribute("WeaponType") end)
-    if okAttr and attr == "Gun" then return true end
     local name = string.lower(tool.Name)
-    return name:find("gun", 1, true) ~= nil or name:find("guitar", 1, true) ~= nil or name:find("dragonstorm", 1, true) ~= nil
+    return tool.ToolTip == "Gun" or tool:GetAttribute("WeaponType") == "Gun"
+        or name:find("gun") or name:find("guitar") or name:find("dragonstorm")
 end
 
 local function AimRedirectEnabled()
-    local plr = game.Players.LocalPlayer
-    local character = plr and plr.Character
+    local character = game.Players.LocalPlayer.Character
     local tool = character and character:FindFirstChildOfClass("Tool")
     if _G.AimBot_Gun and IsGunTool(tool) then return true end
-    if _G.AimBot_Tap and tool then
-        local okTap, isTap = pcall(function()
-            return string.lower(tool.Name):find("guitar", 1, true) ~= nil or tool:GetAttribute("TapWeapon") == true
-        end)
-        if okTap and isTap then return true end
-    end
+    if _G.AimBot_Tap and tool and (string.lower(tool.Name):find("guitar") or tool:GetAttribute("TapWeapon") == true) then return true end
     if _G.AimBot_Skills and tool and not IsGunTool(tool) then return true end
     return false
 end
 
 local function GetClosestAimPosition()
     local camera = workspace.CurrentCamera
-    if not camera then return nil end
-    local okMouse, mousePosition = pcall(function() return UserInputService:GetMouseLocation() end)
-    if not okMouse or not mousePosition then return nil end
+    local mousePosition = UserInputService:GetMouseLocation()
     local closestPosition, closestDistance = nil, 300
     local function consider(model)
         local humanoid = model and model:FindFirstChildOfClass("Humanoid")
         local root = model and model:FindFirstChild("HumanoidRootPart")
         if not humanoid or humanoid.Health <= 0 or not root then return end
-        local okProj, point, visible = pcall(function() return camera:WorldToViewportPoint(root.Position) end)
-        if not okProj or not visible then return end
+        local point, visible = camera:WorldToViewportPoint(root.Position)
+        if not visible then return end
         local distance = (Vector2.new(point.X, point.Y) - mousePosition).Magnitude
         if distance < closestDistance then
             closestDistance = distance
-            local okVel, vel = pcall(function() return root.AssemblyLinearVelocity end)
-            closestPosition = root.Position + (okVel and vel or Vector3.zero) * 0.08
+            closestPosition = root.Position + root.AssemblyLinearVelocity * 0.08
         end
     end
 
-    pcall(function()
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player ~= game.Players.LocalPlayer then consider(player.Character) end
-        end
-    end)
-    if not closestPosition and Settings.NoAimMobs ~= true then
-        pcall(function()
-            local enemies = workspace:FindFirstChild("Enemies")
-            if enemies then
-                for _, enemy in ipairs(enemies:GetChildren()) do consider(enemy) end
-            end
-        end)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then consider(player.Character) end
+    end
+    if not closestPosition and Settings.NoAimMobs == false then
+        for _, enemy in ipairs(workspace.Enemies:GetChildren()) do consider(enemy) end
     end
     return closestPosition
 end
 
 task.spawn(function()
     while task.wait(0.05) do
-        pcall(function()
-            if _G.AimBot_Gun or _G.AimBot_Tap or _G.AimBot_Skills then
-                _G.AimTargetPosition = GetClosestAimPosition()
-            else
-                _G.AimTargetPosition = nil
-            end
-        end)
+        if _G.AimBot_Gun or _G.AimBot_Tap or _G.AimBot_Skills then
+            _G.AimTargetPosition = GetClosestAimPosition()
+        else
+            _G.AimTargetPosition = nil
+        end
     end
 end)
+]]
 spawn(function()
     pcall(function()
         if getrawmetatable and (setreadonly or make_writeable) and newcclosure then
@@ -3838,17 +3671,8 @@ spawn(function()
                     local targetPos = nil
                     if _G.UseSkill and PosMon then
                         targetPos = PosMon.Position
-                    else
-                        -- AimBot (manual aim): screen-nearest target within 300px of cursor.
-                        -- pcall-guarded so a dead character can never break remote calls.
-                        pcall(function()
-                            if AimRedirectEnabled() and _G.AimTargetPosition then
-                                targetPos = _G.AimTargetPosition
-                            end
-                        end)
-                        if not targetPos and _G.AutoShootGun and _G.ShootTargetPos then
-                            targetPos = _G.ShootTargetPos
-                        end
+                    elseif _G.AutoShootGun and _G.ShootTargetPos then
+                        targetPos = _G.ShootTargetPos
                     end
                     
                     if targetPos then
@@ -3938,7 +3762,6 @@ _G.LastStar = _G.LastStar or 0
 _G.BringDistance = _G.BringDistance or 50
 _G.NoDamageTimeout = _G.NoDamageTimeout or 2
 _G.StalledMobRetryDelay = _G.StalledMobRetryDelay or 1
-_G.Fast_Delay = _G.Fast_Delay or 0.05
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
@@ -4682,17 +4505,6 @@ task.spawn(function()
                         _G.SelectWeapon = v505.Name
                     end
                 end
-                -- Level 1: Combat is often equipped (Character), not in Backpack. Scan it too.
-                pcall(function()
-                    local char = game.Players.LocalPlayer.Character
-                    if char then
-                        for _, tool in pairs(char:GetChildren()) do
-                            if tool:IsA("Tool") and (tool.ToolTip == "Melee" or tool.Name == "Combat") then
-                                _G.SelectWeapon = tool.Name
-                            end
-                        end
-                    end
-                end)
             end
         end)
     end
@@ -5105,28 +4917,8 @@ spawn(function()
                 else
                     -- Farm Antigo (1-2599)
                     CheckQuest()
-                    -- Runtime spelling tolerance: game uses "Possessed Mummy", old data used "Posessed Mummy"
-                    if Mon == "Possessed Mummy" or Mon == "Posessed Mummy" then
-                        local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
-                        if enemies then
-                            if not enemies:FindFirstChild(Mon) then
-                                if enemies:FindFirstChild("Possessed Mummy") then
-                                    Mon = "Possessed Mummy"; NameMon = "Possessed Mummy"
-                                elseif enemies:FindFirstChild("Posessed Mummy") then
-                                    Mon = "Posessed Mummy"; NameMon = "Posessed Mummy"
-                                end
-                            end
-                        end
-                    end
                     local l_Text_0 = GetQuestText()
-                    -- Guard: CheckQuest may return early (Data not loaded yet) leaving Mon nil.
-                    -- Skip this tick instead of erroring on FindFirstChild(nil)/string.find(nil).
-                    if not Mon or not NameMon or not CFrameQuest or not CFrameMon then
-                        return
-                    end
-                    -- Only abandon when we actually hold a DIFFERENT quest. Empty text means
-                    -- no quest / UI not loaded yet -> go take the quest, don't spam Abandon.
-                    if l_Text_0 ~= "" and not string.find(l_Text_0, NameMon, 1, true) then
+                    if not string.find(l_Text_0, NameMon) then
                         StartBring = false
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                         task.wait(1.5)
@@ -5137,7 +4929,7 @@ spawn(function()
                                 if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
                                     for _, v512 in ipairs(SortedFarmTargets()) do
                                         if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon and not (_G.GlitchedMobs and _G.GlitchedMobs[v512]) and not (_G.StalledMobs and _G.StalledMobs[v512] and _G.StalledMobs[v512] > os.clock()) then
-                                            if l_Text_0 ~= "" and not string.find(l_Text_0, NameMon, 1, true) then
+                                            if not string.find(l_Text_0, NameMon) then
                                                 StartBring = false
                                                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                                                 task.wait(1.5)
@@ -5279,12 +5071,8 @@ spawn(function()
                         end
                     else
                         StartBring = false
-                        local hrp = HRP()
-                        if not hrp then
-                            return
-                        end
                         if BypassTP then
-                            if (hrp.Position - CFrameQuest.Position).Magnitude <= 1500 then
+                            if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 1500 then
                                 TP1(CFrameQuest)
                             else
                                 TP1(CFrameQuest)
@@ -5292,9 +5080,7 @@ spawn(function()
                         else
                             TP1(CFrameQuest)
                         end
-                        -- Widened 20 -> 35: Bandit/Jungle givers sit low / under collision,
-                        -- tween often settles just outside 20 and StartQuest never fires.
-                        if NameQuest and LevelQuest and (hrp.Position - CFrameQuest.Position).Magnitude <= 35 then
+                        if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 20 then
                             if os.time() - (_G.LastQuestTime or 0) >= 1 then
                                 
                                 _G.LastQuestTime = os.time()
@@ -5414,37 +5200,14 @@ spawn(function()
         if _G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest") then
             pcall(function()
                 for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v522:FindFirstChild("HumanoidRootPart") and v522:FindFirstChild("Humanoid") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 and not (_G.GlitchedMobs and _G.GlitchedMobs[v522]) and not (_G.StalledMobs and _G.StalledMobs[v522] and _G.StalledMobs[v522] > os.clock()) then
-                        local startTime = os.time()
-                        local lastHealth = v522.Humanoid.Health
-                        local lastHealthTime = os.time()
+                    if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
                         repeat
-                            task.wait()
-                            -- Break if player is dead (prevents acting at respawn)
-                            local myChar = game.Players.LocalPlayer.Character
-                            if not myChar or not myChar:FindFirstChild("Humanoid") or myChar.Humanoid.Health <= 0 or not myChar:FindFirstChild("HumanoidRootPart") then
-                                StartBring = false
-                                break
-                            end
-
-                            local now = os.time()
-                            if v522.Humanoid.Health < lastHealth then
-                                lastHealth = v522.Humanoid.Health
-                                lastHealthTime = now
-                            elseif now - lastHealthTime > _G.NoDamageTimeout then
-                                _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
-                                _G.StalledMobs[v522] = os.clock() + _G.StalledMobRetryDelay
-                                StartBring = false
-                                break
-                            end
-
+                            wait(_G.Fast_Delay)
                             StartBring = true
                             AutoHaki()
                             local targetTool = getToolToEquip(v522)
                             EquipWeapon(targetTool)
                             
-                            -- Same kill logic as the Auto Farm Level engage loop: identical hover,
-                            -- freeze, M1 and skill sequence, only the target differs (nearest mob).
                             local targetCFrame = v522.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                             local myHrp = HRP()
                             if myHrp then
@@ -5463,10 +5226,7 @@ spawn(function()
                             v522.Humanoid.JumpPower = 0
                             v522.Humanoid.WalkSpeed = 0
                             v522.HumanoidRootPart.CanCollide = false
-                            local mobHead = v522:FindFirstChild("Head")
-                            if mobHead then mobHead.CanCollide = false end
                             FarmPos = v522.HumanoidRootPart.CFrame
-                            PosMon = v522.HumanoidRootPart.CFrame
                             MonFarm = v522.Name
                             if not isFruitOrGun(targetTool) then
                                 game:GetService("VirtualUser"):CaptureController()
@@ -5927,7 +5687,7 @@ spawn(function()
                         end
                     end
 
-                    if not game:GetService("Workspace").Enemies:FindFirstChild("Reborn Skeleton") and not game:GetService("Workspace").Enemies:FindFirstChild("Living Zombie") and not game:GetService("Workspace").Enemies:FindFirstChild("Demonic Soul") and not game:GetService("Workspace").Enemies:FindFirstChild("Posessed Mummy") and not game:GetService("Workspace").Enemies:FindFirstChild("Possessed Mummy") then
+                    if not game:GetService("Workspace").Enemies:FindFirstChild("Reborn Skeleton") and not game:GetService("Workspace").Enemies:FindFirstChild("Living Zombie") and not game:GetService("Workspace").Enemies:FindFirstChild("Demonic Soul") and not game:GetService("Workspace").Enemies:FindFirstChild("Posessed Mummy") then
                         StartBring = false
                         local targetPos = Vector3.new(-9506.234375, 172.130615234375, 6117.0771484375)
                         if (character.HumanoidRootPart.Position - targetPos).Magnitude > 10 then
@@ -5935,7 +5695,7 @@ spawn(function()
                         end
 
                         for _, v596 in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-                            if (v596.Name == "Reborn Skeleton" or v596.Name == "Living Zombie" or v596.Name == "Demonic Soul" or v596.Name == "Posessed Mummy" or v596.Name == "Possessed Mummy") and v596:FindFirstChild("HumanoidRootPart") then
+                            if (v596.Name == "Reborn Skeleton" or v596.Name == "Living Zombie" or v596.Name == "Demonic Soul" or v596.Name == "Posessed Mummy") and v596:FindFirstChild("HumanoidRootPart") then
                                 local targetPos2 = v596.HumanoidRootPart.CFrame * CFrame.new(2, 20, 2)
                                 if (character.HumanoidRootPart.Position - targetPos2.Position).Magnitude > 10 then
                                     topos(targetPos2)
@@ -5944,7 +5704,7 @@ spawn(function()
                         end
                     else
                         for _, v598 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                            if (v598.Name == "Reborn Skeleton" or v598.Name == "Living Zombie" or v598.Name == "Demonic Soul" or v598.Name == "Posessed Mummy" or v598.Name == "Possessed Mummy") and v598:FindFirstChild("Humanoid") and v598:FindFirstChild("HumanoidRootPart") and v598.Humanoid.Health > 0 then
+                            if (v598.Name == "Reborn Skeleton" or v598.Name == "Living Zombie" or v598.Name == "Demonic Soul" or v598.Name == "Posessed Mummy") and v598:FindFirstChild("Humanoid") and v598:FindFirstChild("HumanoidRootPart") and v598.Humanoid.Health > 0 then
                                 repeat
                                     task.wait()
                                     AutoHaki()
@@ -6319,15 +6079,17 @@ v658 = {}
 if World1 then
     v658 = {
         "The Gorilla King",
-        "Chef",
+        "Bobby",
         "Yeti",
         "Mob Leader",
         "Vice Admiral",
         "Warden",
-        "Magma General",
+        "Chief Warden",
+        "Swan",
+        "Magma Admiral",
         "Fishman Lord",
-        "Sky Warlord",
-        "Lightning God",
+        "Wysper",
+        "Thunder God",
         "Cyborg",
         "Saber Expert"
     }
@@ -6383,21 +6145,16 @@ BossQuests = {
     -- Sea 1
     ["The Gorilla King"] = {QuestName = "JungleQuest", Level = 3, CFrame = CFrame.new(-1598.08911, 35.5501175, 153.377838)},
     ["Bobby"] = {QuestName = "BuggyQuest1", Level = 3, CFrame = CFrame.new(-1141.07483, 4.10001802, 3831.5498)},
-    ["Chef"] = {QuestName = "BuggyQuest1", Level = 3, CFrame = CFrame.new(-1141.07483, 4.10001802, 3831.5498)},
     ["Yeti"] = {QuestName = "SnowQuest", Level = 3, CFrame = CFrame.new(1389.74451, 88.1519318, -1298.90796)},
     ["Mob Leader"] = {QuestName = "DesertQuest", Level = 3, CFrame = CFrame.new(894.488647, 5.14000702, 4392.43359)},
     ["Vice Admiral"] = {QuestName = "MarineQuest2", Level = 2, CFrame = CFrame.new(-5039.58643, 27.3500385, 4324.68018)},
     ["Warden"] = {QuestName = "PrisonerQuest", Level = 2, CFrame = CFrame.new(5308.93115, 1.65517521, 475.120514)},
-    -- REMOVED in Update 30 (Sea 1 Rework): Chief Warden, Swan
     ["Chief Warden"] = {QuestName = "PrisonerQuest", Level = 3, CFrame = CFrame.new(5308.93115, 1.65517521, 475.120514)},
     ["Swan"] = {QuestName = "PrisonerQuest", Level = 4, CFrame = CFrame.new(5308.93115, 1.65517521, 475.120514)},
     ["Magma Admiral"] = {QuestName = "MagmaQuest", Level = 3, CFrame = CFrame.new(-5313.37012, 10.9500084, 8515.29395)},
-    ["Magma General"] = {QuestName = "MagmaQuest", Level = 3, CFrame = CFrame.new(-5313.37012, 10.9500084, 8515.29395)},
     ["Fishman Lord"] = {QuestName = "FishmanQuest", Level = 3, CFrame = CFrame.new(61122.65234375, 18.497442245483, 1569.3997802734)},
-    ["Wysper"] = {QuestName = "SkyExp1Quest", Level = 3, CFrame = CFrame.new(-4820.9, 936.8, -1152.0)},
-    ["Sky Warlord"] = {QuestName = "SkyExp1Quest", Level = 3, CFrame = CFrame.new(-4820.9, 936.8, -1152.0)},
-    ["Thunder God"] = {QuestName = "SkyExp2Quest", Level = 3, CFrame = CFrame.new(-5949.1, 5467.9, 2086.5)},
-    ["Lightning God"] = {QuestName = "SkyExp2Quest", Level = 3, CFrame = CFrame.new(-5949.1, 5467.9, 2086.5)},
+    ["Wysper"] = {QuestName = "SkyExp1Quest", Level = 3, CFrame = CFrame.new(-7859.09814, 5544.19043, -381.476196)},
+    ["Thunder God"] = {QuestName = "SkyExp2Quest", Level = 3, CFrame = CFrame.new(-7906.81592, 5634.6626, -1411.99194)},
     ["Cyborg"] = {QuestName = "FountainQuest", Level = 3, CFrame = CFrame.new(5259.81982, 37.3500175, 4050.0293)},
     
     -- Sea 2
@@ -11649,8 +11406,7 @@ spawn(function()
                     {"Leopard Fruit", "Leopard-Leopard"},
                     {"Yeti Fruit", "Yeti-Yeti"},
                     {"Kitsune Fruit", "Kitsune-Kitsune"},
-                    {"Dragon Fruit", "Dragon-Dragon"},
-                    {"Magnet Fruit", "Magnet-Magnet"}
+                    {"Dragon Fruit", "Dragon-Dragon"}
                 }) do
                     local v1081 = v1080[1]
                     local v1082 = v1080[2]
@@ -13259,8 +13015,7 @@ FlowerESPManager:SetEspColor(function(Flower)
 end)
 
 
--- AimBot controls (re-enabled).
-if Settings.NoAimMobs == nil then Settings.NoAimMobs = true end -- match "Ignore Mobs" default
+--[[ AimBot controls disabled during investigation.
 v494:AddSection({"Aim"})
 
 v494:AddToggle({
@@ -13294,6 +13049,7 @@ v494:AddToggle({
         Settings.NoAimMobs = v
     end
 })
+]]
 
 v494:AddSection({"ESP"})
 v494:AddSlider({
