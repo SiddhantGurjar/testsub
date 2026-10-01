@@ -4724,17 +4724,6 @@ local function CheckQuestNew()
         CFrameMonNew = CFrame.new(10965.1025, -2158.8842, 9177.2597)
     end
 end
-v485:AddSlider({
-    Name = "Farm Height (Y Offset)",
-    Description = "Adjust if M1 misses (Default: 10). Set to 6-8 for Sea 1.",
-    Min = 0,
-    Max = 20,
-    Default = 10,
-    Callback = function(value)
-        _G.FarmHeight = value
-    end
-})
-
 v485:AddToggle({
     Name = "Auto Farm Level",
     Description = "Farm Level",
@@ -4744,6 +4733,17 @@ v485:AddToggle({
         StopTween(_G.AutoFarm)
     end
 })
+v485:AddSlider({
+    Name = "Farm Height",
+    Description = "Adjust if M1 misses (Default: 10)",
+    Min = 0,
+    Max = 20,
+    Default = 10,
+    Callback = function(value)
+        _G.FarmHeight = value
+    end
+})
+
 spawn(function()
     while task.wait() do
 
@@ -13916,6 +13916,17 @@ v496:AddSlider({
         _G.FastAttackSpeed = value
     end
 })
+v496:AddSlider({
+    Name = "Farm Height",
+    Description = "Change height to hit with M1 (Default: 10)",
+    Min = 0,
+    Max = 20,
+    Default = 10,
+    Callback = function(value)
+        _G.FarmHeight = value
+    end
+})
+
 
 v1 = next
 v2 = {
