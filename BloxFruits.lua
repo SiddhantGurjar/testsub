@@ -361,7 +361,7 @@ function spamCombatSkills(mob)
                         local character = game.Players.LocalPlayer.Character
                         if character and character:FindFirstChild("HumanoidRootPart") then
                             local mobPos = mob.HumanoidRootPart.Position
-                            local farmHeight = 15
+                            local farmHeight = 10
                             local holdPos = Vector3.new(mobPos.X, mobPos.Y + farmHeight, mobPos.Z)
                             character.HumanoidRootPart.CFrame = CFrame.lookAt(
                                 holdPos,
@@ -3698,12 +3698,12 @@ function CancelTween23()
 end
 
 _G.FarmDistance = _G.FarmDistance or 10
-_G.FarmHeight = _G.FarmHeight or 15
+_G.FarmHeight = _G.FarmHeight or 10
 _G.OrbitSpeed = _G.OrbitSpeed or 4
 _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
 _G.LastStar = _G.LastStar or 0
-_G.BringDistance = _G.BringDistance or 320
+_G.BringDistance = _G.BringDistance or 350
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
@@ -5356,7 +5356,7 @@ spawn(function()
                                     MonFarm = v598.Name
                                     PosMon = v598.HumanoidRootPart.CFrame
 
-                                    local farmHeight = 15
+                                    local farmHeight = 10
                                     local targetPos = v598.HumanoidRootPart.CFrame * CFrame.new(0, farmHeight, 0)
                                     local myHrp = HRP()
                                     if myHrp then
