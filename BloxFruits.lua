@@ -3703,7 +3703,7 @@ _G.OrbitSpeed = _G.OrbitSpeed or 4
 _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
 _G.LastStar = _G.LastStar or 0
-_G.BringDistance = _G.BringDistance or 350
+_G.BringDistance = _G.BringDistance or 50
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
