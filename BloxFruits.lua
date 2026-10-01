@@ -4733,16 +4733,6 @@ v485:AddToggle({
         StopTween(_G.AutoFarm)
     end
 })
-v485:AddSlider({
-    Name = "Farm Height",
-    Description = "Adjust if M1 misses (Default: 10)",
-    Min = 0,
-    Max = 20,
-    Default = 10,
-    Callback = function(value)
-        _G.FarmHeight = value
-    end
-})
 
 spawn(function()
     while task.wait() do
