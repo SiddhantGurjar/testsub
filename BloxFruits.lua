@@ -414,15 +414,16 @@ function spamCombatSkills(mob)
 
         -- Skill loop: fire all skills → wait for cooldown → repeat until mob dies
         while isMobAlive() and casting do
+            local currentWeapon = getToolToEquip(mob)
             _G.UseSkill = true
             pcall(function()
-                if FindWeapon("Fruit") and weaponType == FindWeapon("Fruit") then
+                if FindWeapon("Fruit") and currentWeapon == FindWeapon("Fruit") then
                     if isMobAlive() and _G.UseSkillZ and isSkillReady("Z") then fireSkill("Z") task.wait(0.05) end
                     if isMobAlive() and _G.UseSkillX and isSkillReady("X") then fireSkill("X") task.wait(0.05) end
                     if isMobAlive() and _G.UseSkillC and isSkillReady("C") then fireSkill("C") task.wait(0.05) end
                     if isMobAlive() and _G.UseSkillV and isSkillReady("V") then fireSkill("V") task.wait(0.05) end
                     if isMobAlive() and _G.UseSkillF and isSkillReady("F") then fireSkill("F") task.wait(0.05) end
-                elseif FindWeapon("Gun") and weaponType == FindWeapon("Gun") then
+                elseif FindWeapon("Gun") and currentWeapon == FindWeapon("Gun") then
                     if isMobAlive() and _G.UseSkillZ and isSkillReady("Z") then fireSkill("Z") task.wait(0.05) end
                     if isMobAlive() and _G.UseSkillX and isSkillReady("X") then fireSkill("X") task.wait(0.05) end
                 end
@@ -3125,7 +3126,7 @@ function UpdateRealFruitChams()
     end
 end
 spawn(function()
-    while wait() do
+    while task.wait(Settings.SmoothMode and 0.5 or 0) do
         pcall(function()
             if MobESP then
                 for _, v282 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
@@ -3164,7 +3165,7 @@ spawn(function()
     end
 end)
 spawn(function()
-    while wait() do
+    while task.wait(Settings.SmoothMode and 0.5 or 0) do
         pcall(function()
             if not SeaESP then
                 for _, v289 in pairs(game:GetService("Workspace").SeaBeasts:GetChildren()) do
@@ -3203,7 +3204,7 @@ spawn(function()
     end
 end)
 spawn(function()
-    while wait() do
+    while task.wait(Settings.SmoothMode and 0.5 or 0) do
         pcall(function()
             if not NpcESP then
                 for _, v296 in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
@@ -3597,63 +3598,6 @@ function EquipWeapon(v358)
         game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool)
     end
 end
-
---[[ AimBot target resolver disabled while investigating client input errors.
--- Aim toggles previously had no consumer.  This resolver keeps the selected
--- screen-nearest target current for the namecall hook below.
-local UserInputService = game:GetService("UserInputService")
-local function IsGunTool(tool)
-    if not tool then return false end
-    local name = string.lower(tool.Name)
-    return tool.ToolTip == "Gun" or tool:GetAttribute("WeaponType") == "Gun"
-        or name:find("gun") or name:find("guitar") or name:find("dragonstorm")
-end
-
-local function AimRedirectEnabled()
-    local character = game.Players.LocalPlayer.Character
-    local tool = character and character:FindFirstChildOfClass("Tool")
-    if _G.AimBot_Gun and IsGunTool(tool) then return true end
-    if _G.AimBot_Tap and tool and (string.lower(tool.Name):find("guitar") or tool:GetAttribute("TapWeapon") == true) then return true end
-    if _G.AimBot_Skills and tool and not IsGunTool(tool) then return true end
-    return false
-end
-
-local function GetClosestAimPosition()
-    local camera = workspace.CurrentCamera
-    local mousePosition = UserInputService:GetMouseLocation()
-    local closestPosition, closestDistance = nil, 300
-    local function consider(model)
-        local humanoid = model and model:FindFirstChildOfClass("Humanoid")
-        local root = model and model:FindFirstChild("HumanoidRootPart")
-        if not humanoid or humanoid.Health <= 0 or not root then return end
-        local point, visible = camera:WorldToViewportPoint(root.Position)
-        if not visible then return end
-        local distance = (Vector2.new(point.X, point.Y) - mousePosition).Magnitude
-        if distance < closestDistance then
-            closestDistance = distance
-            closestPosition = root.Position + root.AssemblyLinearVelocity * 0.08
-        end
-    end
-
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then consider(player.Character) end
-    end
-    if not closestPosition and Settings.NoAimMobs == false then
-        for _, enemy in ipairs(workspace.Enemies:GetChildren()) do consider(enemy) end
-    end
-    return closestPosition
-end
-
-task.spawn(function()
-    while task.wait(0.05) do
-        if _G.AimBot_Gun or _G.AimBot_Tap or _G.AimBot_Skills then
-            _G.AimTargetPosition = GetClosestAimPosition()
-        else
-            _G.AimTargetPosition = nil
-        end
-    end
-end)
-]]
 spawn(function()
     pcall(function()
         if getrawmetatable and (setreadonly or make_writeable) and newcclosure then
@@ -3759,9 +3703,7 @@ _G.OrbitSpeed = _G.OrbitSpeed or 4
 _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
 _G.LastStar = _G.LastStar or 0
-_G.BringDistance = _G.BringDistance or 50
-_G.NoDamageTimeout = _G.NoDamageTimeout or 2
-_G.StalledMobRetryDelay = _G.StalledMobRetryDelay or 1
+_G.BringDistance = _G.BringDistance or 320
 
 local StarPoints = {
     Vector3.new(10, _G.FarmHeight, 0),
@@ -4324,7 +4266,7 @@ v498 = v466:MakeTab({"Islands", "palmtree"})
 v491 = v466:MakeTab({"Raid/Fruits", "cherry"})
 v497 = v466:MakeTab({"Stats", "Signal"})
 v493 = v466:MakeTab({"Teleport", "locate"})
-v499 = v466:MakeTab({"Status", "Scroll"})
+-- Status tab moved to Discord
 v494 = v466:MakeTab({"Visual", "user"})
 v495 = v466:MakeTab({"Shop", "shoppingCart"})
 v496 = v466:MakeTab({"Misc", "settings"})
@@ -4334,7 +4276,7 @@ local function createCustomDiscordInvite(Configs)
 
     local inviteHolder = Instance.new("Frame")
     inviteHolder.Name = "InviteHolder"
-    inviteHolder.Size = UDim2.new(0, 250, 0, 160)
+    inviteHolder.Size = UDim2.new(0, 220, 0, 150)
     inviteHolder.AnchorPoint = Vector2.new(0.5, 0)
     inviteHolder.Position = UDim2.new(0.5, 0, 0, 10)
     inviteHolder.BackgroundTransparency = 1
@@ -4354,7 +4296,7 @@ local function createCustomDiscordInvite(Configs)
 
     local card = Instance.new("Frame")
     card.Name = "Card"
-    card.Size = UDim2.new(1, 0, 0, 145)
+    card.Size = UDim2.new(1, 0, 0, 135)
     card.Position = UDim2.new(0, 0, 0, 15)
     card.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
     card.BorderSizePixel = 0
@@ -4372,7 +4314,7 @@ local function createCustomDiscordInvite(Configs)
     -- Banner (Solid red/pink header frame)
     local banner = Instance.new("Frame")
     banner.Name = "Banner"
-    banner.Size = UDim2.new(1, 0, 0, 50)
+    banner.Size = UDim2.new(1, 0, 0, 45)
     banner.BackgroundColor3 = Color3.fromRGB(243, 80, 100)
     banner.BorderSizePixel = 0
     banner.Parent = card
@@ -4383,7 +4325,7 @@ local function createCustomDiscordInvite(Configs)
 
     local bannerCover = Instance.new("Frame")
     bannerCover.Size = UDim2.new(1, 0, 0, 10)
-    bannerCover.Position = UDim2.new(0, 0, 0, 40)
+    bannerCover.Position = UDim2.new(0, 0, 0, 35)
     bannerCover.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
     bannerCover.BorderSizePixel = 0
     bannerCover.ZIndex = 1
@@ -4393,7 +4335,7 @@ local function createCustomDiscordInvite(Configs)
     local logo = Instance.new("ImageLabel")
     logo.Name = "Logo"
     logo.Size = UDim2.new(0, 38, 0, 38)
-    logo.Position = UDim2.new(0, 15, 0, 30)
+    logo.Position = UDim2.new(0, 15, 0, 25)
     logo.Image = Configs.Logo or ""
     logo.BackgroundTransparency = 0
     logo.BackgroundColor3 = Color3.fromRGB(24, 25, 28)
@@ -4413,7 +4355,7 @@ local function createCustomDiscordInvite(Configs)
     local serverName = Instance.new("TextLabel")
     serverName.Name = "ServerName"
     serverName.Size = UDim2.new(1, -30, 0, 20)
-    serverName.Position = UDim2.new(0, 15, 0, 75)
+    serverName.Position = UDim2.new(0, 15, 0, 70)
     serverName.BackgroundTransparency = 1
     serverName.Font = Enum.Font.GothamBold
     serverName.Text = Configs.Name or "Community"
@@ -4426,7 +4368,7 @@ local function createCustomDiscordInvite(Configs)
     local desc = Instance.new("TextLabel")
     desc.Name = "Description"
     desc.Size = UDim2.new(1, -30, 0, 15)
-    desc.Position = UDim2.new(0, 15, 0, 93)
+    desc.Position = UDim2.new(0, 15, 0, 88)
     desc.BackgroundTransparency = 1
     desc.Font = Enum.Font.Gotham
     desc.Text = Configs.Description or "Join our community!"
@@ -4439,7 +4381,7 @@ local function createCustomDiscordInvite(Configs)
     local btn = Instance.new("TextButton")
     btn.Name = "JoinButton"
     btn.Size = UDim2.new(1, -30, 0, 24)
-    btn.Position = UDim2.new(0, 15, 0, 112)
+    btn.Position = UDim2.new(0, 15, 0, 105)
     btn.BackgroundColor3 = Color3.fromRGB(36, 128, 70)
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.GothamBold
@@ -4576,7 +4518,7 @@ end
 
 local function TweenTo(cf)
     if _G.PlayerRespawning then return end
-    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") or _G.AutoMagnetEvent) then return end
+    if not (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) then return end
     local hrp = HRP()
     if not hrp then return end
 
@@ -4622,7 +4564,7 @@ local function TweenTo(cf)
         end
     end)
 
-    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level") or _G.AutoMagnetEvent) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
+    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and CurrentTween and CurrentTween.PlaybackState == Enum.PlaybackState.Playing do
         task.wait()
     end
 
@@ -4679,8 +4621,10 @@ local function GoSubmerged()
         ReplicatedStorage.Modules.Net["RF/SubmarineWorkerSpeak"]:InvokeServer("TravelToSubmergedIsland")
     end)
 
-    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and not IsInSubmerged() do
+    local waitCount = 0
+    while (_G.AutoFarm or (_G.AutoFarmMastery and _G.MasteryFarmType == "Level")) and not IsInSubmerged() and waitCount < 20 do
         task.wait(0.5)
+        waitCount = waitCount + 1
     end
 
     TravelingSubmerged = false
@@ -4711,8 +4655,9 @@ local function AutoIslandSecrets()
     end
 end
 
--- Roblox does not guarantee the order of Workspace.Enemies.  Sort each scan
--- by distance so a live nearby quest NPC is always chosen before a spawn point.
+_G.NoDamageTimeout = _G.NoDamageTimeout or 2
+_G.StalledMobRetryDelay = _G.StalledMobRetryDelay or 1
+
 local function SortedFarmTargets()
     local targets = game:GetService("Workspace").Enemies:GetChildren()
     local playerRoot = HRP()
@@ -4762,7 +4707,7 @@ local function CheckQuestNew()
         CFrameQuestNew = CFrame.new(9636.524, -1992.195, 9609.528)
         CFrameMonNew = CFrame.new(9828.088, -1940.909, 9693.064)
 
-    elseif lvl >= 2725 and lvl < 2800 then
+    elseif lvl >= 2725 then
         MonNew = "Grand Devotee"
         LevelQuestNew = 2
         NameQuestNew = "SubmergedQuest3"
@@ -5237,314 +5182,6 @@ spawn(function()
                         until not (_G.AutoNear or (_G.AutoFarmMastery and _G.MasteryFarmType == "Nearest")) or not v522.Parent or v522.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v522.Name)
                         pcall(function() HRP().Anchored = false end)
                         StartBring = false
-                    end
-                end
-            end)
-        end
-    end
-end)
-
-_ = v485:AddSection({" Magnet Event "})
-v485:AddToggle({
-    Name = "Auto Magnet Event",
-    Description = "Auto Farm Magnet Token (Update 30)",
-    Default = false,
-    Callback = function(state)
-        _G.AutoMagnetEvent = state
-    end
-})
-
-local magnetParagraph = v485:AddParagraph({Title = "Check Magnet Tokens", Content = "Loading..."})
-local magnetStatus = v485:AddParagraph({Title = "Magnet Event Status", Content = "Waiting for the event..."})
-
-local function FindMagnetTokenValue()
-    local player = game:GetService("Players").LocalPlayer
-    local containers = {player, player:FindFirstChild("Data"), player:FindFirstChild("PlayerGui")}
-    for _, container in ipairs(containers) do
-        if container then
-            for _, item in ipairs(container:GetDescendants()) do
-                local name = string.lower(item.Name)
-                if name:find("magnet") and (name:find("token") or name:find("currency")) then
-                    if item:IsA("IntValue") or item:IsA("NumberValue") then return item.Value end
-                    if item:IsA("TextLabel") then
-                        local value = tonumber(item.Text:gsub("[^%d]", ""))
-                        if value then return value end
-                    end
-                end
-            end
-        end
-    end
-end
-task.spawn(function()
-    while task.wait(5) do
-        pcall(function()
-            local count = FindMagnetTokenValue()
-            
-            -- Method 1: Check Player Data (Event Currencies are often here)
-            local data = game.Players.LocalPlayer:FindFirstChild("Data")
-            if data then
-                local mag = data:FindFirstChild("Magnet") or data:FindFirstChild("MagnetTokens") or data:FindFirstChild("MagnetToken") or data:FindFirstChild("Magnet Token")
-                if mag then count = mag.Value end
-            end
-            
-            -- Method 2: Check Remote Event Check (Like Bones)
-            if count == nil or count == 0 then
-                pcall(function()
-                    local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MagnetTokens", "Check")
-                    if type(res) == "number" then count = res end
-                end)
-            end
-            if count == nil or count == 0 then
-                pcall(function()
-                    local res = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Magnet", "Check")
-                    if type(res) == "number" then count = res end
-                end)
-            end
-            
-            -- Method 3: Check Standard Inventory Materials (Fallback)
-            if count == nil or count == 0 then
-                local inv = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
-                if inv then
-                    for _, v in pairs(inv) do
-                        if type(v) == "table" and v.Name then
-                            if v.Name == "Magnet Token" or v.Name == "Magnet Tokens" or string.find(v.Name, "Magnet Token") then
-                                count = v.Count or v.Value or v.Quantity or 0
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-            
-            if count == nil then
-                magnetParagraph:Set("Token count unavailable (event data not exposed yet)")
-            else
-                magnetParagraph:Set("You Have: " .. tostring(count) .. " Magnet Tokens")
-            end
-        end)
-    end
-end)
-
-v485:AddToggle({
-    Name = "Auto Magnet Gacha",
-    Description = "Automatically rolls Magnet Event Gacha",
-    Default = false,
-    Callback = function(state)
-        _G.AutoMagnetGacha = state
-    end
-})
-task.spawn(function()
-    local gachaRemote = nil
-    while task.wait(2) do
-        if _G.AutoMagnetGacha then
-            pcall(function()
-                if not gachaRemote then
-                    gachaRemote = game:GetService("ReplicatedStorage"):FindFirstChild("RF/GachaNetworkRF", true)
-                end
-                
-                if gachaRemote then
-                    gachaRemote:InvokeServer({
-                        ["Context"] = "Purchase",
-                        ["BoxName"] = "MagnetEventGacha26"
-                    })
-                end
-            end)
-        end
-    end
-end)
-
-spawn(function()
-    local islandIndex = 1
-    local IslandKeys = nil
-    while task.wait() do
-        if _G.AutoMagnetEvent then
-            pcall(function()
-                local found = false
-                for _, v in pairs(workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                        local isMagnet = false
-                        
-                        -- Check 1: Name
-                        if string.find(string.lower(v.Name), "magnet") or string.find(string.lower(v.Name), "magnetic") then
-                            isMagnet = true
-                        end
-                        
-                        -- Check 2: Attributes
-                        if not isMagnet then
-                            pcall(function()
-                                if v:GetAttribute("Magnetized") == true or v:GetAttribute("Magnet") == true or v:GetAttribute("IsMagnetEvent") == true then
-                                    isMagnet = true
-                                end
-                            end)
-                        end
-                        
-                        -- Check 3: All Descendants (BillboardGuis, ParticleEmitters, Highlights)
-                        if not isMagnet then
-                            for _, child in pairs(v:GetDescendants()) do
-                                if string.find(string.lower(child.Name), "magnet") or string.find(string.lower(child.Name), "magnetic") or (child:IsA("TextLabel") and string.lower(child.Text):match("magnet")) then
-                                    isMagnet = true
-                                    break
-                                end
-                            end
-                        end
-                        
-                        if isMagnet then
-                            local root = v:FindFirstChild("HumanoidRootPart")
-                            if root then
-                                magnetStatus:Set("Farming " .. v.Name)
-                                TweenTo(root.CFrame * CFrame.new(0, 5, 0))
-                                local attackUntil = os.clock() + 20
-                                while _G.AutoMagnetEvent and v.Parent and v.Humanoid.Health > 0 and os.clock() < attackUntil do
-                                    local myRoot = HRP()
-                                    if not myRoot or (myRoot.Position - root.Position).Magnitude > 25 then break end
-                                    if type(EquipWeapon) == "function" then pcall(EquipWeapon, _G.SelectWeapon) end
-                                    pcall(function() Click() end)
-                                    task.wait(0.12)
-                                end
-                                found = true
-                            end
-                            break
-                        end
-                    end
-                end
-                if not found then
-                    magnetStatus:Set("No Magnet event enemy found; searching islands...")
-                    if not IslandKeys then
-                        IslandKeys = {}
-                        local visitedNames = {}
-                        
-                        -- Helper to prioritize certain islands based on enemy spawn names
-                        local function GetPriority(n)
-                            n = n:lower()
-                            -- Haunted Castle
-                            if n:find("reborn") or n:find("zombie") or n:find("demonic") or n:find("mummy") then return 1 end
-                            -- Hydra Island
-                            if n:find("dragon crew") or n:find("islander") then return 2 end
-                            -- Port Town
-                            if n:find("millionaire") or n:find("billionaire") then return 3 end
-                            -- Tiki Outpost
-                            if n:find("isle champion") or n:find("sun-kissed") or n:find("sea rough") then return 4 end
-                            -- Floating Turtle / Mansion
-                            if n:find("fishman") or n:find("mythological") or n:find("jungle") or n:find("musketeer") then return 5 end
-                            -- Sea 1 / 2 common names (default high priority if matches sea 2 favorites)
-                            if n:find("swan") or n:find("factory") then return 6 end
-                            -- Great Tree (exclude/deprioritize as it doesn't spawn magnetized)
-                            if n:find("marine") or n:find("commodore") or n:find("admiral") then return 99 end
-                            return 10
-                        end
-                        
-                        local success, spawns = pcall(function() return workspace._WorldOrigin.EnemySpawns:GetChildren() end)
-                        if success and spawns and #spawns > 0 then
-                            for _, spawn in pairs(spawns) do
-                                if spawn:IsA("Part") or spawn:IsA("Model") then
-                                    local name = spawn.Name
-                                    if not visitedNames[name] then
-                                        visitedNames[name] = true
-                                        local pos = spawn:IsA("Model") and spawn:GetPivot() or spawn.CFrame
-                                        table.insert(IslandKeys, {Name = name, CF = pos, Priority = GetPriority(name)})
-                                    end
-                                end
-                            end
-                            -- Sort by priority
-                            table.sort(IslandKeys, function(a, b) return a.Priority < b.Priority end)
-                        else
-                            local skipIslands = { ["Middle Town"] = true, ["Castle On The Sea"] = true, ["Ussop Island"] = true }
-                            local success2, locs = pcall(function() return workspace._WorldOrigin.Locations:GetChildren() end)
-                            if success2 and locs and #locs > 0 then
-                                for _, loc in pairs(locs) do
-                                    if not skipIslands[loc.Name] and (loc:IsA("Part") or loc:IsA("Model")) then
-                                        local pos = loc:IsA("Model") and loc:GetPivot() or loc.CFrame
-                                        table.insert(IslandKeys, {Name = loc.Name, CF = pos})
-                                    end
-                                end
-                            elseif type(Islands) == "table" then
-                                for k, v in pairs(Islands) do 
-                                    if not skipIslands[k] then table.insert(IslandKeys, {Name = k, CF = v}) end
-                                end
-                            end
-                        end
-                    end
-                    
-                    if IslandKeys and #IslandKeys > 0 then
-                        local islandData = IslandKeys[islandIndex]
-                        if islandData and islandData.CF then
-                            local player = game:GetService("Players").LocalPlayer
-                            local char = player.Character
-                            if char and char:FindFirstChild("HumanoidRootPart") then
-                                local targetPos = islandData.CF.Position
-                                local myPos = char.HumanoidRootPart.Position
-                                local dist = (myPos - targetPos).Magnitude
-                                
-                                if dist > 300 then
-                                    -- Special handling for Underwater Islands to prevent dying in water
-                                    if World3 and targetPos.Y < -1000 then
-                                        local subNPC = Vector3.new(-16246.041, 38.48, 1376.539)
-                                        if myPos.Y > -500 then
-                                            local distToSub = (myPos - subNPC).Magnitude
-                                            if distToSub > 30 then
-                                                TweenTo(CFrame.new(subNPC) * CFrame.new(0, 50, 0))
-                                            else
-                                                pcall(function()
-                                                    game.ReplicatedStorage.Modules.Net["RF/SubmarineWorkerSpeak"]:InvokeServer("TravelToSubmergedIsland")
-                                                end)
-                                                task.wait(1)
-                                            end
-                                            return -- Skip normal tweening until we reach the island
-                                        end
-                                    elseif World1 and targetPos.Y < 50 and targetPos.X > 50000 then
-                                        local whirlpool = Vector3.new(61163.85, 11.68, 1819.78)
-                                        if myPos.Y > 50 or myPos.X < 50000 then
-                                            local distToPool = (myPos - whirlpool).Magnitude
-                                            if distToPool > 30 then
-                                                TweenTo(CFrame.new(whirlpool) * CFrame.new(0, 50, 0))
-                                            else
-                                                TweenTo(CFrame.new(whirlpool))
-                                                task.wait(1)
-                                                pcall(function()
-                                                    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", whirlpool)
-                                                end)
-                                            end
-                                            return -- Skip normal tweening until we reach the island
-                                        end
-                                    end
-
-                                    -- Fast Travel (Portal Bypass) Logic
-                                    if World3 and dist > 3000 then
-                                        local castlePos = Vector3.new(-5083.26, 314.606, -3175.673)
-                                        local mansionPos = Vector3.new(-12471.17, 374.94, -7551.678)
-                                        
-                                        local distToCastle = (targetPos - castlePos).Magnitude
-                                        local distToMansion = (targetPos - mansionPos).Magnitude
-                                        
-                                        local bestDist = dist
-                                        local bestPortal = nil
-                                        
-                                        if distToCastle < bestDist - 1000 then
-                                            bestDist = distToCastle
-                                            bestPortal = castlePos
-                                        end
-                                        if distToMansion < bestDist - 1000 then
-                                            bestDist = distToMansion
-                                            bestPortal = mansionPos
-                                        end
-                                        
-                                        if bestPortal then
-                                            local oldPos = char.HumanoidRootPart.Position
-                                            pcall(function()
-                                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", bestPortal)
-                                            end)
-                                            task.wait(1)
-                                            -- If it failed to teleport, it will just fall back to normal tweening below
-                                        end
-                                    end
-                                    TweenTo(islandData.CF * CFrame.new(0, 100, 0))
-                                else
-                                    islandIndex = islandIndex + 1
-                                    if islandIndex > #IslandKeys then islandIndex = 1 end
-                                    task.wait(0.5)
-                                end
-                            end
-                        end
                     end
                 end
             end)
@@ -12139,8 +11776,39 @@ v493:AddButton({
     end
 })
 
+v484:AddSection({"Status"})
 
-TyrantStatus = v499:AddParagraph({
+ServerUptime = v484:AddParagraph({
+    Title = "Server Uptime",
+    Desc = "Loading..."
+})
+task.spawn(function()
+    while task.wait(1) do
+        local timeInSeconds = math.floor(workspace.DistributedGameTime)
+        local hours = math.floor(timeInSeconds / 3600)
+        local minutes = math.floor((timeInSeconds % 3600) / 60)
+        local seconds = timeInSeconds % 60
+        ServerUptime:SetDesc(string.format("Uptime: %02d:%02d:%02d", hours, minutes, seconds))
+    end
+end)
+
+LeviathanStatus = v484:AddParagraph({
+    Title = "Leviathan",
+    Desc = "Status: Loading..."
+})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
+                LeviathanStatus:SetDesc("Status : ✅️ Spawning")
+            else
+                LeviathanStatus:SetDesc("Status : ❌️ Not Spawned")
+            end
+        end)
+    end
+end)
+
+TyrantStatus = v484:AddParagraph({
     Title = "Tyrant of the Skies",
     Desc = "Status: "
 })
@@ -12155,7 +11823,7 @@ spawn(function()
         end
     end)
 end)
-CheckRip = v499:AddParagraph({
+CheckRip = v484:AddParagraph({
     Title = "Rip_Indra",
     Desc = "Status: "
 })
@@ -12171,7 +11839,7 @@ spawn(function()
         end)
     end
 end)
-CheckDoughKing = v499:AddParagraph({
+CheckDoughKing = v484:AddParagraph({
     Title = "Dough King",
     Desc = "Status: "
 })
@@ -12187,7 +11855,7 @@ spawn(function()
         end)
     end
 end)
-EliteHunter = v499:AddParagraph({
+EliteHunter = v484:AddParagraph({
     Title = "Elite Hunter",
     Desc = "Status: "
 })
@@ -12206,7 +11874,7 @@ spawn(function()
         end)
     end
 end)
-Pullever = v499:AddParagraph({
+Pullever = v484:AddParagraph({
     Title = "Pull Lever",
     Desc = "Status: "
 })
@@ -12221,7 +11889,7 @@ spawn(function()
         end)
     end
 end)
-FM = v499:AddParagraph({
+FM = v484:AddParagraph({
     Title = "Full Moon",
     Desc = ""
 })
@@ -12245,7 +11913,7 @@ spawn(function()
         end)
     end
 end)
-LegendarySword = v499:AddParagraph({
+LegendarySword = v484:AddParagraph({
     Title = "Legendary Sword",
     Desc = "Status: "
 })
@@ -12265,7 +11933,7 @@ spawn(function()
         end
     end)
 end)
-Bone = v499:AddParagraph({
+Bone = v484:AddParagraph({
     Title = "Bone",
     Desc = ""
 })
@@ -13015,42 +12683,6 @@ FlowerESPManager:SetEspColor(function(Flower)
 end)
 
 
---[[ AimBot controls disabled during investigation.
-v494:AddSection({"Aim"})
-
-v494:AddToggle({
-    Name = "AimBot Gun",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Gun = v
-    end
-})
-
-v494:AddToggle({
-    Name = "AimBot Tap",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Tap = v
-    end
-})
-
-v494:AddToggle({
-    Name = "AimBot Skills",
-    Default = false,
-    Callback = function(v)
-        _G.AimBot_Skills = v
-    end
-})
-
-v494:AddToggle({
-    Name = "Ignore Mobs",
-    Default = true,
-    Callback = function(v)
-        Settings.NoAimMobs = v
-    end
-})
-]]
-
 v494:AddSection({"ESP"})
 v494:AddSlider({
 	Name = "ESP Size",
@@ -13144,6 +12776,40 @@ v494:AddToggle({
     Default = false,
     Callback = function(v)
         IslandsESP.Enabled = v
+    end
+})
+
+v494:AddSection({"Aim"})
+
+v494:AddToggle({
+    Name = "Aim Gun",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Gun = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Aim Tap",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Tap = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Aim Skills",
+    Default = false,
+    Callback = function(v)
+        _ENV.AimBot_Skills = v
+    end
+})
+
+v494:AddToggle({
+    Name = "Ignore Mobs",
+    Default = true,
+    Callback = function(v)
+        Settings.NoAimMobs = v
     end
 })
 
@@ -14908,10 +14574,37 @@ v496:AddToggle({
 
 v496:AddToggle({
     Title = "Smooth Mode",
-    Description = "Reduces calculation speed to improve FPS",
+    Description = "Reduces calculation speed and optimizes graphics to improve FPS",
     Default = false,
     Callback = function(v)
-       Settings.SmoothMode = v
+        Settings.SmoothMode = v
+        if v then
+            pcall(function()
+                settings().Rendering.QualityLevel = 1
+                local lighting = game:GetService("Lighting")
+                lighting.GlobalShadows = false
+                for _, effect in pairs(lighting:GetChildren()) do
+                    if effect:IsA("PostEffect") or effect:IsA("BlurEffect") or effect:IsA("BloomEffect") then
+                        effect.Enabled = false
+                    end
+                end
+                for _, part in pairs(workspace:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Material = Enum.Material.SmoothPlastic
+                        part.Reflectance = 0
+                    elseif part:IsA("Decal") or part:IsA("Texture") then
+                        part.Transparency = 1
+                    end
+                end
+                local terrain = workspace:FindFirstChildWhichIsA("Terrain")
+                if terrain then
+                    terrain.WaterWaveSize = 0
+                    terrain.WaterWaveSpeed = 0
+                    terrain.WaterReflectance = 0
+                    terrain.WaterTransparency = 0
+                end
+            end)
+        end
     end
 })
 
@@ -14942,6 +14635,8 @@ end)
 
 
 v1218 = {
+    "EASTEREXP",
+    "1LOSTADMIN ",
     "NOMOREHACK",
     "BANEXPLOIT",
     "WildDares",
@@ -15223,7 +14918,7 @@ spawn(function()
     while task.wait() do
         pcall(function()
             if type(CheckQuest) == "function" then CheckQuest() end
-            for _, mob in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+            for _, mob in ipairs(SortedFarmTargets()) do
                 if StartBring
                 and (mob.Name == MonFarm or mob.Name == Mon)
                 and mob:FindFirstChild("Humanoid")
