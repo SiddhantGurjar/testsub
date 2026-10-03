@@ -3698,7 +3698,7 @@ function CancelTween23()
 end
 
 _G.FarmDistance = _G.FarmDistance or 10
-_G.FarmHeight = _G.FarmHeight or 10
+_G.FarmHeight = _G.FarmHeight or 20
 _G.OrbitSpeed = _G.OrbitSpeed or 4
 _G.StarIndex = _G.StarIndex or 1
 _G.StarDelay = _G.StarDelay or 0.50
