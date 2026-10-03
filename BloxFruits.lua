@@ -4658,6 +4658,29 @@ end
 _G.NoDamageTimeout = _G.NoDamageTimeout or 2
 _G.StalledMobRetryDelay = _G.StalledMobRetryDelay or 1
 
+-- Preserve the selected farm height. If a healthy NPC receives no M1 damage,
+-- refresh physical hit contact for one Heartbeat before retrying it.
+local function RefreshFarmM1Contact(mob, farmHeight)
+    local character = game:GetService("Players").LocalPlayer.Character
+    local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
+    local targetRoot = mob and mob:FindFirstChild("HumanoidRootPart")
+    if not playerRoot or not targetRoot then return false end
+
+    local height = farmHeight or _G.FarmHeight or 10
+    local wasAnchored = playerRoot.Anchored
+    playerRoot.Anchored = false
+    playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, height - 3, 0)
+    game:GetService("RunService").Heartbeat:Wait()
+
+    if mob.Parent and targetRoot.Parent and playerRoot.Parent then
+        playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, height, 0)
+        playerRoot.Anchored = wasAnchored
+        return true
+    end
+    playerRoot.Anchored = wasAnchored
+    return false
+end
+
 local function SortedFarmTargets()
     local targets = game:GetService("Workspace").Enemies:GetChildren()
     local playerRoot = HRP()
@@ -4797,6 +4820,7 @@ spawn(function()
                                     local startTime = os.time()
                                     local lastHealth = mob.Humanoid.Health
                                     local lastHealthTime = os.time()
+                                    local m1ContactRecovered = false
                                     repeat
                                         task.wait()
                                         -- Break if player is dead (prevents acting at respawn)
@@ -4811,10 +4835,16 @@ spawn(function()
                                             lastHealth = mob.Humanoid.Health
                                             lastHealthTime = now
                                         elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                            if not m1ContactRecovered and RefreshFarmM1Contact(mob) then
+                                                m1ContactRecovered = true
+                                                lastHealth = mob.Humanoid.Health
+                                                lastHealthTime = os.time()
+                                            else
                                             _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
                                             _G.StalledMobs[mob] = os.clock() + _G.StalledMobRetryDelay
                                             StartBring = false
                                             break
+                                            end
                                         end
 
                                         local targetTool = getToolToEquip(mob)
@@ -4883,6 +4913,7 @@ spawn(function()
                                                 local startTime = os.time()
                                                 local lastHealth = v512.Humanoid.Health
                                                 local lastHealthTime = os.time()
+                                                local m1ContactRecovered = false
                                                 repeat
                                                     task.wait()
                                                     -- Break if player is dead (prevents acting at respawn)
@@ -4897,10 +4928,16 @@ spawn(function()
                                                         lastHealth = v512.Humanoid.Health
                                                         lastHealthTime = now
                                                     elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                                        if not m1ContactRecovered and RefreshFarmM1Contact(v512) then
+                                                            m1ContactRecovered = true
+                                                            lastHealth = v512.Humanoid.Health
+                                                            lastHealthTime = os.time()
+                                                        else
                                                         _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
                                                         _G.StalledMobs[v512] = os.clock() + _G.StalledMobRetryDelay
                                                         StartBring = false
                                                         break
+                                                        end
                                                     end
 
                                                     local targetTool = getToolToEquip(v512)
@@ -4950,6 +4987,7 @@ spawn(function()
                                                 local startTime = os.time()
                                                 local lastHealth = v514.Humanoid.Health
                                                 local lastHealthTime = os.time()
+                                                local m1ContactRecovered = false
                                                 repeat
                                                     task.wait()
                                                     -- Break if player is dead (prevents acting at respawn)
@@ -4964,10 +5002,16 @@ spawn(function()
                                                         lastHealth = v514.Humanoid.Health
                                                         lastHealthTime = now
                                                     elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                                        if not m1ContactRecovered and RefreshFarmM1Contact(v514) then
+                                                            m1ContactRecovered = true
+                                                            lastHealth = v514.Humanoid.Health
+                                                            lastHealthTime = os.time()
+                                                        else
                                                         _G.StalledMobs = _G.StalledMobs or setmetatable({}, {__mode = "k"})
                                                         _G.StalledMobs[v514] = os.clock() + _G.StalledMobRetryDelay
                                                         StartBring = false
                                                         break
+                                                        end
                                                     end
 
                                                     local targetTool = getToolToEquip(v514)
@@ -5147,8 +5191,25 @@ spawn(function()
             pcall(function()
                 for _, v522 in pairs(game.Workspace.Enemies:GetChildren()) do
                     if v522:FindFirstChild("Humanoid") and v522:FindFirstChild("HumanoidRootPart") and v522.Humanoid.Health > 0 and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v522.HumanoidRootPart.Position).Magnitude <= 5000 then
+                        local lastHealth = v522.Humanoid.Health
+                        local lastHealthTime = os.time()
+                        local m1ContactRecovered = false
                         repeat
                             wait(_G.Fast_Delay)
+                            local now = os.time()
+                            if v522.Humanoid.Health < lastHealth then
+                                lastHealth = v522.Humanoid.Health
+                                lastHealthTime = now
+                            elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                if not m1ContactRecovered and RefreshFarmM1Contact(v522) then
+                                    m1ContactRecovered = true
+                                    lastHealth = v522.Humanoid.Health
+                                    lastHealthTime = os.time()
+                                else
+                                    StartBring = false
+                                    break
+                                end
+                            end
                             StartBring = true
                             AutoHaki()
                             local targetTool = getToolToEquip(v522)
@@ -5343,8 +5404,25 @@ spawn(function()
                     else
                         for _, v598 in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                             if (v598.Name == "Reborn Skeleton" or v598.Name == "Living Zombie" or v598.Name == "Demonic Soul" or v598.Name == "Posessed Mummy") and v598:FindFirstChild("Humanoid") and v598:FindFirstChild("HumanoidRootPart") and v598.Humanoid.Health > 0 then
+                                local lastHealth = v598.Humanoid.Health
+                                local lastHealthTime = os.time()
+                                local m1ContactRecovered = false
                                 repeat
                                     task.wait()
+                                    local now = os.time()
+                                    if v598.Humanoid.Health < lastHealth then
+                                        lastHealth = v598.Humanoid.Health
+                                        lastHealthTime = now
+                                    elseif now - lastHealthTime > _G.NoDamageTimeout then
+                                        if not m1ContactRecovered and RefreshFarmM1Contact(v598, 10) then
+                                            m1ContactRecovered = true
+                                            lastHealth = v598.Humanoid.Health
+                                            lastHealthTime = os.time()
+                                        else
+                                            StartBring = false
+                                            break
+                                        end
+                                    end
                                     AutoHaki()
                                     NoAttackAnimation = true
                                     NeedAttacking = true
