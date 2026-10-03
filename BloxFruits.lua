@@ -13986,10 +13986,9 @@ v496:AddSlider({
 })
 v496:AddSlider({
     Name = "Farm Height",
-    Description = "Change height to hit with M1 (Default: 10)",
     Min = 0,
     Max = 20,
-    Default = 10,
+    Default = 20,
     Callback = function(value)
         _G.FarmHeight = value
     end
